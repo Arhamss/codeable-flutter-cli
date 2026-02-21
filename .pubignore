@@ -1,0 +1,7 @@
+test_app/
+.github/
+coverage_badge.svg
+.dart_tool/
+.idea/
+*.iml
+.vscode/

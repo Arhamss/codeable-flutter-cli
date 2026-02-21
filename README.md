@@ -33,13 +33,55 @@ You get a project that's structured exactly like a production app from day one:
 
 ---
 
+## Prerequisites
+
+Before installing Codeable CLI, make sure you have:
+
+- [Dart SDK](https://dart.dev/get-dart) >= 3.0
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) >= 3.0
+- [Java/JDK](https://adoptium.net/) >= 17 (required for Android keystore generation)
+
+---
+
 ## Installation
+
+### Activate from pub.dev
 
 ```bash
 dart pub global activate codeable_cli
 ```
 
-Make sure `~/.pub-cache/bin` is in your PATH.
+### Activate a specific version
+
+```bash
+dart pub global activate codeable_cli 1.0.0
+```
+
+### Or run without activating
+
+If you prefer not to globally activate (e.g., in CI), you can run commands directly:
+
+```bash
+dart pub global run codeable_cli:codeable_cli <command> <args>
+```
+
+### Verify installation
+
+```bash
+codeable_cli --help
+```
+
+> **Note:** If `codeable_cli` is not found after activation, make sure `~/.pub-cache/bin` is in your system PATH:
+>
+> ```bash
+> # macOS / Linux — add to ~/.zshrc or ~/.bashrc
+> export PATH="$PATH":"$HOME/.pub-cache/bin"
+>
+> # Windows — add to your system environment variables
+> # %LOCALAPPDATA%\Pub\Cache\bin
+> ```
+>
+> After adding, restart your terminal or run `source ~/.zshrc`.
 
 ---
 
@@ -57,6 +99,19 @@ flutter run --flavor development -t lib/main_development.dart
 ```
 
 That's it. Your project is ready with the full architecture, all dependencies installed, and the keystore generated.
+
+### Generate a new feature
+
+```bash
+codeable_cli feature profile
+```
+
+### Verify everything works
+
+```bash
+flutter analyze   # Should show zero errors
+flutter test      # Run tests
+```
 
 ---
 
