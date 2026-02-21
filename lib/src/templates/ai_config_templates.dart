@@ -106,8 +106,8 @@ Reusable components available through `exports.dart`:
 - `CustomDropdown` - Dropdown selector
 - `SearchableDropdown` - Searchable dropdown with filtering
 - `CustomSlidingTab` / `SlidingTab` - Tab bar widgets
-- `SectionTitle` - Section header with optional "See All"
-- `ConfirmationDialog` - Confirmation dialog
+- `CustomSectionTitle` - Section header with optional "See All"
+- `CustomConfirmationDialog` - Confirmation dialog
 - `CustomBottomSheet` - Bottom sheet wrapper
 - `PaginatedListView` / `PaginatedGridView` - Paginated scrollable lists
 
@@ -202,7 +202,7 @@ Each feature lives in `lib/features/<name>/` with:
 Prefer using existing core widgets from `lib/utils/widgets/core_widgets/`:
 - CustomAppBar, CustomButton, CustomOutlineButton, CustomTextField
 - CustomSearchField, CustomDropdown, SearchableDropdown
-- SectionTitle, ConfirmationDialog, CustomBottomSheet
+- CustomSectionTitle, CustomConfirmationDialog, CustomBottomSheet
 - PaginatedListView, PaginatedGridView
 
 ### DI Registration

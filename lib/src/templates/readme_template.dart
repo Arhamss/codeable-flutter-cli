@@ -88,6 +88,7 @@ cd ios && pod install && cd ..
 
 ```
 {{project_name}}/
+├── .run/                        ← Android Studio run configs (Dev/Staging/Prod)
 ├── android/                     ← Android platform project
 ├── ios/                         ← iOS platform project
 ├── firebase/                    ← Firebase config files per flavor
@@ -261,39 +262,61 @@ Then archive and distribute via Xcode or CI/CD.
 Use the Codeable CLI to scaffold new features with the correct architecture:
 
 ```bash
-codeable_cli feature <feature_name>
+codeable_cli feature <feature_name> [--role <role>]
 ```
 
 For example:
 
 ```bash
+# Basic feature
 codeable_cli feature profile
+
+# Role-based feature
+codeable_cli feature home --role customer
 ```
 
-This generates:
+**Basic feature** generates:
 
 ```
 lib/features/profile/
 ├── data/
-│   ├── models/
-│   └── repository/
-│       └── profile_repository_impl.dart
+│   ├── models/profile_model.dart
+│   └── repository/profile_repository_impl.dart
 ├── domain/
-│   └── repository/
-│       └── profile_repository.dart
+│   └── repository/profile_repository.dart
 └── presentation/
     ├── cubit/
     │   ├── cubit.dart
     │   └── state.dart
-    ├── views/
-    │   └── profile_screen.dart
+    ├── views/profile_screen.dart
     └── widgets/
 ```
 
-After generating, remember to:
-1. Register the Cubit in [`lib/app/view/app_page.dart`](lib/app/view/app_page.dart)
-2. Add routes in [`lib/go_router/router.dart`](lib/go_router/router.dart) and [`lib/go_router/routes.dart`](lib/go_router/routes.dart)
-3. Register the repository in [`lib/core/di/modules/app_modules.dart`](lib/core/di/modules/app_modules.dart)
+**Role-based feature** (`--role customer`) generates:
+
+```
+lib/features/customer/home/
+├── data/
+│   ├── models/customer_home_model.dart
+│   └── repository/customer_home_repository_impl.dart
+├── domain/
+│   └── repository/customer_home_repository.dart
+└── presentation/
+    ├── cubit/
+    │   ├── cubit.dart
+    │   └── state.dart
+    ├── views/customer_home_screen.dart
+    └── widgets/
+```
+
+With `--role`, all file names, class names, and routes are prefixed with the role (e.g., `CustomerHomeScreen`, route `/customer-home`).
+
+**Everything is auto-wired** — cubit registered in `app_page.dart`, route added to `go_router`, route constants created. Navigate with:
+```dart
+context.goNamed(AppRouteNames.profileScreen);
+// or for role-based:
+context.goNamed(AppRouteNames.customerHomeScreen);
+```
 
 ---
 

@@ -3,8 +3,8 @@ import 'package:{{project_name}}/exports.dart';
 
 /// Universal round, fixed-size back button for app bars.
 /// White circle with black arrow so it stands out from the background.
-class AppBarBackButton extends StatelessWidget {
-  const AppBarBackButton({
+class CustomBackButton extends StatelessWidget {
+  const CustomBackButton({
     super.key,
     this.onPressed,
   });
@@ -13,7 +13,7 @@ class AppBarBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppBarCircleButton(
+    return CustomCircleButton(
       icon: SvgPicture.asset(
         AssetPaths.arrowLeftIcon,
         colorFilter: const ColorFilter.mode(
@@ -29,8 +29,8 @@ class AppBarBackButton extends StatelessWidget {
 
 /// Universal round, fixed-size circle button for app bar leading/actions.
 /// Same size ([40]) everywhere for consistency.
-class AppBarCircleButton extends StatelessWidget {
-  const AppBarCircleButton({
+class CustomCircleButton extends StatelessWidget {
+  const CustomCircleButton({
     required this.icon,
     required this.onPressed,
     super.key,
@@ -65,7 +65,7 @@ class AppBarCircleButton extends StatelessWidget {
   }
 }
 
-/// Standard padding for app bar leading (wraps [AppBarBackButton] / [AppBarCircleButton]).
+/// Standard padding for app bar leading (wraps [CustomBackButton] / [CustomCircleButton]).
 const EdgeInsets _appBarLeadingPadding = EdgeInsets.only(
   left: 16,
   bottom: 8,
@@ -97,7 +97,7 @@ PreferredSizeWidget customAppBar({
         ? (leading ??
             Padding(
               padding: _appBarLeadingPadding,
-              child: AppBarBackButton(onPressed: onBackPressed),
+              child: CustomBackButton(onPressed: onBackPressed),
             ))
         : null,
     title: titleWidget ??
@@ -367,8 +367,8 @@ class CustomBottomSheet extends StatelessWidget {
 const String bulletPointItemTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
-class BulletPointItem extends StatelessWidget {
-  const BulletPointItem({
+class CustomBulletPointItem extends StatelessWidget {
+  const CustomBulletPointItem({
     required this.text,
     super.key,
     this.textStyle,
@@ -602,7 +602,7 @@ class CustomButton extends StatelessWidget {
             ? SizedBox(
                 height: 23,
                 width: 23,
-                child: LoadingWidget(color: textColor),
+                child: CustomLoadingWidget(color: textColor),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -899,8 +899,8 @@ class CustomChip extends StatelessWidget {
 const String confirmationDialogTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
-class ConfirmationDialog extends StatelessWidget {
-  const ConfirmationDialog({
+class CustomConfirmationDialog extends StatelessWidget {
+  const CustomConfirmationDialog({
     required this.title,
     required this.subtitle,
     required this.confirmButtonText,
@@ -1028,7 +1028,7 @@ class ConfirmationDialog extends StatelessWidget {
   }
 }
 
-class ConfirmationDialogHelper {
+class CustomConfirmationDialogHelper {
   static void show({
     required BuildContext context,
     required String title,
@@ -1045,7 +1045,7 @@ class ConfirmationDialogHelper {
       context: context,
       barrierDismissible: !isLoading,
       barrierColor: AppColors.blackPrimary.withValues(alpha: 0.6),
-      builder: (context) => ConfirmationDialog(
+      builder: (context) => CustomConfirmationDialog(
         title: title,
         subtitle: subtitle,
         confirmButtonText: confirmButtonText,
@@ -1789,15 +1789,15 @@ const String datePickerTemplate = '''
 import 'package:flutter/cupertino.dart';
 import 'package:{{project_name}}/exports.dart';
 
-enum RMBDatePickerMode {
+enum CustomInlineDatePickerMode {
   past, // Can't pick dates after now
   future, // Can't pick dates before now
 }
 
-class RMBDatePicker extends StatefulWidget {
-  const RMBDatePicker({
+class CustomInlineDatePicker extends StatefulWidget {
+  const CustomInlineDatePicker({
     required this.onDateSelected,
-    this.mode = RMBDatePickerMode.past,
+    this.mode = CustomInlineDatePickerMode.past,
     super.key,
     this.firstDate,
     this.lastDate,
@@ -1805,23 +1805,23 @@ class RMBDatePicker extends StatefulWidget {
   });
 
   final dynamic Function(DateTime) onDateSelected;
-  final RMBDatePickerMode mode;
+  final CustomInlineDatePickerMode mode;
   final DateTime? firstDate;
   final DateTime? lastDate;
   final DateTime? initialDate;
 
   @override
-  State<RMBDatePicker> createState() => _RMBDatePickerState();
+  State<CustomInlineDatePicker> createState() => _CustomInlineDatePickerState();
 }
 
-class _RMBDatePickerState extends State<RMBDatePicker> {
+class _CustomInlineDatePickerState extends State<CustomInlineDatePicker> {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final firstDate = widget.mode == RMBDatePickerMode.past
+    final firstDate = widget.mode == CustomInlineDatePickerMode.past
         ? widget.firstDate ?? DateTime(1900)
         : now;
-    final lastDate = widget.mode == RMBDatePickerMode.past
+    final lastDate = widget.mode == CustomInlineDatePickerMode.past
         ? now
         : widget.lastDate ?? DateTime(2100);
 
@@ -1847,943 +1847,11 @@ class _RMBDatePickerState extends State<RMBDatePicker> {
 }
 ''';
 
-const String dialogTemplate = '''
-// import 'dart:io';
-
-// import 'package:rentmebeach/core/permissions/permission_manager.dart';
-// import 'package:rentmebeach/exports.dart';
-
-// class CustomDialog {
-//   static void showOpenSettingsDialog({
-//     required BuildContext context,
-//     required String title,
-//   }) {
-//     showAdaptiveDialog<dynamic>(
-//       context: context,
-//       builder: (context) {
-//         return AlertDialog(
-//           backgroundColor: AppColors.white,
-//           title: Text(
-//             title,
-//             style: context.b1,
-//             textAlign: TextAlign.center,
-//           ),
-//           actions: [
-//             rentmebeachButton(
-//               text: 'Open Settings',
-//               onPressed: () async {
-//                 await PermissionManager.openAppSettingsPage();
-//               },
-//               isLoading: false,
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-
-//   static void showLogoutDialog({
-//     required BuildContext context,
-//     required String title,
-//     required String message,
-//     required String confirmText,
-//     required VoidCallback onConfirm,
-//   }) {
-//     showDialog<dynamic>(
-//       context: context,
-//       barrierColor: AppColors.black.withValues(alpha: 0.7),
-//       builder: (context) {
-//         return AlertDialog(
-//           insetPadding: const EdgeInsets.all(22),
-//           actionsPadding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 16),
-//           contentPadding: const EdgeInsetsDirectional.all(16),
-//           titlePadding: const EdgeInsetsDirectional.only(top: 16),
-//           buttonPadding: const EdgeInsetsDirectional.all(0),
-//           shape: RoundedRectangleBorder(
-//             borderRadius: BorderRadius.circular(16),
-//           ),
-//           backgroundColor: AppColors.white,
-//           title: Text(
-//             title,
-//             style: context.h2.copyWith(
-//               fontWeight: FontWeight.w800,
-//               fontSize: 22,
-//               color: AppColors.textPrimary,
-//             ),
-//             textAlign: TextAlign.center,
-//           ),
-//           content: Text(
-//             message,
-//             style: context.b1.copyWith(
-//               color: AppColors.textPrimary,
-//               fontSize: 18,
-//               fontWeight: FontWeight.w600,
-//             ),
-//             textAlign: TextAlign.center,
-//           ),
-//           actionsAlignment: MainAxisAlignment.center,
-//           actions: [
-//             // Confirm Button
-//             rentmebeachButton(
-//               textStyle: context.b2.copyWith(
-//                 color: AppColors.white,
-//                 fontSize: 16,
-//                 fontWeight: FontWeight.w700,
-//               ),
-//               text: confirmText,
-//               onPressed: () {
-//                 onConfirm();
-//               },
-//               backgroundColor: AppColors.activeDetailsProgressBar,
-//               isLoading: false,
-//             ),
-//             const SizedBox(height: 8),
-//           ],
-//         );
-//       },
-//     );
-//   }
-
-//   static void showLoadingDialog({
-//     required BuildContext context,
-//   }) {
-//     showDialog<dynamic>(
-//       context: context,
-//       barrierColor: AppColors.black.withValues(alpha: 0.7),
-//       builder: (context) {
-//         return const PopScope(
-//           canPop: false,
-//           child: Center(
-//             child: LoadingWidget(),
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   static void showPermissionDialog({
-//     required BuildContext context,
-//     required String title,
-//     required String message,
-//   }) {
-//     showDialog<dynamic>(
-//       barrierDismissible: false,
-//       context: context,
-//       builder: (context) => AlertDialog(
-//         title: Text(title),
-//         content: Text(message),
-//       ),
-//     );
-//   }
-
-//   static void showFullImage({
-//     required BuildContext context,
-//     required File imageFile,
-//   }) {
-//     showDialog<dynamic>(
-//       context: context,
-//       barrierColor: AppColors.black.withValues(alpha: 0.7),
-//       builder: (context) {
-//         return Stack(
-//           children: [
-//             Image.file(
-//               imageFile,
-//               width: MediaQuery.sizeOf(context).width,
-//               height: MediaQuery.sizeOf(context).height,
-//               fit: BoxFit.fitWidth,
-//             ),
-//             Positioned(
-//               top: 10,
-//               right: 10,
-//               child: GestureDetector(
-//                 onTap: context.pop,
-//                 child: const Icon(
-//                   Icons.highlight_remove,
-//                   size: 45,
-//                   color: Colors.red,
-//                 ),
-//               ),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-
-//   static void showConfirmationDialog({
-//     required BuildContext context,
-//     required String title,
-//     required String message,
-//     required String confirmText,
-//     required VoidCallback onConfirm,
-//     String cancelText = 'Cancel',
-//   }) {
-//     showDialog<dynamic>(
-//       context: context,
-//       barrierColor: AppColors.black.withValues(alpha: 0.7),
-//       builder: (context) {
-//         return AlertDialog(
-//           shape: RoundedRectangleBorder(
-//             borderRadius: BorderRadius.circular(16),
-//           ),
-//           backgroundColor: Colors.white,
-//           title: Text(
-//             title,
-//             style: context.h2.copyWith(
-//               fontWeight: FontWeight.w600,
-//               color: AppColors.black,
-//             ),
-//             textAlign: TextAlign.center,
-//           ),
-//           content: Text(
-//             message,
-//             style: context.b1.copyWith(
-//               color: AppColors.textSecondary,
-//             ),
-//             textAlign: TextAlign.center,
-//           ),
-//           actionsAlignment: MainAxisAlignment.center,
-//           actions: [
-//             // Confirm Button
-//             rentmebeachButton(
-//               text: confirmText,
-//               onPressed: () {
-//                 Navigator.pop(context); // Close the dialog
-//                 onConfirm(); // Execute the confirm action
-//               },
-//               backgroundColor: Colors.redAccent,
-//               isLoading: false,
-//             ),
-//             const SizedBox(height: 8),
-//             // Cancel Button
-//             TextButton(
-//               onPressed: () {
-//                 Navigator.pop(context); // Close the dialog
-//               },
-//               child: Text(
-//                 cancelText,
-//                 style: context.b2.copyWith(
-//                   color: AppColors.textSecondary,
-//                 ),
-//               ),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-
-//   static void showActionDialog({
-//     required String svgAssetPath,
-//     required BuildContext context,
-//     required String title,
-//     required String message,
-//     required String confirmText,
-//     required VoidCallback onConfirm,
-//     String cancelText = 'Cancel',
-//     bool isLoading = false,
-//     bool isDanger = false,
-//   }) {
-//     showDialog<dynamic>(
-//       context: context,
-//       barrierDismissible: !isLoading,
-//       barrierColor: AppColors.black.withValues(alpha: 0.7),
-//       builder: (context) {
-//         return Dialog(
-//           insetPadding: const EdgeInsets.symmetric(
-//             horizontal: 16,
-//             vertical: 24,
-//           ),
-//           child: Container(
-//             decoration: BoxDecoration(
-//               color: AppColors.white,
-//               borderRadius: BorderRadius.circular(30),
-//             ),
-//             padding: const EdgeInsetsDirectional.fromSTEB(24, 24, 24, 16),
-//             child: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               children: [
-//                 SvgPicture.asset(
-//                   svgAssetPath,
-//                 ),
-//                 const SizedBox(height: 24),
-//                 Text(
-//                   title,
-//                   style: context.h2.copyWith(
-//                     color: AppColors.textPrimary,
-//                     fontWeight: FontWeight.w800,
-//                     fontSize: 22,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 24),
-//                 Text(
-//                   textAlign: TextAlign.center,
-//                   message,
-//                   style: context.b1.copyWith(
-//                     color: AppColors.textSecondary,
-//                     fontWeight: FontWeight.w600,
-//                     fontSize: 16,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 32),
-//                 Flexible(
-//                   child: rentmebeachButton(
-//                     text: confirmText,
-//                     onPressed: isLoading ? null : onConfirm,
-//                     isLoading: isLoading,
-//                     backgroundColor: isDanger
-//                         ? AppColors.redPrimary
-//                         : AppColors.primaryColor,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }
-''';
-
-const String dropdownTemplate = '''
-// import 'dart:developer';
-
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:activ/exports.dart';
-
-// class ActivDropDown extends StatefulWidget {
-//   const ActivDropDown({
-//     required this.labelText,
-//     required this.dataLoader,
-//     required this.displayKey,
-//     required this.controller,
-//     this.initialValue,
-//     this.prefixPath,
-//     this.onSelected,
-//     this.onFieldTap,
-//     this.hintText,
-//     super.key,
-//   });
-
-//   final String? initialValue;
-//   final String labelText;
-//   final Future<List<Map<String, dynamic>>> Function() dataLoader;
-//   final String displayKey;
-//   final void Function(Map<String, dynamic>)? onSelected;
-//   final TextEditingController controller;
-//   final String? prefixPath;
-//   final void Function()? onFieldTap;
-//   final String? hintText;
-
-//   @override
-//   State<ActivDropDown> createState() => _ActivDropDownState();
-// }
-
-// class _ActivDropDownState extends State<ActivDropDown> {
-//   bool _isOpen = false;
-//   List<Map<String, dynamic>>? _cachedData;
-//   List<Map<String, dynamic>> _filteredData = [];
-
-//   bool _isLoading = false;
-//   final TextEditingController _searchController = TextEditingController();
-//   final FocusNode _focusNode = FocusNode();
-//   final ScrollController _scrollController = ScrollController();
-//   bool _valueChanged = false;
-
-//   @override
-//   void initState() {
-//     super.initState();
-
-//     if (widget.initialValue != null) {
-//       widget.controller.text = widget.initialValue!;
-//       _searchController.text = widget.initialValue!;
-//       _valueChanged = false;
-//     }
-
-//     _focusNode.addListener(_onFocusChange);
-//   }
-
-//   @override
-//   void didUpdateWidget(covariant ActivDropDown oldWidget) {
-//     super.didUpdateWidget(oldWidget);
-
-//     if (widget.controller.text != _searchController.text) {
-//       _searchController.text = widget.controller.text;
-//     }
-//   }
-
-//   @override
-//   void dispose() {
-//     _focusNode.dispose();
-//     super.dispose();
-//   }
-
-//   void _onFocusChange() {
-//     setState(() {});
-//   }
-
-//   void _filterData() {
-//     if (_cachedData == null) return;
-//     final query = _searchController.text.toLowerCase();
-
-//     setState(() {
-//       _filteredData = _cachedData!.where((item) {
-//         final value = item[widget.displayKey];
-//         return value is String && value.toLowerCase().contains(query);
-//       }).toList();
-//     });
-//   }
-
-//   Future<void> _loadData() async {
-//     if (_cachedData != null) return;
-
-//     setState(() {
-//       _isLoading = true;
-//     });
-
-//     try {
-//       final data = await widget.dataLoader();
-//       _cachedData = data;
-//       _filteredData = List.from(data);
-//     } catch (e) {
-//       log('Error loading data: \$e');
-//     } finally {
-//       setState(() {
-//         _isLoading = false;
-//       });
-//     }
-//   }
-
-//   void _selectItem(Map<String, dynamic> item) {
-//     setState(() {
-//       widget.controller.text = item[widget.displayKey] as String;
-//       _searchController.text = item[widget.displayKey] as String;
-//       _isOpen = false;
-//       _valueChanged = true;
-//     });
-//     if (widget.onSelected != null) {
-//       widget.onSelected!(item);
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final hasText = widget.controller.text.isNotEmpty;
-//     final isFocused = _focusNode.hasFocus;
-//     final setEnabledColor = isFocused || hasText;
-
-//     final borderColor =
-//         _valueChanged ? AppColors.primaryBlue : AppColors.disabled;
-
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           widget.labelText,
-//           style: context.b1.copyWith(
-//             fontWeight: FontWeight.w500,
-//           ),
-//         ),
-//         const SizedBox(height: 8),
-//         GestureDetector(
-//           onTap: () async {
-//             setState(() {
-//               _isOpen = !_isOpen;
-//             });
-//             if (_isOpen) {
-//               _focusNode.requestFocus();
-//               await _loadData();
-//             } else {
-//               _focusNode.unfocus();
-//               _searchController.clear();
-//             }
-//           },
-//           child: Container(
-//             height: _isOpen ? 250 : 50,
-//             decoration: BoxDecoration(
-//               color: _isOpen ? AppColors.white : AppColors.greyShade5,
-//               borderRadius: BorderRadius.circular(16),
-//               border: _isOpen
-//                   ? Border.all(
-//                       color: setEnabledColor ? borderColor : AppColors.disabled,
-//                     )
-//                   : null,
-//             ),
-//             child: Padding(
-//               padding: const EdgeInsetsDirectional.symmetric(horizontal: 12),
-//               child: Column(
-//                 children: [
-//                   Row(
-//                     children: [
-//                       if (widget.prefixPath != null) ...[
-//                         SvgPicture.asset(
-//                           widget.prefixPath ?? '',
-//                           colorFilter: setEnabledColor
-//                               ? const ColorFilter.mode(
-//                                   AppColors.primaryBlue,
-//                                   BlendMode.srcIn,
-//                                 )
-//                               : null,
-//                         ),
-//                       ],
-//                       const SizedBox(width: 8),
-//                       Expanded(
-//                         child: TextField(
-//                           controller: _searchController,
-//                           focusNode: _focusNode,
-//                           cursorWidth: 1,
-//                           decoration: InputDecoration(
-//                             hintText: widget.hintText ?? widget.labelText,
-//                             hintStyle: GoogleFonts.urbanist(
-//                               color: AppColors.disabled,
-//                             ),
-//                             border: InputBorder.none,
-//                             contentPadding: EdgeInsetsDirectional.zero,
-//                           ),
-//                           onChanged: (value) {
-//                             _filterData();
-//                           },
-//                           style: GoogleFonts.urbanist(
-//                             color: AppColors.black,
-//                           ),
-//                           onTap: () async {
-//                             setState(() {
-//                               _isOpen = !_isOpen;
-//                             });
-//                             if (_isOpen) {
-//                               _focusNode.requestFocus();
-//                               await _loadData();
-//                             } else {
-//                               _focusNode.unfocus();
-//                             }
-//                             widget.onFieldTap?.call();
-//                           },
-//                         ),
-//                       ),
-//                       SvgPicture.asset(
-//                         _isOpen
-//                             ? AssetPaths.arrowUpIcon
-//                             : AssetPaths.arrowDownIcon,
-//                         colorFilter: setEnabledColor
-//                             ? const ColorFilter.mode(
-//                                 AppColors.primaryBlue,
-//                                 BlendMode.srcIn,
-//                               )
-//                             : null,
-//                       ),
-//                     ],
-//                   ),
-//                   if (_isOpen && _filteredData.isNotEmpty) ...[
-//                     const Divider(
-//                       color: AppColors.textFieldBorder,
-//                       thickness: 1,
-//                       height: 1,
-//                     ),
-//                     if (_isLoading)
-//                       const Padding(
-//                         padding: EdgeInsetsDirectional.only(top: 80),
-//                         child: LoadingWidget(),
-//                       )
-//                     else
-//                       Expanded(
-//                         child: RawScrollbar(
-//                           thumbColor: AppColors.textFieldBorder,
-//                           radius: const Radius.circular(50),
-//                           thumbVisibility: true,
-//                           mainAxisMargin: 8,
-//                           controller: _scrollController,
-//                           child: ListView.builder(
-//                             physics: const AlwaysScrollableScrollPhysics(),
-//                             controller: _scrollController,
-//                             itemCount: _filteredData.length,
-//                             itemBuilder: (context, index) {
-//                               final item = _filteredData[index];
-//                               return DropdownRow(
-//                                 dropdownText: item[widget.displayKey] as String,
-//                                 isSelected: widget.controller.text ==
-//                                     item[widget.displayKey]!,
-//                                 onTap: () {
-//                                   _selectItem(item);
-//                                   _focusNode.unfocus();
-//                                 },
-//                               );
-//                             },
-//                           ),
-//                         ),
-//                       ),
-//                   ],
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
-''';
-
-const String dropdownRowTemplate = '''
-// import 'package:rentmebeach/exports.dart';
-
-// class DropdownRow extends StatelessWidget {
-//   const DropdownRow({
-//     required this.dropdownText,
-//     required this.isSelected,
-//     required this.onTap,
-//     super.key,
-//   });
-
-//   final String dropdownText;
-//   final bool isSelected;
-//   final VoidCallback onTap;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: onTap,
-//       child: Padding(
-//         padding: const EdgeInsetsDirectional.symmetric(vertical: 4),
-//         child: Container(
-//           decoration: BoxDecoration(
-//             color: isSelected
-//                 ? AppColors.primaryColor.withValues(alpha: 0.2)
-//                 : null,
-//             borderRadius: BorderRadius.circular(8),
-//           ),
-//           padding:
-//               const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2),
-//           child: Text(
-//             dropdownText,
-//             style: context.b1.copyWith(
-//               color: isSelected ? AppColors.black : AppColors.disabled,
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-''';
-
-const String dropdownTextfieldTemplate = '''
-// import 'package:rentmebeach/exports.dart';
-
-// class DropdownTextField extends StatefulWidget {
-//   const DropdownTextField({
-//     required this.controller,
-//     required this.options,
-//     this.padding = EdgeInsetsDirectional.zero,
-//     this.labelText,
-//     this.hintText,
-//     this.validator,
-//     this.onChanged,
-//     this.borderRadius,
-//     this.prefixIconPath,
-//     this.maxHeight,
-//     super.key,
-//   });
-
-//   final TextEditingController controller;
-//   final List<String> options;
-//   final EdgeInsetsGeometry padding;
-//   final String? labelText;
-//   final String? hintText;
-//   final String? Function(String?)? validator;
-//   final void Function(String)? onChanged;
-//   final double? borderRadius;
-//   final String? prefixIconPath;
-//   final double? maxHeight;
-
-//   @override
-//   State<DropdownTextField> createState() => _DropdownTextFieldState();
-// }
-
-// class _DropdownTextFieldState extends State<DropdownTextField> {
-//   final FocusNode _focusNode = FocusNode();
-//   String? _errorText;
-//   bool _isMenuOpen = false;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _focusNode.addListener(() {
-//       setState(() {});
-//     });
-//   }
-
-//   @override
-//   void dispose() {
-//     _focusNode.dispose();
-//     super.dispose();
-//   }
-
-//   String? _validate(String? value) {
-//     final error = widget.validator?.call(value);
-//     setState(() {
-//       _errorText = error;
-//     });
-//     return null;
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final borderColor = _errorText != null
-//         ? AppColors.error
-//         : (_focusNode.hasFocus || _isMenuOpen)
-//         ? AppColors.primaryColor
-//         : AppColors.greyShade6;
-
-//     final iconColor = _errorText != null
-//         ? AppColors.error
-//         : (_focusNode.hasFocus || _isMenuOpen)
-//         ? AppColors.primaryColor
-//         : AppColors.secondaryColor;
-
-//     // Create text styles in build method to avoid context issues
-//     final baseTextStyle = context.b2.copyWith(
-//       fontWeight: FontWeight.w700,
-//       fontSize: 14,
-//     );
-
-//     return Padding(
-//       padding: widget.padding,
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           if (widget.labelText != null) ...[
-//             Text(
-//               widget.labelText!,
-//               style: context.t1.copyWith(
-//                 fontSize: 14,
-//                 fontWeight: FontWeight.w800,
-//                 color: AppColors.primaryColor,
-//               ),
-//             ),
-//             const SizedBox(height: 8),
-//           ],
-//           PopupMenuButton<String>(
-//             position: PopupMenuPosition.under,
-//             constraints: BoxConstraints(
-//               minWidth: MediaQuery.of(context).size.width - 48,
-//               maxWidth: MediaQuery.of(context).size.width - 48,
-//             ),
-//             color: AppColors.white,
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(12),
-//               side: const BorderSide(
-//                 color: AppColors.greyShade6,
-//               ),
-//             ),
-//             shadowColor: Colors.black.withValues(alpha: 0.08),
-//             elevation: 8,
-//             onOpened: () {
-//               setState(() => _isMenuOpen = true);
-//               _focusNode.requestFocus();
-//             },
-//             onCanceled: () {
-//               setState(() => _isMenuOpen = false);
-//               _focusNode.unfocus();
-//             },
-//             child: Container(
-//               padding: const EdgeInsetsDirectional.symmetric(
-//                 horizontal: 16,
-//                 vertical: 16,
-//               ),
-//               decoration: BoxDecoration(
-//                 color: AppColors.white,
-//                 borderRadius: BorderRadius.circular(widget.borderRadius ?? 12),
-//                 border: Border.all(color: borderColor),
-//               ),
-//               child: Row(
-//                 children: [
-//                   // Prefix icon
-//                   if (widget.prefixIconPath != null) ...[
-//                     Padding(
-//                       padding: const EdgeInsetsDirectional.only(end: 12),
-//                       child: SvgPicture.asset(
-//                         widget.prefixIconPath!,
-//                         colorFilter: ColorFilter.mode(
-//                           iconColor,
-//                           BlendMode.srcIn,
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-
-//                   // Text content
-//                   Expanded(
-//                     child: Text(
-//                       widget.controller.text.isNotEmpty
-//                           ? widget.controller.text
-//                           : widget.hintText ?? '',
-//                       style: baseTextStyle.copyWith(
-//                         color: widget.controller.text.isNotEmpty
-//                             ? AppColors.textDark
-//                             : AppColors.lightText,
-//                       ),
-//                       overflow: TextOverflow.ellipsis,
-//                     ),
-//                   ),
-
-//                   // Dropdown arrow
-//                   const Padding(
-//                     padding: EdgeInsetsDirectional.only(start: 12),
-//                     child: Icon(
-//                       Icons.keyboard_arrow_down,
-//                       color: AppColors.primaryColor,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//             itemBuilder: (context) => [
-//               // Single PopupMenuItem containing all options
-//               PopupMenuItem<String>(
-//                 enabled: false, // Disable the outer container
-//                 padding: EdgeInsets.zero,
-//                 child: ConstrainedBox(
-//                   constraints: BoxConstraints(
-//                     maxHeight: widget.maxHeight ?? 200,
-//                   ),
-//                   child: IntrinsicHeight(
-//                     child: widget.options.length <= 4
-//                         ? Padding(
-//                             padding: const EdgeInsetsDirectional.symmetric(
-//                               horizontal: 8,
-//                               vertical: 8,
-//                             ),
-//                             child: Column(
-//                               mainAxisSize: MainAxisSize.min,
-//                               children: widget.options.map((option) {
-//                                 final isSelected =
-//                                     widget.controller.text == option;
-//                                 return InkWell(
-//                                   onTap: () {
-//                                     widget.controller.text = option;
-//                                     widget.onChanged?.call(option);
-//                                     _validate(option);
-//                                     setState(() => _isMenuOpen = false);
-//                                     _focusNode.unfocus();
-//                                     Navigator.of(context).pop();
-//                                   },
-//                                   child: Container(
-//                                     width: double.infinity,
-//                                     padding:
-//                                         const EdgeInsetsDirectional.symmetric(
-//                                           horizontal: 16,
-//                                           vertical: 12,
-//                                         ),
-//                                     decoration: isSelected
-//                                         ? BoxDecoration(
-//                                             color: AppColors
-//                                                 .contactUsDropdownSelected,
-//                                             border: Border.all(
-//                                               color: AppColors
-//                                                   .activeDetailsProgressBar,
-//                                             ),
-//                                             borderRadius: BorderRadius.circular(
-//                                               16,
-//                                             ),
-//                                           )
-//                                         : null,
-//                                     child: Text(
-//                                       option,
-//                                       style: baseTextStyle.copyWith(
-//                                         color: isSelected
-//                                             ? AppColors.primaryColor
-//                                             : AppColors.textDark,
-//                                       ),
-//                                       overflow: TextOverflow.ellipsis,
-//                                     ),
-//                                   ),
-//                                 );
-//                               }).toList(),
-//                             ),
-//                           )
-//                         : SingleChildScrollView(
-//                             child: Padding(
-//                               padding: const EdgeInsetsDirectional.symmetric(
-//                                 horizontal: 8,
-//                                 vertical: 8,
-//                               ),
-//                               child: Column(
-//                                 mainAxisSize: MainAxisSize.min,
-//                                 children: widget.options.map((option) {
-//                                   final isSelected =
-//                                       widget.controller.text == option;
-//                                   return InkWell(
-//                                     onTap: () {
-//                                       widget.controller.text = option;
-//                                       widget.onChanged?.call(option);
-//                                       _validate(option);
-//                                       setState(() => _isMenuOpen = false);
-//                                       _focusNode.unfocus();
-//                                       Navigator.of(context).pop();
-//                                     },
-//                                     child: Container(
-//                                       width: double.infinity,
-//                                       padding:
-//                                           const EdgeInsetsDirectional.symmetric(
-//                                             horizontal: 16,
-//                                             vertical: 12,
-//                                           ),
-//                                       decoration: isSelected
-//                                           ? BoxDecoration(
-//                                               color: AppColors
-//                                                   .contactUsDropdownSelected,
-//                                               border: Border.all(
-//                                                 color: AppColors
-//                                                     .activeDetailsProgressBar,
-//                                               ),
-//                                               borderRadius:
-//                                                   BorderRadius.circular(16),
-//                                             )
-//                                           : null,
-//                                       child: Text(
-//                                         option,
-//                                         style: baseTextStyle.copyWith(
-//                                           color: isSelected
-//                                               ? AppColors.primaryColor
-//                                               : AppColors.textDark,
-//                                         ),
-//                                         overflow: TextOverflow.ellipsis,
-//                                       ),
-//                                     ),
-//                                   );
-//                                 }).toList(),
-//                               ),
-//                             ),
-//                           ),
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//           if (_errorText != null) ...[
-//             const SizedBox(height: 6),
-//             Text(
-//               _errorText!,
-//               style: baseTextStyle.copyWith(
-//                 color: AppColors.error,
-//                 fontSize: 13,
-//                 fontWeight: FontWeight.w500,
-//               ),
-//             ),
-//           ],
-//         ],
-//       ),
-//     );
-//   }
-// }
-''';
-
 const String emptyStateWidgetTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
-class EmptyStateWidget extends StatelessWidget {
-  const EmptyStateWidget({
+class CustomEmptyStateWidget extends StatelessWidget {
+  const CustomEmptyStateWidget({
     required this.title,
     this.subtitle,
     this.iconPath,
@@ -2903,18 +1971,12 @@ export 'custom_date_picker.dart';
 export 'custom_dropdown.dart';
 export 'custom_dropdown_cubit.dart';
 export 'date_picker.dart';
-export 'dialog.dart';
-export 'dropdown.dart';
-export 'dropdown_row.dart';
-export 'dropdown_textfield.dart';
 export 'empty_state_widget.dart';
 export 'icon_button.dart';
 export 'image_picker.dart';
 export 'loading_widget.dart';
-export 'notification_tile.dart';
 export 'outline_button.dart';
 export 'paginated_list_view.dart';
-export 'popup_menu_button.dart';
 export 'progress_dashes.dart';
 export 'retry_widget.dart';
 export 'rich_text.dart';
@@ -2929,7 +1991,6 @@ export 'switch.dart';
 export 'text_button.dart';
 export 'text_field.dart';
 export 'time_picker.dart';
-export 'title_row.dart';
 export 'section_title.dart';
 ''';
 
@@ -2971,7 +2032,7 @@ class CustomIconButton extends StatelessWidget {
     final Widget iconButtonWidget = IconButton(
       onPressed: isLoading == true ? null : onPressed,
       icon: isLoading
-          ? const LoadingWidget(size: 18)
+          ? const CustomLoadingWidget(size: 18)
           : icon ?? SvgPicture.asset(AssetPaths.arrowLeftIcon),
       color: iconColor,
       style: IconButton.styleFrom(
@@ -2998,8 +2059,8 @@ import 'dart:io';
 
 import 'package:{{project_name}}/exports.dart';
 
-class RMBImagePicker extends StatelessWidget {
-  const RMBImagePicker({
+class CustomImagePicker extends StatelessWidget {
+  const CustomImagePicker({
     required this.onButtonPressed,
     required this.imagePath,
     super.key,
@@ -3052,8 +2113,8 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:{{project_name}}/exports.dart';
 
-class LoadingWidget extends StatelessWidget {
-  const LoadingWidget({
+class CustomLoadingWidget extends StatelessWidget {
+  const CustomLoadingWidget({
     super.key,
     this.size = 24,
     this.color = AppColors.blackPrimary,
@@ -3080,134 +2141,13 @@ class LoadingWidget extends StatelessWidget {
 }
 ''';
 
-const String notificationTileTemplate = '''
-// import 'package:activ/exports.dart';
-
-// class NotificationTile extends StatelessWidget {
-//   const NotificationTile({
-//     required this.icon,
-//     required this.title,
-//     required this.subtitle,
-//     required this.time,
-//     required this.onTap,
-//     required this.isRead,
-//     super.key,
-//   });
-
-//   final String? icon;
-//   final String title;
-//   final String subtitle;
-//   final String time;
-//   final VoidCallback onTap;
-
-//   final bool isRead;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: onTap,
-//       child: Container(
-//         decoration: BoxDecoration(
-//           color: AppColors.iconBackground,
-//           borderRadius: BorderRadius.circular(16),
-//         ),
-//         padding: EdgeInsetsDirectional.symmetric(
-//           horizontal: MediaQuery.sizeOf(context).width * 0.04,
-//           vertical: MediaQuery.sizeOf(context).height * 0.01,
-//         ),
-//         child: Row(
-//           children: [
-//             Stack(
-//               alignment: Alignment.topRight,
-//               children: [
-//                 Container(
-//                   height: 48,
-//                   width: 48,
-//                   decoration: BoxDecoration(
-//                     color: AppColors.white,
-//                     shape: BoxShape.circle,
-//                     border: Border.all(
-//                       color: AppColors.primaryBlue,
-//                       width: 0.75,
-//                     ),
-//                   ),
-//                   child: Center(
-//                     child: SvgPicture.asset(
-//                       icon ?? AssetPaths.notificationEnabledIcon,
-//                       width: 32,
-//                       height: 32,
-//                     ),
-//                   ),
-//                 ),
-//                 if (!isRead)
-//                   Positioned(
-//                     top: 2,
-//                     right: 2,
-//                     child: Container(
-//                       height: 10,
-//                       width: 10,
-//                       decoration: const BoxDecoration(
-//                         color: AppColors.primaryBlue,
-//                         shape: BoxShape.circle,
-//                       ),
-//                     ),
-//                   ),
-//               ],
-//             ),
-//             const SizedBox(width: 12),
-//             Expanded(
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Text(
-//                     title,
-//                     maxLines: 2,
-//                     overflow: TextOverflow.visible,
-//                     style: context.b1.copyWith(
-//                       fontWeight: FontWeight.w600,
-//                       fontSize: 15,
-//                     ),
-//                   ),
-//                   const SizedBox(height: 8),
-//                   Text(
-//                     subtitle,
-//                     style: context.b2,
-//                   ),
-//                 ],
-//               ),
-//             ),
-//             const SizedBox(width: 12),
-//             Column(
-//               crossAxisAlignment: CrossAxisAlignment.end,
-//               mainAxisAlignment: MainAxisAlignment.spaceAround,
-//               children: [
-//                 Text(
-//                   time,
-//                   style: context.l3.copyWith(
-//                     fontWeight: FontWeight.w600,
-//                     color: AppColors.textNormal,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 24),
-//                 SvgPicture.asset(
-//                   AssetPaths.rightArrowIcon,
-//                 ),
-//               ],
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-''';
 
 const String outlineButtonTemplate = '''
 import 'package:google_fonts/google_fonts.dart';
 import 'package:{{project_name}}/exports.dart';
 
-class RMBOutlineButton extends StatelessWidget {
-  RMBOutlineButton({
+class CustomOutlineButton extends StatelessWidget {
+  CustomOutlineButton({
     required this.text,
     required this.onPressed,
     required this.isLoading,
@@ -3281,7 +2221,7 @@ class RMBOutlineButton extends StatelessWidget {
             ? SizedBox(
                 height: 20,
                 width: 20,
-                child: LoadingWidget(color: loadingColor ?? textColor),
+                child: CustomLoadingWidget(color: loadingColor ?? textColor),
               )
             : Row(
                 mainAxisSize: MainAxisSize.min,
@@ -3397,7 +2337,7 @@ class _PaginatedListViewState<T> extends State<PaginatedListView<T>> {
     return Center(
       child: Padding(
         padding: const EdgeInsetsDirectional.all(24),
-        child: EmptyStateWidget(
+        child: CustomEmptyStateWidget(
           title: widget.emptyTitle,
           subtitle: widget.emptySubtitle,
           iconPath: widget.emptyIcon,
@@ -3408,7 +2348,7 @@ class _PaginatedListViewState<T> extends State<PaginatedListView<T>> {
 
   Widget _buildErrorState() {
     return Center(
-      child: RetryWidget(
+      child: CustomRetryWidget(
         message: widget.errorMessage ?? 'Something went wrong',
         onRetry: widget.onRetry ?? widget.onRefresh,
       ),
@@ -3417,7 +2357,7 @@ class _PaginatedListViewState<T> extends State<PaginatedListView<T>> {
 
   Widget _buildLoadingState() {
     return const Center(
-      child: LoadingWidget(),
+      child: CustomLoadingWidget(),
     );
   }
 
@@ -3443,7 +2383,7 @@ class _PaginatedListViewState<T> extends State<PaginatedListView<T>> {
             return const Center(
               child: Padding(
                 padding: EdgeInsetsDirectional.all(16),
-                child: LoadingWidget(),
+                child: CustomLoadingWidget(),
               ),
             );
           }
@@ -3544,7 +2484,7 @@ class _PaginatedSliverListViewState<T>
             return const Center(
               child: Padding(
                 padding: EdgeInsetsDirectional.all(16),
-                child: LoadingWidget(),
+                child: CustomLoadingWidget(),
               ),
             );
           }
@@ -3632,7 +2572,7 @@ class _PaginatedGridViewState<T> extends State<PaginatedGridView<T>> {
     return Center(
       child: Padding(
         padding: const EdgeInsetsDirectional.all(24),
-        child: EmptyStateWidget(
+        child: CustomEmptyStateWidget(
           title: widget.emptyTitle,
           subtitle: widget.emptySubtitle,
           iconPath: widget.emptyIcon,
@@ -3643,7 +2583,7 @@ class _PaginatedGridViewState<T> extends State<PaginatedGridView<T>> {
 
   Widget _buildErrorState() {
     return Center(
-      child: RetryWidget(
+      child: CustomRetryWidget(
         message: widget.errorMessage ?? 'Something went wrong',
         onRetry: widget.onRetry ?? widget.onRefresh,
       ),
@@ -3652,7 +2592,7 @@ class _PaginatedGridViewState<T> extends State<PaginatedGridView<T>> {
 
   Widget _buildLoadingState() {
     return const Center(
-      child: LoadingWidget(),
+      child: CustomLoadingWidget(),
     );
   }
 
@@ -3679,7 +2619,7 @@ class _PaginatedGridViewState<T> extends State<PaginatedGridView<T>> {
               const Padding(
                 padding: EdgeInsets.all(16),
                 child: Center(
-                  child: LoadingWidget(),
+                  child: CustomLoadingWidget(),
                 ),
               ),
           ],
@@ -3773,7 +2713,7 @@ class _PaginatedSliverGridViewState<T>
             return const Center(
               child: Padding(
                 padding: EdgeInsetsDirectional.all(16),
-                child: LoadingWidget(),
+                child: CustomLoadingWidget(),
               ),
             );
           }
@@ -3789,106 +2729,12 @@ class _PaginatedSliverGridViewState<T>
 }
 ''';
 
-const String popupMenuButtonTemplate = '''
-// import 'package:activ/exports.dart';
-
-// class ActivPopupMenuButton extends StatelessWidget {
-//   const ActivPopupMenuButton({
-//     required this.buttonOneText,
-//     required this.buttonOneOnTap,
-//     super.key,
-//     this.buttonTwoText,
-//     this.buttonTwoOnTap,
-//     this.icon,
-//     this.buttonOneTextStyle,
-//     this.buttonTwoTextStyle,
-//     this.offset = const Offset(0, 40),
-//     this.buttonBackgroundColor = AppColors.iconBackground,
-//   });
-
-//   final String buttonOneText;
-//   final VoidCallback buttonOneOnTap;
-//   final String? buttonTwoText;
-//   final VoidCallback? buttonTwoOnTap;
-//   final Widget? icon;
-//   final TextStyle? buttonOneTextStyle;
-//   final TextStyle? buttonTwoTextStyle;
-//   final Offset offset;
-//   final Color buttonBackgroundColor;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return PopupMenuButton<String>(
-//       clipBehavior: Clip.antiAlias,
-//       enableFeedback: false,
-//       elevation: 2,
-//       style: ButtonStyle(
-//         backgroundColor: WidgetStateProperty.all(buttonBackgroundColor),
-//         minimumSize: WidgetStateProperty.all(Size.zero),
-//         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-//         overlayColor: WidgetStateProperty.all(Colors.transparent),
-//         padding: WidgetStateProperty.all(const EdgeInsetsDirectional.all(12)),
-//         splashFactory: NoSplash.splashFactory,
-//       ),
-//       shape: RoundedRectangleBorder(
-//         borderRadius: BorderRadius.circular(16),
-//       ),
-//       menuPadding: EdgeInsetsDirectional.zero,
-//       padding: EdgeInsetsDirectional.zero,
-//       color: AppColors.white,
-//       onSelected: (value) {
-//         if (value == 'buttonOne') {
-//           buttonOneOnTap();
-//         } else if (value == 'buttonTwo' && buttonTwoOnTap != null) {
-//           buttonTwoOnTap!();
-//         }
-//       },
-//       itemBuilder: (BuildContext context) {
-//         final menuItems = <PopupMenuEntry<String>>[
-//           PopupMenuItem<String>(
-//             height: 40,
-//             value: 'buttonOne',
-//             child: Center(
-//               child: Text(
-//                 buttonOneText,
-//                 style: buttonOneTextStyle ?? context.b2,
-//               ),
-//             ),
-//           ),
-//         ];
-
-//         if (buttonTwoText != null) {
-//           menuItems.add(
-//             PopupMenuItem<String>(
-//               height: 40,
-//               value: 'buttonTwo',
-//               child: Center(
-//                 child: Text(
-//                   buttonTwoText!,
-//                   style: buttonTwoTextStyle ??
-//                       context.b2.copyWith(
-//                         color: AppColors.error,
-//                       ),
-//                 ),
-//               ),
-//             ),
-//           );
-//         }
-
-//         return menuItems;
-//       },
-//       icon: icon ?? SvgPicture.asset(AssetPaths.menuIcon),
-//       offset: offset,
-//     );
-//   }
-// }
-''';
 
 const String progressDashesTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
-class RMBProgressDashes extends StatelessWidget {
-  const RMBProgressDashes({
+class CustomProgressDashes extends StatelessWidget {
+  const CustomProgressDashes({
     required this.totalSteps,
     required this.currentIndex,
     super.key,
@@ -3968,8 +2814,8 @@ class _Dash extends StatelessWidget {
 const String retryWidgetTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
-class RetryWidget extends StatelessWidget {
-  const RetryWidget({
+class CustomRetryWidget extends StatelessWidget {
+  const CustomRetryWidget({
     required this.onRetry,
     required this.message,
     super.key,
@@ -4363,8 +3209,8 @@ class CustomRichText extends StatelessWidget {
 const String searchFieldTemplate = '''
 import 'package:flutter/material.dart';
 
-class ActivSearchField extends StatelessWidget {
-  const ActivSearchField({
+class CustomSearchField extends StatelessWidget {
+  const CustomSearchField({
     required this.controller,
     required this.hintText,
     this.focusNode,
@@ -4831,8 +3677,8 @@ const String sectionTitleTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
 /// Reusable section title widget with consistent styling
-class SectionTitle extends StatelessWidget {
-  const SectionTitle({
+class CustomSectionTitle extends StatelessWidget {
+  const CustomSectionTitle({
     required this.title,
     this.padding,
     this.bottomSpacing,
@@ -4866,13 +3712,13 @@ class SectionTitle extends StatelessWidget {
 }
 ''';
 
-const String shimmerLoadingWidgetTemplate = '''
+const String shimmerCustomLoadingWidgetTemplate = '''
 import 'package:flutter/material.dart';
 import 'package:{{project_name}}/constants/app_colors.dart';
 import 'package:shimmer/shimmer.dart';
 
-class ShimmerLoadingWidget extends StatelessWidget {
-  const ShimmerLoadingWidget({
+class CustomShimmerWidget extends StatelessWidget {
+  const CustomShimmerWidget({
     super.key,
     this.width,
     this.height,
@@ -5370,8 +4216,8 @@ class _SlidingTabState extends State<SlidingTab> {
 const String socialAuthButtonTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
-class SocialAuthButton extends StatelessWidget {
-  const SocialAuthButton({
+class CustomSocialAuthButton extends StatelessWidget {
+  const CustomSocialAuthButton({
     required this.text,
     required this.onPressed,
     this.isLoading = false,
@@ -5406,8 +4252,8 @@ class SocialAuthButton extends StatelessWidget {
 const String stackedImagesWidgetTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
-class RMBStackedImages extends StatelessWidget {
-  const RMBStackedImages({
+class CustomStackedImages extends StatelessWidget {
+  const CustomStackedImages({
     required this.images,
     required this.size,
     required this.maxImages,
@@ -5475,8 +4321,8 @@ class RMBStackedImages extends StatelessWidget {
 const String starRatingWidgetTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
-class StarRatingWidget extends StatelessWidget {
-  const StarRatingWidget({
+class CustomStarRatingWidget extends StatelessWidget {
+  const CustomStarRatingWidget({
     required this.rating,
     this.maxRating = 5,
     this.starSize = 16.0,
@@ -5528,8 +4374,8 @@ class StarRatingWidget extends StatelessWidget {
 const String switchTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
-class RMBSwitch extends StatelessWidget {
-  const RMBSwitch({
+class CustomSwitch extends StatelessWidget {
+  const CustomSwitch({
     required this.switchValue,
     required this.onSwitchChanged,
     this.title,
@@ -6166,7 +5012,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           top: 8,
           bottom: 8,
         ),
-        child: FilterIconWidget(
+        child: CustomFilterIconWidget(
           filterCount: widget.filterCount,
         ),
       ),
@@ -6340,8 +5186,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
 const String tileTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
-class RMBTile extends StatelessWidget {
-  const RMBTile({
+class CustomTile extends StatelessWidget {
+  const CustomTile({
     required this.label,
     super.key,
     this.showIcon = false,
@@ -6393,8 +5239,8 @@ const String timePickerTemplate = '''
 import 'package:flutter/cupertino.dart';
 import 'package:{{project_name}}/exports.dart';
 
-class RMBTimePicker extends StatefulWidget {
-  const RMBTimePicker({
+class CustomTimePicker extends StatefulWidget {
+  const CustomTimePicker({
     required this.onTimeSelected,
     super.key,
     this.initialTime,
@@ -6405,10 +5251,10 @@ class RMBTimePicker extends StatefulWidget {
   final DateTime? initialTime;
 
   @override
-  State<RMBTimePicker> createState() => _RMBTimePickerState();
+  State<CustomTimePicker> createState() => _CustomTimePickerState();
 }
 
-class _RMBTimePickerState extends State<RMBTimePicker> {
+class _CustomTimePickerState extends State<CustomTimePicker> {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
@@ -6425,58 +5271,6 @@ class _RMBTimePickerState extends State<RMBTimePicker> {
 }
 ''';
 
-const String titleRowTemplate = '''
-// import 'package:activ/exports.dart';
-// import 'package:activ/l10n/localization_service.dart';
-// import 'package:activ/utils/widgets/core_widgets/chips.dart';
-
-// class ActivTitleRowWidget extends StatelessWidget {
-//   const ActivTitleRowWidget({
-//     required this.titleText,
-//     this.onTap,
-//     this.buttonText,
-//     this.showButton = true,
-//     super.key,
-//   });
-
-//   final String titleText;
-//   final String? buttonText;
-//   final VoidCallback? onTap;
-//   final bool showButton;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsetsDirectional.symmetric(
-//         vertical: 16,
-//       ),
-//       child: Column(
-//         children: [
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//             children: [
-//               Text(
-//                 titleText,
-//                 style: context.b1.copyWith(
-//                   fontWeight: FontWeight.w700,
-//                 ),
-//               ),
-//               if (showButton)
-//                 ActivChip.secondary(
-//                   text: buttonText ?? Localization.viewAll,
-//                   textStyle: context.b3.copyWith(
-//                     color: AppColors.greenSecondary,
-//                   ),
-//                   onTap: onTap,
-//                 ),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-''';
 
 // --- Extra widget files (referenced by core widgets export) ---
 
@@ -6485,8 +5279,8 @@ import 'dart:ui';
 
 import 'package:{{project_name}}/exports.dart';
 
-class BlurOverlay extends StatelessWidget {
-  const BlurOverlay({
+class CustomBlurOverlay extends StatelessWidget {
+  const CustomBlurOverlay({
     required this.onDismiss,
     super.key,
     this.blurStrength = 6.3,
@@ -6528,8 +5322,8 @@ class BlurOverlay extends StatelessWidget {
 const String filterIconWidgetTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
-class FilterIconWidget extends StatelessWidget {
-  const FilterIconWidget({this.filterCount, this.iconSize = 24.0, super.key});
+class CustomFilterIconWidget extends StatelessWidget {
+  const CustomFilterIconWidget({this.filterCount, this.iconSize = 24.0, super.key});
 
   final int? filterCount;
   final double iconSize;
@@ -6626,7 +5420,7 @@ import 'package:intl/intl.dart';
 /// final dateController = TextEditingController();
 /// final timeController = TextEditingController();
 ///
-/// // After user selects date and time via ActivTextField
+/// // After user selects date and time via CustomTextField
 /// final isoDateTime = DateTimeHelper.combineToIsoString(
 ///   dateController: dateController,
 ///   timeController: timeController,

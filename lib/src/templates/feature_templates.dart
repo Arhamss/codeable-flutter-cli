@@ -17,7 +17,7 @@ const featureRepositoryImplTemplate = '''
 import 'package:{{project_name}}/core/api_service/api_service.dart';
 import 'package:{{project_name}}/core/app_preferences/app_preferences.dart';
 import 'package:{{project_name}}/core/di/injector.dart';
-import 'package:{{project_name}}/features/{{feature_name}}/domain/repository/{{feature_name}}_repository.dart';
+import 'package:{{project_name}}/features/{{feature_path}}/domain/repository/{{feature_name}}_repository.dart';
 
 class {{FeatureName}}RepositoryImpl implements {{FeatureName}}Repository {
   {{FeatureName}}RepositoryImpl({ApiService? apiService, AppPreferences? cache})
@@ -66,8 +66,8 @@ class {{FeatureName}}Model extends Equatable {
 
 const featureCubitTemplate = '''
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:{{project_name}}/features/{{feature_name}}/domain/repository/{{feature_name}}_repository.dart';
-import 'package:{{project_name}}/features/{{feature_name}}/presentation/cubit/state.dart';
+import 'package:{{project_name}}/features/{{feature_path}}/domain/repository/{{feature_name}}_repository.dart';
+import 'package:{{project_name}}/features/{{feature_path}}/presentation/cubit/state.dart';
 
 class {{FeatureName}}Cubit extends Cubit<{{FeatureName}}State> {
   {{FeatureName}}Cubit({required this.repository})
@@ -105,8 +105,8 @@ class {{FeatureName}}State extends Equatable {
 
 const featureScreenTemplate = '''
 import 'package:{{project_name}}/exports.dart';
-import 'package:{{project_name}}/features/{{feature_name}}/presentation/cubit/cubit.dart';
-import 'package:{{project_name}}/features/{{feature_name}}/presentation/cubit/state.dart';
+import 'package:{{project_name}}/features/{{feature_path}}/presentation/cubit/cubit.dart';
+import 'package:{{project_name}}/features/{{feature_path}}/presentation/cubit/state.dart';
 
 class {{FeatureName}}Screen extends StatelessWidget {
   const {{FeatureName}}Screen({super.key});
@@ -228,14 +228,14 @@ class LoginScreen extends StatelessWidget {
                 style: context.b1.copyWith(color: AppColors.textSecondary),
               ),
               const Spacer(),
-              SocialAuthButton(
+              CustomSocialAuthButton(
                 text: 'Sign in with Google',
                 onPressed: () {
                   // TODO: Implement Google sign-in
                 },
               ),
               const SizedBox(height: 16),
-              SocialAuthButton(
+              CustomSocialAuthButton(
                 text: 'Sign in with Apple',
                 onPressed: () {
                   // TODO: Implement Apple sign-in

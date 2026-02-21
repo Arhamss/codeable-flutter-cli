@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:mason_logger/mason_logger.dart';
+import 'package:codeable_cli/src/generators/feature_generator.dart';
 import 'package:codeable_cli/src/generators/keystore_generator.dart';
 import 'package:codeable_cli/src/template_engine.dart';
 import 'package:codeable_cli/src/templates/analysis_options_template.dart';
@@ -18,6 +19,7 @@ import 'package:codeable_cli/src/templates/pubspec_template.dart';
 import 'package:codeable_cli/src/templates/ai_config_templates.dart';
 import 'package:codeable_cli/src/templates/readme_template.dart';
 import 'package:codeable_cli/src/templates/router_templates.dart';
+import 'package:codeable_cli/src/templates/run_config_templates.dart';
 import 'package:codeable_cli/src/templates/utils_templates.dart';
 
 class ProjectGenerator {
@@ -30,6 +32,7 @@ class ProjectGenerator {
     required String orgName,
     required String description,
     required String outputPath,
+    List<String> roles = const [],
   }) async {
     final snakeName = TemplateEngine.toSnakeCase(
       projectName,
@@ -41,10 +44,21 @@ class ProjectGenerator {
       description: description,
     );
 
-    // Also need feature-specific vars for onboarding
+    // Sanitize roles upfront
+    final sanitizedRoles = roles
+        .map(
+          (r) => TemplateEngine.toSnakeCase(r)
+              .replaceAll(RegExp('[^a-z0-9_]'), ''),
+        )
+        .where((r) => r.isNotEmpty)
+        .toList();
+    final hasRoles = sanitizedRoles.isNotEmpty;
+
+    // Onboarding vars only needed when no roles (standalone onboarding)
     final onboardingVars = {
       ...vars,
       'feature_name': 'onboarding',
+      'feature_path': 'onboarding',
       'FeatureName': 'Onboarding',
     };
 
@@ -99,11 +113,18 @@ class ProjectGenerator {
         platformDir.deleteSync(recursive: true);
       }
     }
+
+    // Remove default main.dart run configuration
+    final defaultRunConfig =
+        File('$projectPath/.idea/runConfigurations/main_dart.xml');
+    if (defaultRunConfig.existsSync()) {
+      defaultRunConfig.deleteSync();
+    }
     cleanProgress.complete('Default files cleaned');
 
     // Step 3: Create directory structure
     final structureProgress = _logger.progress('Creating project structure');
-    const directories = [
+    final directories = [
       // App
       'lib/app/view',
       // Config
@@ -121,13 +142,6 @@ class ProjectGenerator {
       'lib/core/models/auth',
       'lib/core/notifications',
       'lib/core/permissions',
-      // Features - Onboarding
-      'lib/features/onboarding/data/models',
-      'lib/features/onboarding/data/repository',
-      'lib/features/onboarding/domain/repository',
-      'lib/features/onboarding/presentation/cubit',
-      'lib/features/onboarding/presentation/views',
-      'lib/features/onboarding/presentation/widgets',
       // Go Router
       'lib/go_router',
       // L10n
@@ -144,8 +158,30 @@ class ProjectGenerator {
       'assets/fonts',
     ];
 
+    // Standalone onboarding dirs only when no roles
+    if (!hasRoles) {
+      directories.addAll([
+        'lib/features/onboarding/data/models',
+        'lib/features/onboarding/data/repository',
+        'lib/features/onboarding/domain/repository',
+        'lib/features/onboarding/presentation/cubit',
+        'lib/features/onboarding/presentation/views',
+        'lib/features/onboarding/presentation/widgets',
+      ]);
+    }
+
     for (final dir in directories) {
       Directory('$projectPath/$dir').createSync(recursive: true);
+    }
+
+    // Create role + common directories when roles specified
+    if (hasRoles) {
+      for (final role in sanitizedRoles) {
+        Directory('$projectPath/lib/features/$role')
+            .createSync(recursive: true);
+      }
+      Directory('$projectPath/lib/features/common')
+          .createSync(recursive: true);
     }
     structureProgress.complete('Project structure created');
 
@@ -162,10 +198,20 @@ class ProjectGenerator {
       'lib/bootstrap.dart': render(bootstrapTemplate, vars),
       'lib/exports.dart': render(exportsTemplate, vars),
 
-      // App
-      'lib/app/view/app_page.dart': render(appPageTemplate, vars),
+      // App — use base template (no onboarding) when roles exist
+      'lib/app/view/app_page.dart': render(
+        hasRoles ? appPageBaseTemplate : appPageTemplate,
+        vars,
+      ),
       'lib/app/view/app_view.dart': render(appViewTemplate, vars),
-      'lib/app/view/splash.dart': render(splashTemplate, vars),
+      'lib/app/view/splash.dart': hasRoles
+          ? render(splashBaseTemplate, {
+              ...vars,
+              'onboarding_route_name':
+                  '${TemplateEngine.toCamelCase(sanitizedRoles.first)}'
+                  'OnboardingScreen',
+            })
+          : render(splashTemplate, vars),
 
       // Config
       'lib/config/flavor_config.dart': render(flavorConfigTemplate, vars),
@@ -272,10 +318,19 @@ class ProjectGenerator {
         vars,
       ),
 
-      // Go Router
-      'lib/go_router/exports.dart': render(routerExportsTemplate, vars),
-      'lib/go_router/router.dart': render(routerTemplate, vars),
-      'lib/go_router/routes.dart': render(routesTemplate, vars),
+      // Go Router — use base templates (no onboarding) when roles exist
+      'lib/go_router/exports.dart': render(
+        hasRoles ? routerExportsBaseTemplate : routerExportsTemplate,
+        vars,
+      ),
+      'lib/go_router/router.dart': render(
+        hasRoles ? routerBaseTemplate : routerTemplate,
+        vars,
+      ),
+      'lib/go_router/routes.dart': render(
+        hasRoles ? routesBaseTemplate : routesTemplate,
+        vars,
+      ),
 
       // L10n
       'lib/l10n/l10n.dart': render(l10nDartTemplate, vars),
@@ -380,22 +435,6 @@ class ProjectGenerator {
         datePickerTemplate,
         vars,
       ),
-      'lib/utils/widgets/core_widgets/dialog.dart': render(
-        dialogTemplate,
-        vars,
-      ),
-      'lib/utils/widgets/core_widgets/dropdown.dart': render(
-        dropdownTemplate,
-        vars,
-      ),
-      'lib/utils/widgets/core_widgets/dropdown_row.dart': render(
-        dropdownRowTemplate,
-        vars,
-      ),
-      'lib/utils/widgets/core_widgets/dropdown_textfield.dart': render(
-        dropdownTextfieldTemplate,
-        vars,
-      ),
       'lib/utils/widgets/core_widgets/empty_state_widget.dart': render(
         emptyStateWidgetTemplate,
         vars,
@@ -412,20 +451,12 @@ class ProjectGenerator {
         loadingWidgetTemplate,
         vars,
       ),
-      'lib/utils/widgets/core_widgets/notification_tile.dart': render(
-        notificationTileTemplate,
-        vars,
-      ),
       'lib/utils/widgets/core_widgets/outline_button.dart': render(
         outlineButtonTemplate,
         vars,
       ),
       'lib/utils/widgets/core_widgets/paginated_list_view.dart': render(
         paginatedListViewTemplate,
-        vars,
-      ),
-      'lib/utils/widgets/core_widgets/popup_menu_button.dart': render(
-        popupMenuButtonTemplate,
         vars,
       ),
       'lib/utils/widgets/core_widgets/progress_dashes.dart': render(
@@ -457,7 +488,7 @@ class ProjectGenerator {
         vars,
       ),
       'lib/utils/widgets/core_widgets/shimmer_loading_widget.dart': render(
-        shimmerLoadingWidgetTemplate,
+        shimmerCustomLoadingWidgetTemplate,
         vars,
       ),
       'lib/utils/widgets/core_widgets/slider.dart': render(
@@ -497,11 +528,6 @@ class ProjectGenerator {
         timePickerTemplate,
         vars,
       ),
-      'lib/utils/widgets/core_widgets/title_row.dart': render(
-        titleRowTemplate,
-        vars,
-      ),
-
       // Extra widgets (referenced by core_widgets export)
       'lib/utils/widgets/blur_overlay.dart': render(blurOverlayTemplate, vars),
       'lib/utils/widgets/filter_icon_widget.dart': render(
@@ -515,28 +541,23 @@ class ProjectGenerator {
         vars,
       ),
 
-      // Onboarding feature
-      'lib/features/onboarding/domain/repository/onboarding_repository.dart':
-          render(onboardingRepositoryTemplate, onboardingVars),
-      'lib/features/onboarding/data/repository/'
-          'onboarding_repository_impl.dart': render(
-        onboardingRepositoryImplTemplate,
-        onboardingVars,
-      ),
-      'lib/features/onboarding/data/models/.gitkeep': '',
-      'lib/features/onboarding/presentation/cubit/cubit.dart': render(
-        onboardingCubitTemplate,
-        onboardingVars,
-      ),
-      'lib/features/onboarding/presentation/cubit/state.dart': render(
-        onboardingStateTemplate,
-        onboardingVars,
-      ),
-      'lib/features/onboarding/presentation/views/login_screen.dart': render(
-        loginScreenTemplate,
-        onboardingVars,
-      ),
-      'lib/features/onboarding/presentation/widgets/.gitkeep': '',
+      // Standalone onboarding feature (only when no roles)
+      if (!hasRoles) ...{
+        'lib/features/onboarding/domain/repository/'
+            'onboarding_repository.dart':
+            render(onboardingRepositoryTemplate, onboardingVars),
+        'lib/features/onboarding/data/repository/'
+            'onboarding_repository_impl.dart':
+            render(onboardingRepositoryImplTemplate, onboardingVars),
+        'lib/features/onboarding/data/models/.gitkeep': '',
+        'lib/features/onboarding/presentation/cubit/cubit.dart':
+            render(onboardingCubitTemplate, onboardingVars),
+        'lib/features/onboarding/presentation/cubit/state.dart':
+            render(onboardingStateTemplate, onboardingVars),
+        'lib/features/onboarding/presentation/views/login_screen.dart':
+            render(loginScreenTemplate, onboardingVars),
+        'lib/features/onboarding/presentation/widgets/.gitkeep': '',
+      },
 
       // Placeholder assets
       'assets/images/.gitkeep': '',
@@ -550,6 +571,11 @@ class ProjectGenerator {
       // AI Assistant Config
       'CLAUDE.md': render(claudeMdTemplate, vars),
       '.cursorrules': render(cursorRulesTemplate, vars),
+
+      // Android Studio run configurations
+      '.run/development.run.xml': runConfigDevelopmentTemplate,
+      '.run/staging.run.xml': runConfigStagingTemplate,
+      '.run/production.run.xml': runConfigProductionTemplate,
     };
 
     for (final entry in files.entries) {
@@ -558,6 +584,18 @@ class ProjectGenerator {
       file.writeAsStringSync(entry.value);
     }
     filesProgress.complete('Template files written');
+
+    // Generate onboarding per role (uses FeatureGenerator for auto-wiring)
+    if (hasRoles) {
+      final featureGen = FeatureGenerator(logger: _logger);
+      for (final role in sanitizedRoles) {
+        await featureGen.generate(
+          featureName: 'onboarding',
+          projectPath: projectPath,
+          role: role,
+        );
+      }
+    }
 
     // Step 5: Replace pubspec.yaml
     final pubspecProgress = _logger.progress('Configuring pubspec.yaml');
@@ -618,9 +656,6 @@ class ProjectGenerator {
       '$projectPath/ios/Runner/RunnerRelease.entitlements',
     ).writeAsStringSync(iosReleaseEntitlementsTemplate);
 
-    // Inject "Copy GoogleService-Info.plist" run script into Xcode project
-    _injectGoogleServiceCopyScript(projectPath);
-
     iosProgress.complete('iOS configured');
 
     // Step 10: Create firebase config directory structure
@@ -630,6 +665,9 @@ class ProjectGenerator {
 
     // Step 11: Copy bundled assets (splash, app icons, SVGs)
     await _copyBundledAssets(projectPath);
+
+    // Step 11b: Create per-flavor app icon sets (iOS + Android)
+    await _createFlavorAppIcons(projectPath);
 
     // Step 12: Generate keystore
     await KeystoreGenerator(logger: _logger).generate(
@@ -652,6 +690,14 @@ class ProjectGenerator {
     } else {
       pubGetProgress.complete('Dependencies installed');
     }
+
+    // Step 14: Configure iOS Xcode project for flavors
+    // (must run AFTER flutter pub get, because pod install rewrites pbxproj)
+    final flavorProgress = _logger.progress('Configuring flavor builds');
+    _configureFlavorBuildConfigurations(projectPath, vars);
+    _createFlavorSchemes(projectPath);
+    _injectGoogleServiceCopyScript(projectPath);
+    flavorProgress.complete('Flavor builds configured');
 
     // Done!
     _logger
@@ -769,6 +815,274 @@ class ProjectGenerator {
     if (srcFile.existsSync()) {
       File(dst).parent.createSync(recursive: true);
       srcFile.copySync(dst);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Flavor build-configuration helpers
+  // ---------------------------------------------------------------------------
+
+  static const _flavors = [
+    {'name': 'production', 'suffix': '', 'prefix': '', 'icon': 'AppIcon'},
+    {'name': 'staging', 'suffix': '.stg', 'prefix': '[STG] ', 'icon': 'AppIcon-stg'},
+    {'name': 'development', 'suffix': '.dev', 'prefix': '[DEV] ', 'icon': 'AppIcon-dev'},
+  ];
+
+  static const _buildTypes = ['Debug', 'Release', 'Profile'];
+
+  /// Deterministic 24-char UUID for a flavor build configuration.
+  /// bt: 1=Debug 2=Release 3=Profile, fl: 1=production 2=staging 3=development,
+  /// tg: 1=project 2=runner 3=tests
+  static String _flavorUuid(int bt, int fl, int tg) =>
+      'C0DE4B1E${bt.toString().padLeft(2, "0")}'
+      '${fl.toString().padLeft(2, "0")}'
+      '${tg.toString().padLeft(2, "0")}0000000000';
+
+  /// Transforms the default 3×3 build configurations in the flutter-generated
+  /// project.pbxproj into 9×3 flavor build configurations
+  /// (Debug/Release/Profile × production/staging/development × 3 targets).
+  void _configureFlavorBuildConfigurations(
+    String projectPath,
+    Map<String, String> vars,
+  ) {
+    final pbxprojFile = File(
+      '$projectPath/ios/Runner.xcodeproj/project.pbxproj',
+    );
+    if (!pbxprojFile.existsSync()) return;
+
+    var content = pbxprojFile.readAsStringSync();
+
+    final orgName = vars['org_name']!;
+    final projectName = vars['ProjectName']!;
+
+    // --- Step 1: Parse XCConfigurationList to map config UUIDs → target ---
+    // target indices: 1=project, 2=runner, 3=tests
+    final configToTarget = <String, int>{};
+
+    // First extract the XCConfigurationList section to avoid matching
+    // the buildConfigurationList *references* in the target sections.
+    final configListSectionRe = RegExp(
+      r'/\* Begin XCConfigurationList section \*/\n([\s\S]*?)'
+      r'/\* End XCConfigurationList section \*/',
+    );
+    final configListSection = configListSectionRe.firstMatch(content);
+    if (configListSection == null) return;
+    final clContent = configListSection.group(1)!;
+
+    // Within the section, match each list definition and its configs
+    final listDefRe = RegExp(
+      r'Build configuration list for (\w+) "(\w+)".*?'
+      r'buildConfigurations = \((.*?)\);',
+      dotAll: true,
+    );
+    final uuidInListRe = RegExp(r'([0-9A-F]{24})');
+
+    for (final m in listDefRe.allMatches(clContent)) {
+      final kind = m.group(1)!; // PBXProject or PBXNativeTarget
+      final name = m.group(2)!; // Runner or RunnerTests
+      final targetIdx = kind == 'PBXProject'
+          ? 1
+          : name == 'Runner'
+              ? 2
+              : 3;
+      for (final u in uuidInListRe.allMatches(m.group(3)!)) {
+        configToTarget[u.group(1)!] = targetIdx;
+      }
+    }
+
+    // --- Step 2: Parse XCBuildConfiguration blocks ---
+    final configSectionRe = RegExp(
+      r'/\* Begin XCBuildConfiguration section \*/\n([\s\S]*?)/\* End XCBuildConfiguration section \*/',
+    );
+    final sectionMatch = configSectionRe.firstMatch(content);
+    if (sectionMatch == null) return;
+
+    final blockRe = RegExp(
+      r'\t\t([0-9A-F]{24}) /\* (\w+) \*/ = \{([\s\S]*?)\n\t\t\};',
+    );
+
+    // Collect original blocks keyed by (buildType, targetIndex)
+    final origBlocks = <String, String>{}; // key: "$buildType:$targetIdx"
+    for (final m in blockRe.allMatches(sectionMatch.group(1)!)) {
+      final uuid = m.group(1)!;
+      final buildType = m.group(2)!; // Debug, Release, or Profile
+      final body = m.group(3)!;
+      final targetIdx = configToTarget[uuid] ?? 0;
+      if (targetIdx == 0) continue;
+
+      origBlocks['$buildType:$targetIdx'] =
+          '\t\t$uuid /* $buildType */ = {$body\n\t\t};';
+    }
+
+    // --- Step 3: Generate 27 new configuration blocks ---
+    final newBlocks = StringBuffer();
+
+    for (var btIdx = 0; btIdx < _buildTypes.length; btIdx++) {
+      final bt = _buildTypes[btIdx];
+      for (var flIdx = 0; flIdx < _flavors.length; flIdx++) {
+        final fl = _flavors[flIdx];
+        final configName = '$bt-${fl['name']}';
+
+        for (var tgIdx = 1; tgIdx <= 3; tgIdx++) {
+          final uuid = _flavorUuid(btIdx + 1, flIdx + 1, tgIdx);
+          final origKey = '$bt:$tgIdx';
+          var block = origBlocks[origKey];
+          if (block == null) continue;
+
+          // Replace the UUID
+          final origUuidRe = RegExp(r'[0-9A-F]{24}(?= /\*)');
+          block = block.replaceFirst(origUuidRe, uuid);
+
+          // Replace the name (handles both `name = Debug;` and `name = "Debug";`)
+          block = block.replaceFirst(
+            RegExp(r'name = "?' + bt + r'"?;'),
+            'name = "$configName";',
+          );
+
+          // Replace the comment
+          block = block.replaceFirst('/* $bt */', '/* $configName */');
+
+          // --- Runner target: inject flavor-specific build settings ---
+          if (tgIdx == 2) {
+            final bundleId = fl['suffix']!.isEmpty
+                ? orgName
+                : '$orgName${fl['suffix']}';
+            final appName = fl['prefix']!.isEmpty
+                ? projectName
+                : '${fl['prefix']}$projectName';
+            final iconName = fl['icon']!;
+
+            // Replace PRODUCT_BUNDLE_IDENTIFIER
+            block = block.replaceFirst(
+              RegExp(r'PRODUCT_BUNDLE_IDENTIFIER = [^;]+;'),
+              'PRODUCT_BUNDLE_IDENTIFIER = $bundleId;',
+            );
+
+            // Replace ASSETCATALOG_COMPILER_APPICON_NAME
+            block = block.replaceFirst(
+              RegExp(r'ASSETCATALOG_COMPILER_APPICON_NAME = [^;]+;'),
+              'ASSETCATALOG_COMPILER_APPICON_NAME = "$iconName";',
+            );
+
+            // Add FLAVOR_APP_NAME after ENABLE_BITCODE line
+            block = block.replaceFirst(
+              'ENABLE_BITCODE = NO;',
+              'ENABLE_BITCODE = NO;\n\t\t\t\tFLAVOR_APP_NAME = "$appName";',
+            );
+          }
+
+          newBlocks.writeln(block);
+        }
+      }
+    }
+
+    // --- Step 4: Replace the XCBuildConfiguration section ---
+    content = content.replaceFirst(
+      configSectionRe,
+      '/* Begin XCBuildConfiguration section */\n'
+          '$newBlocks'
+          '/* End XCBuildConfiguration section */',
+    );
+
+    // --- Step 5: Update XCConfigurationList entries ---
+    // Extract the section, modify it, then put it back to avoid matching
+    // the buildConfigurationList *references* in target sections.
+    final clSectionRe = RegExp(
+      r'(/\* Begin XCConfigurationList section \*/\n)'
+      r'([\s\S]*?)'
+      r'(/\* End XCConfigurationList section \*/)',
+    );
+    content = content.replaceFirstMapped(clSectionRe, (sectionM) {
+      var section = sectionM.group(2)!;
+
+      for (var tgIdx = 1; tgIdx <= 3; tgIdx++) {
+        final refs = StringBuffer();
+        for (var btIdx = 0; btIdx < _buildTypes.length; btIdx++) {
+          for (var flIdx = 0; flIdx < _flavors.length; flIdx++) {
+            final uuid = _flavorUuid(btIdx + 1, flIdx + 1, tgIdx);
+            final name =
+                '${_buildTypes[btIdx]}-${_flavors[flIdx]['name']}';
+            refs.writeln('\t\t\t\t$uuid /* $name */,');
+          }
+        }
+
+        final targetLabel = tgIdx == 1
+            ? 'PBXProject "Runner"'
+            : tgIdx == 2
+                ? 'PBXNativeTarget "Runner"'
+                : 'PBXNativeTarget "RunnerTests"';
+
+        final listRe = RegExp(
+          '(Build configuration list for '
+          '${RegExp.escape(targetLabel)}'
+          r'.*?buildConfigurations = \()\n[\s\S]*?(\);)',
+          dotAll: true,
+        );
+        section = section.replaceFirstMapped(listRe, (m) {
+          return '${m.group(1)}\n$refs${m.group(2)}';
+        });
+      }
+
+      // Change default config name
+      section = section.replaceAll(
+        'defaultConfigurationName = Release;',
+        'defaultConfigurationName = "Release-production";',
+      );
+
+      return '${sectionM.group(1)}$section${sectionM.group(3)}';
+    });
+
+    pbxprojFile.writeAsStringSync(content);
+  }
+
+  /// Creates Xcode scheme files for each flavor so `flutter run --flavor X`
+  /// can find the matching build configuration.
+  void _createFlavorSchemes(String projectPath) {
+    final schemesDir = Directory(
+      '$projectPath/ios/Runner.xcodeproj/xcshareddata/xcschemes',
+    );
+    schemesDir.createSync(recursive: true);
+
+    // Remove the default Runner.xcscheme (references non-existent Debug/Release)
+    final defaultScheme = File('${schemesDir.path}/Runner.xcscheme');
+    if (defaultScheme.existsSync()) defaultScheme.deleteSync();
+
+    for (final flavor in _flavors) {
+      final rendered = TemplateEngine.render(
+        iosFlavorSchemeTemplate,
+        {'flavor': flavor['name']!},
+      );
+      File('${schemesDir.path}/${flavor['name']}.xcscheme')
+          .writeAsStringSync(rendered);
+    }
+  }
+
+  /// Creates per-flavor app icon sets for iOS and Android.
+  /// Copies the same base icons to all flavors — users customise them later.
+  Future<void> _createFlavorAppIcons(String projectPath) async {
+    final assetsRoot = await _resolveAssetsPath();
+
+    // --- iOS: create AppIcon-dev & AppIcon-stg icon sets ---
+    final iosIconSrc = Directory('$assetsRoot/ios/AppIcon.appiconset');
+    if (iosIconSrc.existsSync()) {
+      for (final suffix in ['dev', 'stg']) {
+        final dst =
+            '$projectPath/ios/Runner/Assets.xcassets/AppIcon-$suffix.appiconset';
+        Directory(dst).createSync(recursive: true);
+        for (final file in iosIconSrc.listSync().whereType<File>()) {
+          final name = file.uri.pathSegments.last;
+          file.copySync('$dst/$name');
+        }
+      }
+    }
+
+    // --- Android: create development/ and staging/ source sets ---
+    final androidSrcDir = Directory('$assetsRoot/android');
+    if (androidSrcDir.existsSync()) {
+      for (final flavor in ['development', 'staging']) {
+        final dst = '$projectPath/android/app/src/$flavor/res';
+        _copyDirectory(androidSrcDir.path, dst);
+      }
     }
   }
 

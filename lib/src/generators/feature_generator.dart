@@ -13,11 +13,38 @@ class FeatureGenerator {
   Future<bool> generate({
     required String featureName,
     required String projectPath,
+    String? role,
   }) async {
     final snakeName = TemplateEngine.toSnakeCase(featureName)
         .replaceAll(RegExp('[^a-z0-9_]'), '');
-    final pascalName = TemplateEngine.toPascalCase(snakeName);
-    final camelName = TemplateEngine.toCamelCase(snakeName);
+
+    // Sanitize role if provided
+    final snakeRole = role != null
+        ? TemplateEngine.toSnakeCase(role)
+            .replaceAll(RegExp('[^a-z0-9_]'), '')
+        : null;
+
+    // "common" role is a directory-only grouping — no name prefix
+    final isCommonRole = snakeRole == 'common';
+
+    // Composite feature name: "customer_home" or just "home"
+    // Common role = no prefix
+    final compositeSnakeName =
+        (snakeRole != null && !isCommonRole)
+            ? '${snakeRole}_$snakeName'
+            : snakeName;
+    final compositePascalName =
+        TemplateEngine.toPascalCase(compositeSnakeName);
+    final compositeCamelName = TemplateEngine.toCamelCase(compositeSnakeName);
+
+    // Feature path for imports: "customer/home", "common/home", or just "home"
+    final featurePath =
+        snakeRole != null ? '$snakeRole/$snakeName' : snakeName;
+
+    // Route path: "/customer-home" or "/home" (common = no prefix)
+    final routePath = (snakeRole != null && !isCommonRole)
+        ? '/${TemplateEngine.toKebabCase(compositeSnakeName)}'
+        : '/$snakeName';
 
     // Detect project name from pubspec
     final pubspecFile = File('$projectPath/pubspec.yaml');
@@ -34,15 +61,19 @@ class FeatureGenerator {
     }
     final projectName = nameMatch.group(1)!.trim();
 
-    final progress = _logger.progress('Creating feature: $snakeName');
+    final progress = _logger.progress('Creating feature: $compositeSnakeName');
 
     final vars = {
       'project_name': projectName,
-      'feature_name': snakeName,
-      'FeatureName': pascalName,
+      'feature_name': compositeSnakeName,
+      'feature_path': featurePath,
+      'FeatureName': compositePascalName,
     };
 
-    final featuresDir = '$projectPath/lib/features/$snakeName';
+    // Directory on disk: features/<role>/<feature>/ or features/<feature>/
+    final featuresDir = snakeRole != null
+        ? '$projectPath/lib/features/$snakeRole/$snakeName'
+        : '$projectPath/lib/features/$snakeName';
 
     // Create directory structure
     final dirs = [
@@ -60,17 +91,17 @@ class FeatureGenerator {
 
     // Write template files
     final files = <String, String>{
-      '$featuresDir/domain/repository/${snakeName}_repository.dart':
+      '$featuresDir/domain/repository/${compositeSnakeName}_repository.dart':
           TemplateEngine.render(featureRepositoryTemplate, vars),
-      '$featuresDir/data/repository/${snakeName}_repository_impl.dart':
+      '$featuresDir/data/repository/${compositeSnakeName}_repository_impl.dart':
           TemplateEngine.render(featureRepositoryImplTemplate, vars),
-      '$featuresDir/data/models/${snakeName}_model.dart':
+      '$featuresDir/data/models/${compositeSnakeName}_model.dart':
           TemplateEngine.render(featureModelTemplate, vars),
       '$featuresDir/presentation/cubit/cubit.dart':
           TemplateEngine.render(featureCubitTemplate, vars),
       '$featuresDir/presentation/cubit/state.dart':
           TemplateEngine.render(featureStateTemplate, vars),
-      '$featuresDir/presentation/views/${snakeName}_screen.dart':
+      '$featuresDir/presentation/views/${compositeSnakeName}_screen.dart':
           TemplateEngine.render(featureScreenTemplate, vars),
     };
 
@@ -78,31 +109,35 @@ class FeatureGenerator {
       File(entry.key).writeAsStringSync(entry.value);
     }
 
-    progress.complete('Feature $snakeName created');
+    progress.complete('Feature $compositeSnakeName created');
 
     // Auto-register cubit in app_page.dart
     _registerCubitInAppPage(
       projectPath: projectPath,
       projectName: projectName,
-      snakeName: snakeName,
-      pascalName: pascalName,
+      featurePath: featurePath,
+      compositeSnakeName: compositeSnakeName,
+      pascalName: compositePascalName,
     );
 
     // Auto-add route to go_router
     _addRouteToRouter(
       projectPath: projectPath,
       projectName: projectName,
-      snakeName: snakeName,
-      pascalName: pascalName,
-      camelName: camelName,
+      featurePath: featurePath,
+      compositeSnakeName: compositeSnakeName,
+      pascalName: compositePascalName,
+      camelName: compositeCamelName,
+      routePath: routePath,
     );
 
     _logger.info('');
-    _logger.success('Feature $snakeName fully wired up:');
+    _logger.success('Feature $compositeSnakeName fully wired up:');
     _logger.info('  - Cubit registered in app_page.dart');
     _logger.info('  - Route added to go_router');
     _logger.info(
-      '  - Navigate with: context.goNamed(AppRouteNames.${camelName}Screen)',
+      '  - Navigate with: '
+      'context.goNamed(AppRouteNames.${compositeCamelName}Screen)',
     );
 
     return true;
@@ -112,7 +147,8 @@ class FeatureGenerator {
   void _registerCubitInAppPage({
     required String projectPath,
     required String projectName,
-    required String snakeName,
+    required String featurePath,
+    required String compositeSnakeName,
     required String pascalName,
   }) {
     final appPageFile = File('$projectPath/lib/app/view/app_page.dart');
@@ -125,10 +161,10 @@ class FeatureGenerator {
 
     // Add imports before the class declaration
     final repoImport =
-        "import 'package:$projectName/features/$snakeName/data/repository/"
-        "${snakeName}_repository_impl.dart';";
+        "import 'package:$projectName/features/$featurePath/data/repository/"
+        "${compositeSnakeName}_repository_impl.dart';";
     final cubitImport =
-        "import 'package:$projectName/features/$snakeName/presentation/"
+        "import 'package:$projectName/features/$featurePath/presentation/"
         "cubit/cubit.dart';";
 
     // Find the last import line and add after it
@@ -166,9 +202,11 @@ class FeatureGenerator {
   void _addRouteToRouter({
     required String projectPath,
     required String projectName,
-    required String snakeName,
+    required String featurePath,
+    required String compositeSnakeName,
     required String pascalName,
     required String camelName,
+    required String routePath,
   }) {
     final routerDir = '$projectPath/lib/go_router';
 
@@ -177,8 +215,8 @@ class FeatureGenerator {
     if (exportsFile.existsSync()) {
       var content = exportsFile.readAsStringSync();
       final screenImport =
-          "import 'package:$projectName/features/$snakeName/presentation/"
-          "views/${snakeName}_screen.dart';";
+          "import 'package:$projectName/features/$featurePath/presentation/"
+          "views/${compositeSnakeName}_screen.dart';";
 
       // Insert before "part 'router.dart';"
       if (!content.contains(screenImport)) {
@@ -245,7 +283,7 @@ class FeatureGenerator {
       final routesMatch = appRoutesPattern.firstMatch(content);
       if (routesMatch != null) {
         final routeEntry = "  static const ${camelName}Screen = "
-            "'/$snakeName';\n";
+            "'$routePath';\n";
         final routesBody = routesMatch.group(1)!;
         if (!routesBody.contains('${camelName}Screen')) {
           content = content.replaceFirst(

@@ -8,7 +8,7 @@
 
 **A production-ready Flutter project scaffolding tool.**
 
-Instantly generate Flutter projects with Clean Architecture, BLoC/Cubit state management, Dio networking, Hive storage, GoRouter navigation, multi-flavor builds, Firebase integration, and 40+ reusable UI components — all wired together and ready to go.
+Instantly generate Flutter projects with Clean Architecture, BLoC/Cubit state management, Dio networking, Hive storage, GoRouter navigation, multi-flavor builds (Android + iOS), Firebase integration, and 30+ reusable UI components — all wired together and ready to go.
 
 [![Pub Version](https://img.shields.io/pub/v/codeable_cli.svg?style=for-the-badge)](https://pub.dev/packages/codeable_cli)
 [![Style: Very Good Analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg?style=for-the-badge)](https://pub.dev/packages/very_good_analysis)
@@ -50,7 +50,7 @@ Starting a new Flutter project means hours of boilerplate — setting up archite
 | Networking | Dio with auth, logging, Chucker interceptors |
 | Storage | Hive-based local storage |
 | Navigation | GoRouter with named routes |
-| UI Components | 40+ production-ready widgets |
+| UI Components | 30+ production-ready widgets |
 | Build Flavors | Development, Staging, Production |
 | Platforms | Android & iOS pre-configured |
 | Firebase | Multi-environment directory structure |
@@ -137,6 +137,16 @@ This creates the full feature module **and** auto-wires everything:
 - Route added to `go_router` with named route constants
 - Navigate with `context.goNamed(AppRouteNames.profileScreen)`
 
+### Role-based features
+
+Organize features by user role (e.g., customer, admin):
+
+```bash
+codeable_cli feature home --role customer
+```
+
+This creates `lib/features/customer/home/` with all files and classes prefixed — `CustomerHomeScreen`, `CustomerHomeCubit`, route `/customer-home`.
+
 ### Verify everything works
 
 ```bash
@@ -160,6 +170,7 @@ codeable_cli create [options]
 | `-o, --org` | Organization identifier (e.g., `com.example.app`) | Prompted interactively |
 | `-d, --description` | Project description | `A new Flutter project` |
 | `--output` | Output directory | `.` (current directory) |
+| `--roles` | Comma-separated role directories under `features/` (e.g., `customer,admin`) | None |
 
 **What it generates:**
 
@@ -192,7 +203,8 @@ my_app/
 │       ├── extensions/             # Dart extensions
 │       ├── helpers/                # Toast, layout, decorations, logger, etc.
 │       ├── response_data_model/    # Response parsing utilities
-│       └── widgets/core_widgets/   # 40+ reusable UI components
+│       └── widgets/core_widgets/   # 30+ reusable UI components
+├── .run/                           # Android Studio run configurations (Dev/Staging/Prod)
 ├── assets/                         # images, vectors, animation, fonts
 ├── firebase/                       # Per-flavor Firebase config directories
 ├── android/                        # Configured with flavors, signing, ProGuard
@@ -209,16 +221,18 @@ my_app/
 Must be run from inside an existing Codeable project.
 
 ```bash
-codeable_cli feature <feature_name>
+codeable_cli feature <feature_name> [--role <role>]
 ```
 
-**Example:**
+| Option | Description |
+|--------|-------------|
+| `--role, -r` | Optional role prefix (e.g., `customer`, `admin`). Places the feature under `features/<role>/` and prefixes all file names, class names, and routes with the role. |
+
+**Basic example:**
 
 ```bash
 codeable_cli feature profile
 ```
-
-**Generates:**
 
 ```
 lib/features/profile/
@@ -235,6 +249,29 @@ lib/features/profile/
     └── widgets/
 ```
 
+**Role-based example:**
+
+```bash
+codeable_cli feature home --role customer
+```
+
+```
+lib/features/customer/home/
+├── data/
+│   ├── models/customer_home_model.dart
+│   └── repository/customer_home_repository_impl.dart
+├── domain/
+│   └── repository/customer_home_repository.dart
+└── presentation/
+    ├── cubit/
+    │   ├── cubit.dart
+    │   └── state.dart
+    ├── views/customer_home_screen.dart
+    └── widgets/
+```
+
+With `--role`, all class names are prefixed (e.g., `CustomerHomeScreen`, `CustomerHomeCubit`) and the route becomes `/customer-home`. Without `--role`, behavior is identical to before.
+
 Each generated file comes with boilerplate — the repository interface, implementation wired to `ApiService` and `AppPreferences` (cache), cubit with `DataState`, and a screen scaffold with `customAppBar` and `BlocBuilder`.
 
 **Auto-wired out of the box:**
@@ -242,6 +279,7 @@ Each generated file comes with boilerplate — the repository interface, impleme
 - Route added to `go_router/router.dart`
 - Route constants added to `AppRoutes` and `AppRouteNames`
 - Screen import added to `go_router/exports.dart`
+- Navigate with `context.goNamed(AppRouteNames.customerHomeScreen)`
 
 ---
 
@@ -363,34 +401,46 @@ final apiService = Injector.resolve<ApiService>();
 
 ## Included UI Components
 
-The generated project includes **40+ production-ready widgets** in `lib/utils/widgets/core_widgets/`:
+The generated project includes **30+ production-ready widgets** in `lib/utils/widgets/core_widgets/`:
 
 | Widget | Description |
 |--------|-------------|
 | `CustomAppBar` | App bar with back button, title, actions |
 | `CustomButton` | Primary filled button with loading state |
 | `CustomOutlineButton` | Outlined variant |
+| `CustomTextButton` | Text-only button |
+| `CustomIconButton` | Icon button with optional badge |
 | `CustomTextField` | Text field with validation, prefix/suffix, formatters |
 | `CustomSearchField` | Search input with debounce |
-| `CustomDropdown` | Dropdown selector |
+| `CustomDropdown` | Dropdown selector with cubit |
 | `SearchableDropdown` | Dropdown with search/filter |
 | `CustomSlidingTab` | Animated sliding tab bar |
-| `SectionTitle` | Section header with optional "See All" |
+| `CustomSectionTitle` | Section header with optional "See All" |
 | `PaginatedListView` | List with built-in pagination |
-| `PaginatedGridView` | Grid with built-in pagination |
-| `ConfirmationDialog` | Confirmation dialog |
+| `CustomConfirmationDialog` | Confirmation dialog |
 | `CustomBottomSheet` | Bottom sheet wrapper |
-| `ShimmerLoadingWidget` | Shimmer loading placeholder |
-| `EmptyStateWidget` | Empty state with icon and message |
-| `RetryWidget` | Error state with retry button |
-| `StarRatingWidget` | Star rating display/input |
-| `SocialAuthButton` | Google/Apple sign-in buttons |
+| `CustomShimmerWidget` | Shimmer loading placeholder |
+| `CustomLoadingWidget` | Loading indicator |
+| `CustomEmptyStateWidget` | Empty state with icon and message |
+| `CustomRetryWidget` | Error state with retry button |
+| `CustomStarRatingWidget` | Star rating display/input |
+| `CustomSocialAuthButton` | Google/Apple sign-in buttons |
 | `CachedNetworkImageWidget` | Cached network image with placeholder |
 | `CustomDatePicker` | Date picker |
 | `CustomTimePicker` | Time picker |
+| `CustomCheckbox` | Checkbox with label |
+| `CustomSwitch` | Toggle switch |
+| `CustomSlider` | Range slider |
+| `CustomChips` | Chip selection widget |
+| `CustomProgressDashes` | Step progress indicator |
+| `CustomRichText` | Rich text with tappable spans |
+| `CustomBulletPointItem` | Bullet point list item |
+| `StackedImagesWidget` | Overlapping avatar stack |
+| `BlurOverlay` | Blurred background overlay |
 | `ImagePickerWidget` | Camera/gallery image picker |
+| `ReusableCalendarWidget` | Calendar date selector |
 
-...and more. All widgets use the project's `AppColors` and text style system.
+All widgets follow the `Custom<WidgetName>` naming convention and use the project's `AppColors` and text style system.
 
 ---
 
@@ -398,16 +448,39 @@ The generated project includes **40+ production-ready widgets** in `lib/utils/wi
 
 Three flavors are configured out of the box with separate entry points:
 
-| Flavor | Entry Point | Use Case |
-|--------|-------------|----------|
-| `development` | `lib/main_development.dart` | Daily development (DevicePreview enabled) |
-| `staging` | `lib/main_staging.dart` | QA and testing |
-| `production` | `lib/main_production.dart` | App Store / Play Store |
+| Flavor | Entry Point | Bundle ID Suffix | Display Name | App Icon |
+|--------|-------------|-----------------|--------------|----------|
+| `production` | `lib/main_production.dart` | _(none)_ | `MyApp` | `AppIcon` |
+| `staging` | `lib/main_staging.dart` | `.stg` | `[STG] MyApp` | `AppIcon-stg` |
+| `development` | `lib/main_development.dart` | `.dev` | `[DEV] MyApp` | `AppIcon-dev` |
 
 ```bash
 flutter run --flavor development -t lib/main_development.dart
 flutter run --flavor production -t lib/main_production.dart
 ```
+
+### What's configured per flavor
+
+**Android:**
+- `productFlavors` in `build.gradle.kts` (development, staging, production)
+- Per-flavor launcher icons in `android/app/src/{development,staging}/res/mipmap-*`
+- Production icons in `android/app/src/main/res/mipmap-*`
+
+**iOS:**
+- Xcode schemes for each flavor (`development.xcscheme`, `staging.xcscheme`, `production.xcscheme`)
+- 27 build configurations (3 build types × 3 flavors × 3 targets) in `project.pbxproj`
+- Per-flavor `PRODUCT_BUNDLE_IDENTIFIER` (e.g., `com.example.app`, `com.example.app.stg`, `com.example.app.dev`)
+- Per-flavor `FLAVOR_APP_NAME` for display name (resolved via `$(FLAVOR_APP_NAME)` in Info.plist)
+- Per-flavor app icon sets in `ios/Runner/Assets.xcassets/` (`AppIcon`, `AppIcon-stg`, `AppIcon-dev`)
+
+### Customizing per-flavor icons
+
+All three icon sets start with the same default icons. To differentiate:
+
+1. Replace icons in `ios/Runner/Assets.xcassets/AppIcon-dev.appiconset/` (development)
+2. Replace icons in `ios/Runner/Assets.xcassets/AppIcon-stg.appiconset/` (staging)
+3. Replace icons in `android/app/src/development/res/mipmap-*/` (Android dev)
+4. Replace icons in `android/app/src/staging/res/mipmap-*/` (Android staging)
 
 ---
 
@@ -415,14 +488,19 @@ flutter run --flavor production -t lib/main_production.dart
 
 ### Android (pre-configured)
 - `build.gradle.kts` with flavor dimensions, signing config, ProGuard, desugaring
+- Per-flavor source sets with launcher icons (`src/development/res/`, `src/staging/res/`)
 - Auto-generated keystore at `android/app/<project_name>-keystore.jks`
 - Signing credentials in `android/key.properties`
 - Internet, camera, location, notification permissions in AndroidManifest.xml
 
 ### iOS (pre-configured)
+- Xcode schemes for each flavor (development, staging, production)
+- 27 build configurations with per-flavor bundle IDs, display names, and app icons
+- Per-flavor app icon sets in `Assets.xcassets` (AppIcon, AppIcon-dev, AppIcon-stg)
 - Podfile with iOS 15.6 minimum, permission handler pods
 - Info.plist with camera, photo library, location usage descriptions
 - Entitlements for push notifications and Sign in with Apple
+- Google Service copy script for per-flavor Firebase config
 
 ### Firebase
 - Directory structure at `firebase/{development,staging,production}/`

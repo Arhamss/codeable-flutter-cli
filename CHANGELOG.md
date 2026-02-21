@@ -39,7 +39,7 @@
 - `rename` command: Rename the project across all files and configurations
 - `change-id` command: Update the app/bundle identifier
 - `sample` command: Add sample features with pre-built UI components
-- 40+ production-ready reusable UI components
+- 30+ production-ready reusable UI components
 - Firebase setup with per-flavor configuration
 - Android keystore generation
 - AI-assisted development config (CLAUDE.md, .cursorrules)

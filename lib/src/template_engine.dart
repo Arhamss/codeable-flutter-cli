@@ -32,6 +32,11 @@ class TemplateEngine {
     return '${pascal[0].toLowerCase()}${pascal.substring(1)}';
   }
 
+  /// Converts a snake_case name to kebab-case.
+  static String toKebabCase(String snakeCase) {
+    return snakeCase.replaceAll('_', '-');
+  }
+
   /// Converts a PascalCase or camelCase name to snake_case.
   static String toSnakeCase(String name) {
     return name

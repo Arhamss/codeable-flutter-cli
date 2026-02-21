@@ -10,7 +10,7 @@ const executableName = 'codeable_cli';
 const packageName = 'codeable_cli';
 const description =
     'A CLI tool that scaffolds production-ready Flutter projects with Clean '
-    'Architecture, BLoC/Cubit, and 40+ reusable UI components.';
+    'Architecture, BLoC/Cubit, and 30+ reusable UI components.';
 
 /// {@template codeable_cli_command_runner}
 /// A [CommandRunner] for the CLI.

@@ -126,6 +126,33 @@ class App extends StatelessWidget {
 }
 ''';
 
+/// Base app_page without onboarding — used when roles are specified
+/// (onboarding cubits are added programmatically per role).
+const appPageBaseTemplate = '''
+import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:{{project_name}}/app/view/app_view.dart';
+import 'package:{{project_name}}/core/locale/cubit/locale_cubit.dart';
+import 'package:{{project_name}}/exports.dart';
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Phoenix(
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => LocaleCubit(context: context),
+          ),
+        ],
+        child: const AppView(),
+      ),
+    );
+  }
+}
+''';
+
 const appViewTemplate = '''
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
@@ -215,6 +242,42 @@ class _SplashScreenState extends State<SplashScreen> {
       AppLogger.info('Auth token found');
       context.goNamed(AppRouteNames.homeScreen);
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: AppColors.backgroundPrimary,
+    );
+  }
+}
+''';
+
+/// Base splash for role-based projects — navigates to onboarding screen.
+/// Uses {{onboarding_route_name}} placeholder for the first role's route.
+const splashBaseTemplate = '''
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:{{project_name}}/exports.dart';
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _navigate();
+    });
+  }
+
+  void _navigate() {
+    FlutterNativeSplash.remove();
+    context.goNamed(AppRouteNames.{{onboarding_route_name}});
   }
 
   @override

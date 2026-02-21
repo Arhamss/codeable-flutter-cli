@@ -27,6 +27,11 @@ class CreateCommand extends Command<int> {
         'output',
         help: 'Output directory.',
         defaultsTo: '.',
+      )
+      ..addOption(
+        'roles',
+        help: 'Comma-separated list of role directories to create '
+            'under features/ (e.g., customer,admin).',
       );
   }
 
@@ -101,12 +106,23 @@ class CreateCommand extends Command<int> {
     );
     _logger.info('');
 
+    // Parse roles
+    final rolesRaw = argResults?['roles'] as String?;
+    final roles = rolesRaw != null
+        ? rolesRaw
+            .split(',')
+            .map((r) => r.trim())
+            .where((r) => r.isNotEmpty)
+            .toList()
+        : <String>[];
+
     final generator = ProjectGenerator(logger: _logger);
     final success = await generator.generate(
       projectName: projectName,
       orgName: orgName,
       description: description,
       outputPath: outputDir,
+      roles: roles,
     );
 
     return success ? ExitCode.success.code : ExitCode.software.code;
