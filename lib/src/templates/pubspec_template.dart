@@ -24,6 +24,7 @@ dependencies:
 
   # Local Storage
   hive_ce: ^2.19.1
+  hive_ce_flutter: ^2.1.0
 
   # Dependency Injection
   get_it: ^8.0.3

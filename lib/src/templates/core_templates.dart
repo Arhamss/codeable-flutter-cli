@@ -288,7 +288,7 @@ class LoggingInterceptor extends Interceptor {
 ''';
 
 const baseStorageTemplate = '''
-import 'package:hive_ce/hive_ce.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 
 abstract class BaseStorage {
   late Box<dynamic> _box;
@@ -432,7 +432,7 @@ abstract class Injector {
 
 const appModulesTemplate = '''
 import 'package:get_it/get_it.dart';
-import 'package:hive_ce/hive_ce.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:{{project_name}}/core/api_service/api_service.dart';
 import 'package:{{project_name}}/core/app_preferences/app_preferences.dart';
 
@@ -719,6 +719,7 @@ const apiResponseHandlerTemplate = '''
 import 'package:dio/dio.dart';
 import 'package:{{project_name}}/core/models/api_response/api_response_model.dart';
 import 'package:{{project_name}}/core/models/api_response/base_api_response.dart';
+import 'package:{{project_name}}/core/models/api_response/response_model.dart';
 
 class ApiResponseHandler<T extends BaseApiResponse<dynamic>> {
   ApiResponseHandler(this.parser, this.response);
@@ -1192,7 +1193,7 @@ class LocalNotificationService {
     );
 
     await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
+      settings: initializationSettings,
       onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
     );
   }
@@ -1232,10 +1233,10 @@ class LocalNotificationService {
     );
 
     await flutterLocalNotificationsPlugin.show(
-      0,
-      title ?? 'Notification',
-      body ?? '',
-      notificationDetails,
+      id: 0,
+      title: title ?? 'Notification',
+      body: body ?? '',
+      notificationDetails: notificationDetails,
       payload: payload,
     );
   }

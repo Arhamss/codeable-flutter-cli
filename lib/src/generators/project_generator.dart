@@ -14,6 +14,7 @@ import 'package:my_dart_cli/src/templates/feature_templates.dart';
 import 'package:my_dart_cli/src/templates/ios_templates.dart';
 import 'package:my_dart_cli/src/templates/l10n_templates.dart';
 import 'package:my_dart_cli/src/templates/pubspec_template.dart';
+import 'package:my_dart_cli/src/templates/readme_template.dart';
 import 'package:my_dart_cli/src/templates/router_templates.dart';
 import 'package:my_dart_cli/src/templates/utils_templates.dart';
 
@@ -339,6 +340,9 @@ class ProjectGenerator {
       'assets/svgs/.gitkeep': '',
       'assets/animation/.gitkeep': '',
       'assets/fonts/.gitkeep': '',
+
+      // README
+      'README.md': render(readmeTemplate, vars),
     };
 
     for (final entry in files.entries) {

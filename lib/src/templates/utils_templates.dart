@@ -288,9 +288,6 @@ class ToastHelper {
       autoCloseDuration: const Duration(seconds: 3),
       alignment: Alignment.topCenter,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      closeButton: const ToastCloseButton(
-        showType: CloseButtonShowType.none,
-      ),
       closeOnClick: true,
       pauseOnHover: true,
       dragToClose: true,
@@ -321,9 +318,6 @@ class ToastHelper {
       autoCloseDuration: const Duration(seconds: 3),
       alignment: Alignment.topCenter,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      closeButton: const ToastCloseButton(
-        showType: CloseButtonShowType.none,
-      ),
       closeOnClick: true,
       pauseOnHover: true,
       dragToClose: true,
@@ -354,9 +348,6 @@ class ToastHelper {
       autoCloseDuration: const Duration(seconds: 3),
       alignment: Alignment.topCenter,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      closeButton: const ToastCloseButton(
-        showType: CloseButtonShowType.none,
-      ),
       closeOnClick: true,
       pauseOnHover: true,
       dragToClose: true,
@@ -387,9 +378,6 @@ class ToastHelper {
       autoCloseDuration: const Duration(seconds: 3),
       alignment: Alignment.topCenter,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      closeButton: const ToastCloseButton(
-        showType: CloseButtonShowType.none,
-      ),
       closeOnClick: true,
       pauseOnHover: true,
       dragToClose: true,
