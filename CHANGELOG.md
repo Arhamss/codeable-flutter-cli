@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.6
+
+- Fixed `--version` flag to report correct version
+- Keystore now uses `<project_name>-keystore.jks` filename and `<project_name>-alias`
+- Keystore password set to `android` by default
+
 ## 1.0.5
 
 - Fixed repository and issue tracker URLs to point to the correct GitHub repo
