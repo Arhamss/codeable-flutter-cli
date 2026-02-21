@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:mason_logger/mason_logger.dart';
-import 'package:my_dart_cli/src/template_engine.dart';
-import 'package:my_dart_cli/src/templates/feature_templates.dart';
+import 'package:codeable_cli/src/template_engine.dart';
+import 'package:codeable_cli/src/templates/feature_templates.dart';
 
 class FeatureGenerator {
   const FeatureGenerator({required Logger logger}) : _logger = logger;

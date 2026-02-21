@@ -70,12 +70,12 @@ class AppBlocObserver extends BlocObserver {
   @override
   void onChange(BlocBase<dynamic> bloc, Change<dynamic> change) {
     super.onChange(bloc, change);
-    log('onChange(\\\${bloc.runtimeType}, \\\$change)');
+    log('onChange(\${bloc.runtimeType}, \$change)');
   }
 
   @override
   void onError(BlocBase<dynamic> bloc, Object error, StackTrace stackTrace) {
-    log('onError(\\\${bloc.runtimeType}, \\\$error, \\\$stackTrace)');
+    log('onError(\${bloc.runtimeType}, \$error, \$stackTrace)');
     super.onError(bloc, error, stackTrace);
   }
 }
@@ -162,10 +162,10 @@ class AppView extends StatelessWidget {
                 scaffoldBackgroundColor: AppColors.backgroundPrimary,
                 useMaterial3: true,
                 textSelectionTheme: TextSelectionThemeData(
-                  cursorColor: AppColors.primary,
+                  cursorColor: AppColors.blackPrimary,
                   selectionColor:
-                      AppColors.primary.withValues(alpha: 0.25),
-                  selectionHandleColor: AppColors.primary,
+                      AppColors.blackPrimary.withValues(alpha: 0.25),
+                  selectionHandleColor: AppColors.blackPrimary,
                 ),
               ),
               locale: DevicePreview.locale(context) ?? state.locale,

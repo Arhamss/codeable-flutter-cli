@@ -15,7 +15,7 @@ class ApiService {
   ApiService._internal() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: '\\\${Endpoints.baseUrl}/\\\${Endpoints.apiVersion}/',
+        baseUrl: '\${Endpoints.baseUrl}/\${Endpoints.apiVersion}/',
         connectTimeout: const Duration(seconds: 60),
         receiveTimeout: const Duration(seconds: 60),
         headers: {'Content-Type': 'application/json'},
@@ -87,7 +87,7 @@ class ApiService {
     } on DioException catch (e) {
       throw _handleDioError(e);
     } catch (e) {
-      debugPrint('Unhandled error: \\\$e');
+      debugPrint('Unhandled error: \$e');
       throw AppApiException('Unexpected error occurred');
     }
   }
@@ -118,7 +118,7 @@ class ApiService {
             case 500:
               errorMessage = 'Internal server error';
             default:
-              errorMessage = 'Unexpected error: \\\${e.response?.statusMessage}';
+              errorMessage = 'Unexpected error: \${e.response?.statusMessage}';
           }
         }
       }
@@ -126,7 +126,7 @@ class ApiService {
       errorMessage = e.message ?? 'Network error';
     }
 
-    debugPrint('API Error: \\\$errorMessage');
+    debugPrint('API Error: \$errorMessage');
     throw AppApiException(errorMessage, statusCode: statusCode);
   }
 }
@@ -170,7 +170,7 @@ class AuthInterceptor extends Interceptor {
     final token = _appPreferences.getAuthToken();
 
     if (token != null) {
-      options.headers['Authorization'] = 'Bearer \\\$token';
+      options.headers['Authorization'] = 'Bearer \$token';
     }
 
     return handler.next(options);
@@ -185,7 +185,7 @@ class AuthInterceptor extends Interceptor {
       final newToken = await _handleTokenRefresh();
 
       if (newToken != null) {
-        err.requestOptions.headers['Authorization'] = 'Bearer \\\$newToken';
+        err.requestOptions.headers['Authorization'] = 'Bearer \$newToken';
         final retryResponse = await _dio.fetch<dynamic>(err.requestOptions);
         return handler.resolve(retryResponse);
       }
@@ -217,8 +217,8 @@ class AuthInterceptor extends Interceptor {
       }
 
       final response = await _dio.post<dynamic>(
-        '\\\${Endpoints.baseUrl}/\\\${Endpoints.refresh}',
-        options: Options(headers: {'Authorization': 'Bearer \\\$refreshToken'}),
+        '\${Endpoints.baseUrl}/\${Endpoints.refresh}',
+        options: Options(headers: {'Authorization': 'Bearer \$refreshToken'}),
       );
 
       if (response.statusCode == 200) {
@@ -255,10 +255,10 @@ class LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (kDebugMode) {
-      print('[\\u27A1\\uFE0F] [\\\${options.method}] \\\${options.uri}');
-      print('Headers: \\\${options.headers}');
+      print('[\\u27A1\\uFE0F] [\${options.method}] \${options.uri}');
+      print('Headers: \${options.headers}');
       if (options.data != null) {
-        print('Body: \\\${options.data}');
+        print('Body: \${options.data}');
       }
     }
     return handler.next(options);
@@ -267,8 +267,8 @@ class LoggingInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     if (kDebugMode) {
-      print('[\\u2705] [\\\${response.statusCode}] \\\${response.requestOptions.uri}');
-      print('Response: \\\${response.data}');
+      print('[\\u2705] [\${response.statusCode}] \${response.requestOptions.uri}');
+      print('Response: \${response.data}');
     }
     return handler.next(response);
   }
@@ -276,10 +276,10 @@ class LoggingInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (kDebugMode) {
-      print('[\\u274C] [Error] \\\${err.requestOptions.uri}');
-      print('Message: \\\${err.message}');
+      print('[\\u274C] [Error] \${err.requestOptions.uri}');
+      print('Message: \${err.message}');
       if (err.response != null) {
-        print('Response Data: \\\${err.response?.data}');
+        print('Response Data: \${err.response?.data}');
       }
     }
     return handler.next(err);
@@ -435,6 +435,9 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:{{project_name}}/core/api_service/api_service.dart';
 import 'package:{{project_name}}/core/app_preferences/app_preferences.dart';
+import 'package:{{project_name}}/core/permissions/permission_manager.dart';
+// import 'package:{{project_name}}/core/notifications/firebase_notifications.dart';
+// import 'package:{{project_name}}/core/notifications/local_notification_service.dart';
 
 abstract class AppModule {
   static late final GetIt _container;
@@ -444,6 +447,8 @@ abstract class AppModule {
     await _setupHive();
     await _setupAppPreferences();
     await _setupAPIService();
+    await _setupPermissionManager();
+    // await _setupNotifications();
   }
 
   static Future<void> _setupHive() async {
@@ -462,6 +467,20 @@ abstract class AppModule {
     await appPreferences.init('app-storage');
     _container.registerSingleton<AppPreferences>(appPreferences);
   }
+
+  static Future<void> _setupPermissionManager() async {
+    final permissionManager = PermissionManager();
+    _container.registerSingleton<PermissionManager>(permissionManager);
+  }
+
+  // Uncomment when Firebase is configured
+  // static Future<void> _setupNotifications() async {
+  //   final firebaseNotifications = FirebaseNotifications();
+  //   _container.registerSingleton<FirebaseNotifications>(firebaseNotifications);
+  //   final localNotificationService = LocalNotificationService();
+  //   await localNotificationService.init();
+  //   _container.registerSingleton<LocalNotificationService>(localNotificationService);
+  // }
 }
 ''';
 
@@ -486,45 +505,320 @@ class Endpoints {
 }
 ''';
 
-const fieldValidatorsTemplate = '''
+const fieldValidatorsTemplate = r'''
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 class FieldValidators {
-  FieldValidators._();
-
-  static String? required(String? value, {String? fieldName}) {
-    if (value == null || value.trim().isEmpty) {
-      return '\\\${fieldName ?? "This field"} is required';
+  static String? emailValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your email.';
+    }
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+      return 'Please enter a valid email address.';
     }
     return null;
   }
 
-  static String? email(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Email is required';
+  static String? passwordValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your password.';
     }
-    final emailRegex = RegExp(r'^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\\\$');
-    if (!emailRegex.hasMatch(value.trim())) {
-      return 'Please enter a valid email';
+    if (value.length < 6) {
+      return 'Password must be at least 6 characters.';
     }
-    return null;
-  }
-
-  static String? password(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Password is required';
-    }
-    if (value.length < 8) {
-      return 'Password must be at least 8 characters';
+    if (value.length > 100) {
+      return 'Password must be at most 100 characters.';
     }
     return null;
   }
 
-  static String? phone(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Phone number is required';
+  static String? confirmPasswordValidator(
+    String? value,
+    TextEditingController passwordController,
+  ) {
+    if (value == null || value.isEmpty) {
+      return 'Please confirm your password.';
     }
-    final phoneRegex = RegExp(r'^\\+?[0-9]{10,15}\\\$');
-    if (!phoneRegex.hasMatch(value.replaceAll(' ', ''))) {
-      return 'Please enter a valid phone number';
+    if (value != passwordController.text) {
+      return 'Passwords do not match.';
+    }
+    return null;
+  }
+
+  static String? nameValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your name.';
+    }
+    if (!RegExp(r"^[a-zA-Z\s'-]+$").hasMatch(value)) {
+      return 'Please enter a valid name.';
+    }
+    if (value.length < 2) {
+      return 'Name must be at least 2 characters.';
+    }
+    if (value.length > 30) {
+      return 'Name must be at most 30 characters.';
+    }
+    return null;
+  }
+
+  static String? textValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter text.';
+    }
+    return null;
+  }
+
+  static String? numberValidator(
+    String? value, {
+    int? min,
+    int? max,
+  }) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a number.';
+    }
+
+    final number = int.tryParse(value);
+    if (number == null) {
+      return 'Please enter a valid number.';
+    }
+
+    if (min != null && number < min) {
+      return 'Number must be greater than $min.';
+    }
+
+    if (max != null && number > max) {
+      return 'Number must be less than $max.';
+    }
+
+    return null;
+  }
+
+  static String? dateValidator(String? value, {bool allowFutureDates = false}) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a date.';
+    }
+
+    final date = DateFormat('dd/MM/yyyy').tryParse(value);
+    if (date == null) {
+      return 'Please enter a valid date (dd/MM/yyyy).';
+    }
+
+    final now = DateTime.now();
+    if (!allowFutureDates && date.isAfter(now)) {
+      return 'Date must be in the past.';
+    } else if (allowFutureDates && date.isBefore(now)) {
+      return 'Date must be in the future.';
+    }
+
+    return null;
+  }
+
+  static String? timeValidator(String? value, DateTime? date) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a time';
+    }
+
+    final timeParts = value.split(':');
+    if (timeParts.length != 2) {
+      return 'Please enter a valid time in format HH:mm';
+    }
+
+    final hour = int.tryParse(timeParts[0]);
+    final minute = int.tryParse(timeParts[1]);
+
+    if (hour == null ||
+        minute == null ||
+        hour < 0 ||
+        hour > 23 ||
+        minute < 0 ||
+        minute > 59) {
+      return 'Please enter a valid time';
+    }
+
+    if (date != null) {
+      final enteredDateTime =
+          DateTime(date.year, date.month, date.day, hour, minute);
+      final now = DateTime.now();
+      if (enteredDateTime.isBefore(now)) {
+        return 'Time must be greater than or equal to now';
+      }
+    }
+
+    return null;
+  }
+
+  static String? emailOrPhoneValidatorSync(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your email or phone number.';
+    }
+
+    if (value.contains('@')) {
+      return emailValidator(value);
+    } else {
+      return phoneValidator(value);
+    }
+  }
+
+  static String? phoneValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your phone number.';
+    }
+
+    final cleaned = value.replaceAll(RegExp(r'[\s\-\(\)]'), '');
+
+    if (cleaned.startsWith('+92')) {
+      return 'Please remove the country code (+92) — it will be added automatically.';
+    }
+
+    final pkNumberPattern = RegExp(r'^[3]\d{9}$');
+
+    if (!pkNumberPattern.hasMatch(cleaned)) {
+      return 'Please enter a valid phone number (e.g. 3001234567).';
+    }
+
+    return null;
+  }
+
+  static String? dateOfBirthValidator(String? value, {int minAge = 13}) {
+    if (value == null || value.isEmpty) {
+      return 'Please select your date of birth.';
+    }
+
+    try {
+      final date = DateTime.parse(value);
+      final today = DateTime.now();
+
+      if (date.isAfter(today)) {
+        return 'Date of birth cannot be in the future.';
+      }
+
+      var age = today.year - date.year;
+      if (today.month < date.month ||
+          (today.month == date.month && today.day < date.day)) {
+        age--;
+      }
+
+      if (age < minAge) {
+        return 'You must be at least $minAge years old to join.';
+      }
+
+      if (age > 120) {
+        return 'Please enter a valid date of birth.';
+      }
+
+      return null;
+    } catch (e) {
+      return 'Please enter a valid date.';
+    }
+  }
+
+  static String? genderValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please select your gender.';
+    }
+    return null;
+  }
+
+  static String? stateValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please select a state.';
+    }
+    return null;
+  }
+
+  static String? cityValidator(String? value, String? selectedState, [List<String>? availableCities]) {
+    if (selectedState != null && (value == null || value.isEmpty)) {
+      return 'Please select a city.';
+    }
+    if (value != null && value.isNotEmpty && availableCities != null && !availableCities.contains(value)) {
+      return 'Please select a valid city from the list.';
+    }
+    return null;
+  }
+
+  static String? addressValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your address.';
+    }
+    if (value.length < 10) {
+      return 'Address must be at least 10 characters.';
+    }
+    if (value.length > 200) {
+      return 'Address must be at most 200 characters.';
+    }
+    return null;
+  }
+
+  static String? pakistaniPostalCodeValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your postal code.';
+    }
+
+    final cleanedValue = value.replaceAll(RegExp(r'[\s\-]'), '');
+
+    if (cleanedValue.length != 5) {
+      return 'Postal code must be exactly 5 digits.';
+    }
+
+    if (!RegExp(r'^\d{5}$').hasMatch(cleanedValue)) {
+      return 'Postal code must contain only numbers.';
+    }
+
+    final postalCode = int.tryParse(cleanedValue);
+    if (postalCode == null) {
+      return 'Please enter a valid postal code.';
+    }
+
+    if (postalCode < 10000 || postalCode > 99999) {
+      return 'Please enter a valid Pakistani postal code (10000-99999).';
+    }
+
+    return null;
+  }
+
+  static String? validateCardNumber(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Card number is required';
+    }
+    final cardNumber = value.replaceAll(' ', '');
+    if (cardNumber.length < 13 || cardNumber.length > 19) {
+      return 'Please enter a valid card number';
+    }
+    if (!RegExp(r'^\d+$').hasMatch(cardNumber)) {
+      return 'Card number must contain only digits';
+    }
+    return null;
+  }
+
+  static String? validateExpiryDate(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Expiry date is required';
+    }
+    if (!RegExp(r'^\d{2}/\d{2}$').hasMatch(value)) {
+      return 'Please enter expiry date in MM/YY format';
+    }
+    final parts = value.split('/');
+    final month = int.tryParse(parts[0]);
+    final year = int.tryParse(parts[1]);
+    if (month == null || year == null) {
+      return 'Invalid expiry date';
+    }
+    if (month < 1 || month > 12) {
+      return 'Invalid month';
+    }
+    return null;
+  }
+
+  static String? validateCVV(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'CVV is required';
+    }
+    if (value.length < 3 || value.length > 4) {
+      return 'CVV must be 3 or 4 digits';
+    }
+    if (!RegExp(r'^\d+$').hasMatch(value)) {
+      return 'CVV must contain only digits';
     }
     return null;
   }
@@ -672,7 +966,7 @@ class ApiError extends Equatable {
   List<Object?> get props => [code, message, timestamp];
 
   @override
-  String toString() => '\\\$code: \\\$message';
+  String toString() => '\$code: \$message';
 }
 ''';
 
@@ -758,12 +1052,12 @@ class ApiResponseHandler<T extends BaseApiResponse<dynamic>> {
 
       return ResponseModel<T>(
         status: ResponseStatus.responseError,
-        error: 'Request failed with status code \\\$statusCode',
+        error: 'Request failed with status code \$statusCode',
       );
     } catch (e) {
       return ResponseModel<T>(
         status: ResponseStatus.responseError,
-        error: 'Exception during parsing: \\\$e',
+        error: 'Exception during parsing: \$e',
       );
     }
   }
@@ -901,7 +1195,7 @@ class PermissionManager {
         shouldShowRationale: status.isDenied,
       );
     } catch (e) {
-      debugPrint('Error requesting location permission: \\\$e');
+      debugPrint('Error requesting location permission: \$e');
       return const PermissionResult(state: PermissionState.unknown);
     }
   }
@@ -918,7 +1212,7 @@ class PermissionManager {
         shouldShowRationale: status.isDenied,
       );
     } catch (e) {
-      debugPrint('Error requesting camera permission: \\\$e');
+      debugPrint('Error requesting camera permission: \$e');
       return const PermissionResult(state: PermissionState.unknown);
     }
   }
@@ -935,7 +1229,7 @@ class PermissionManager {
         shouldShowRationale: status.isDenied,
       );
     } catch (e) {
-      debugPrint('Error requesting photos permission: \\\$e');
+      debugPrint('Error requesting photos permission: \$e');
       return const PermissionResult(state: PermissionState.unknown);
     }
   }
@@ -954,7 +1248,7 @@ class PermissionManager {
         shouldShowRationale: status.isDenied,
       );
     } catch (e) {
-      debugPrint('Error requesting permission: \\\$e');
+      debugPrint('Error requesting permission: \$e');
       return const PermissionResult(state: PermissionState.unknown);
     }
   }
@@ -974,12 +1268,12 @@ class PermissionManager {
           context: context,
           permissionName: permissionName,
           message: customPermanentlyDeniedMessage ??
-              '\\\$permissionName access is required. Please enable it in Settings.',
+              '\$permissionName access is required. Please enable it in Settings.',
         );
       }
       return false;
     } catch (e) {
-      debugPrint('Error requesting permission with dialog: \\\$e');
+      debugPrint('Error requesting permission with dialog: \$e');
       return false;
     }
   }
@@ -1034,7 +1328,7 @@ class PermissionManager {
       barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('\\\$permissionName Permission Required'),
+        title: Text('\$permissionName Permission Required'),
         content: Text(message),
         actions: [
           TextButton(
@@ -1116,10 +1410,10 @@ class FirebaseNotificationService {
   Future<String?> getFcmToken() async {
     try {
       final token = await _firebaseMessaging.getToken();
-      debugPrint('FCM Token: \\\$token');
+      debugPrint('FCM Token: \$token');
       return token;
     } catch (e) {
-      debugPrint('Error fetching FCM token: \\\$e');
+      debugPrint('Error fetching FCM token: \$e');
       return null;
     }
   }
@@ -1129,7 +1423,7 @@ class FirebaseNotificationService {
       await _firebaseMessaging.deleteToken();
       return true;
     } catch (e) {
-      debugPrint('Error deleting FCM token: \\\$e');
+      debugPrint('Error deleting FCM token: \$e');
       return false;
     }
   }
@@ -1151,14 +1445,14 @@ class FirebaseNotificationService {
   }
 
   Future<void> _onForegroundMessage(RemoteMessage message) async {
-    debugPrint('Foreground message: \\\${message.data}');
+    debugPrint('Foreground message: \${message.data}');
     // TODO: Handle foreground notifications (show local notification)
   }
 }
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  debugPrint('Background message: \\\${message.data}');
+  debugPrint('Background message: \${message.data}');
 }
 ''';
 
@@ -1206,10 +1500,10 @@ class LocalNotificationService {
 
     try {
       final decodedPayload = json.decode(payload) as Map<String, dynamic>;
-      debugPrint('Parsed payload: \\\$decodedPayload');
+      debugPrint('Parsed payload: \$decodedPayload');
       // TODO: Handle notification tap navigation
     } catch (e) {
-      debugPrint('Error parsing notification payload: \\\$e');
+      debugPrint('Error parsing notification payload: \$e');
     }
   }
 

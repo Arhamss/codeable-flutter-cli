@@ -1,6 +1,6 @@
 import 'package:mason_logger/mason_logger.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:my_dart_cli/src/command_runner.dart';
+import 'package:codeable_cli/src/command_runner.dart';
 import 'package:test/test.dart';
 
 class _MockLogger extends Mock implements Logger {}
@@ -8,11 +8,11 @@ class _MockLogger extends Mock implements Logger {}
 void main() {
   group('sample', () {
     late Logger logger;
-    late MyDartCliCommandRunner commandRunner;
+    late CodeableCliCommandRunner commandRunner;
 
     setUp(() {
       logger = _MockLogger();
-      commandRunner = MyDartCliCommandRunner(logger: logger);
+      commandRunner = CodeableCliCommandRunner(logger: logger);
     });
 
     test('tells a joke', () async {

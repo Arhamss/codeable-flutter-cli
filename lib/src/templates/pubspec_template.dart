@@ -48,6 +48,7 @@ dependencies:
   intl: any
 
   # UI
+  google_fonts: ^6.2.1
   flutter_svg: ^2.0.17
   cached_network_image: ^3.4.1
   lottie: ^3.3.1
@@ -94,7 +95,7 @@ flutter:
 
   assets:
     - assets/
-    - assets/svgs/
+    - assets/vectors/
     - assets/images/
     - assets/animation/
     - assets/fonts/

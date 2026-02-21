@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:mason_logger/mason_logger.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:my_dart_cli/src/command_runner.dart';
-import 'package:my_dart_cli/src/commands/commands.dart';
-import 'package:my_dart_cli/src/version.dart';
+import 'package:codeable_cli/src/command_runner.dart';
+import 'package:codeable_cli/src/commands/commands.dart';
+import 'package:codeable_cli/src/version.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
 
@@ -20,14 +20,14 @@ void main() {
   group('update', () {
     late PubUpdater pubUpdater;
     late Logger logger;
-    late MyDartCliCommandRunner commandRunner;
+    late CodeableCliCommandRunner commandRunner;
 
     setUp(() {
       final progress = _MockProgress();
       final progressLogs = <String>[];
       pubUpdater = _MockPubUpdater();
       logger = _MockLogger();
-      commandRunner = MyDartCliCommandRunner(
+      commandRunner = CodeableCliCommandRunner(
         logger: logger,
         pubUpdater: pubUpdater,
       );

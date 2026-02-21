@@ -2,24 +2,26 @@ import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:cli_completion/cli_completion.dart';
 import 'package:mason_logger/mason_logger.dart';
-import 'package:my_dart_cli/src/commands/commands.dart';
-import 'package:my_dart_cli/src/version.dart';
+import 'package:codeable_cli/src/commands/commands.dart';
+import 'package:codeable_cli/src/version.dart';
 import 'package:pub_updater/pub_updater.dart';
 
 const executableName = 'codeable_cli';
-const packageName = 'my_dart_cli';
-const description = 'CLI for bootstrapping Codeable Flutter architecture projects';
+const packageName = 'codeable_cli';
+const description =
+    'A CLI tool that scaffolds production-ready Flutter projects with Clean '
+    'Architecture, BLoC/Cubit, and 40+ reusable UI components.';
 
-/// {@template my_dart_cli_command_runner}
+/// {@template codeable_cli_command_runner}
 /// A [CommandRunner] for the CLI.
 ///
 /// ```bash
 /// $ codeable_cli --version
 /// ```
 /// {@endtemplate}
-class MyDartCliCommandRunner extends CompletionCommandRunner<int> {
-  /// {@macro my_dart_cli_command_runner}
-  MyDartCliCommandRunner({Logger? logger, PubUpdater? pubUpdater})
+class CodeableCliCommandRunner extends CompletionCommandRunner<int> {
+  /// {@macro codeable_cli_command_runner}
+  CodeableCliCommandRunner({Logger? logger, PubUpdater? pubUpdater})
     : _logger = logger ?? Logger(),
       _pubUpdater = pubUpdater ?? PubUpdater(),
       super(executableName, description) {

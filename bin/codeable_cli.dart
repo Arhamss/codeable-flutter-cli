@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:my_dart_cli/src/command_runner.dart';
+import 'package:codeable_cli/src/command_runner.dart';
 
 Future<void> main(List<String> args) async {
-  await _flushThenExit(await MyDartCliCommandRunner().run(args));
+  await _flushThenExit(await CodeableCliCommandRunner().run(args));
 }
 
 /// Flushes the stdout and stderr streams, then exits the program with the given

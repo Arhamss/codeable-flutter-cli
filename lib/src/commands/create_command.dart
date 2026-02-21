@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
-import 'package:my_dart_cli/src/generators/project_generator.dart';
+import 'package:codeable_cli/src/generators/project_generator.dart';
 
 class CreateCommand extends Command<int> {
   CreateCommand({required Logger logger}) : _logger = logger {
