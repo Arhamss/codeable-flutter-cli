@@ -109,43 +109,6 @@ PreferredSizeWidget customAppBar({
   );
 }
 
-/// Legacy AppBar function (deprecated - use customAppBar instead)
-@Deprecated('Use customAppBar instead')
-PreferredSizeWidget legacyCustomAppBar({
-  required BuildContext context,
-  required String title,
-  VoidCallback? leadingAction,
-  List<Widget>? actions,
-  bool? showBackButton = true,
-}) {
-  return AppBar(
-    backgroundColor: AppColors.white,
-    flexibleSpace: Container(color: AppColors.white),
-    elevation: 0,
-    systemOverlayStyle: SystemUiOverlayStyle.dark,
-    forceMaterialTransparency: true,
-    centerTitle: false,
-    titleSpacing: 0,
-    leadingWidth:
-        16 + 40,
-    leading: (showBackButton ?? false)
-        ? Padding(
-            padding: _appBarLeadingPadding,
-            child: AppBarBackButton(onPressed: leadingAction),
-          )
-        : null,
-    title: Text(
-      title,
-      style: context.t3.copyWith(
-        fontSize: 20,
-        fontWeight: FontWeight.w600,
-        color: AppColors.blackPrimary,
-      ),
-    ),
-    actionsPadding: const EdgeInsets.symmetric(horizontal: 24),
-    actions: actions,
-  );
-}
 ''';
 
 const String bottomSheetTemplate = '''

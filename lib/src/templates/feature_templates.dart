@@ -15,15 +15,17 @@ abstract class {{FeatureName}}Repository {
 
 const featureRepositoryImplTemplate = '''
 import 'package:{{project_name}}/core/api_service/api_service.dart';
+import 'package:{{project_name}}/core/app_preferences/app_preferences.dart';
 import 'package:{{project_name}}/core/di/injector.dart';
 import 'package:{{project_name}}/features/{{feature_name}}/domain/repository/{{feature_name}}_repository.dart';
 
 class {{FeatureName}}RepositoryImpl implements {{FeatureName}}Repository {
-  {{FeatureName}}RepositoryImpl({
-    ApiService? apiService,
-  }) : _apiService = apiService ?? Injector.resolve<ApiService>();
+  {{FeatureName}}RepositoryImpl({ApiService? apiService, AppPreferences? cache})
+    : _apiService = apiService ?? Injector.resolve<ApiService>(),
+      _cache = cache ?? Injector.resolve<AppPreferences>();
 
   final ApiService _apiService;
+  final AppPreferences _cache;
 
   // TODO: Implement repository methods
 }
@@ -103,6 +105,8 @@ class {{FeatureName}}State extends Equatable {
 
 const featureScreenTemplate = '''
 import 'package:{{project_name}}/exports.dart';
+import 'package:{{project_name}}/features/{{feature_name}}/presentation/cubit/cubit.dart';
+import 'package:{{project_name}}/features/{{feature_name}}/presentation/cubit/state.dart';
 
 class {{FeatureName}}Screen extends StatelessWidget {
   const {{FeatureName}}Screen({super.key});
@@ -110,13 +114,13 @@ class {{FeatureName}}Screen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('{{FeatureName}}', style: context.t2),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: const Center(
-        child: Text('{{FeatureName}} Screen'),
+      appBar: customAppBar(context: context, title: '{{FeatureName}}'),
+      body: BlocBuilder<{{FeatureName}}Cubit, {{FeatureName}}State>(
+        builder: (context, state) {
+          return const Center(
+            child: Text('{{FeatureName}} Screen'),
+          );
+        },
       ),
     );
   }
