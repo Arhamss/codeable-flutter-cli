@@ -1,0 +1,9 @@
+{
+  "@@locale": "es",
+  "appName": "TestApp",
+  "login": "Iniciar sesi\u00f3n",
+  "logout": "Cerrar sesi\u00f3n",
+  "home": "Inicio",
+  "loginToContinue": "Inicia sesi\u00f3n para continuar",
+  "somethingWentWrong": "Algo sali\u00f3 mal. Por favor, int\u00e9ntalo de nuevo m\u00e1s tarde."
+}

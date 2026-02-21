@@ -17,6 +17,25 @@ Future<void> main() async {
 }
 ''';
 
+const mainStagingTemplate = '''
+import 'package:device_preview/device_preview.dart';
+import 'package:{{project_name}}/app/view/app_page.dart';
+import 'package:{{project_name}}/bootstrap.dart';
+import 'package:{{project_name}}/config/flavor_config.dart';
+
+Future<void> main() async {
+  FlavorConfig(flavor: Flavor.staging);
+  await bootstrap(
+    () => DevicePreview(
+      enabled: false,
+      builder: (context) {
+        return const App();
+      },
+    ),
+  );
+}
+''';
+
 const mainProductionTemplate = '''
 import 'package:device_preview/device_preview.dart';
 import 'package:{{project_name}}/app/view/app_page.dart';
@@ -168,8 +187,6 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:{{project_name}}/core/app_preferences/app_preferences.dart';
 import 'package:{{project_name}}/core/di/injector.dart';
 import 'package:{{project_name}}/exports.dart';
-import 'package:{{project_name}}/features/onboarding/presentation/cubit/cubit.dart';
-import 'package:{{project_name}}/features/onboarding/presentation/cubit/state.dart';
 import 'package:{{project_name}}/utils/helpers/logger_helper.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -184,32 +201,26 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authToken = Injector.resolve<AppPreferences>().getAuthToken();
-      if ((authToken ?? '').isEmpty) {
-        context.read<OnboardingCubit>().guestLogin();
-        return;
-      } else {
-        AppLogger.info('Auth token found');
-        FlutterNativeSplash.remove();
-        context.goNamed(AppRouteNames.homeScreen);
-      }
+      _navigate();
     });
+  }
+
+  void _navigate() {
+    final authToken = Injector.resolve<AppPreferences>().getAuthToken();
+    FlutterNativeSplash.remove();
+
+    if ((authToken ?? '').isEmpty) {
+      context.goNamed(AppRouteNames.loginScreen);
+    } else {
+      AppLogger.info('Auth token found');
+      context.goNamed(AppRouteNames.homeScreen);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<OnboardingCubit, OnboardingState>(
-      listener: (context, state) {
-        if (state.guestLogin.isLoaded) {
-          FlutterNativeSplash.remove();
-          context.goNamed(AppRouteNames.homeScreen);
-        } else if (state.guestLogin.isFailure) {
-          ToastHelper.showErrorToast(state.guestLogin.errorMessage);
-        }
-      },
-      child: const Scaffold(
-        backgroundColor: AppColors.backgroundPrimary,
-      ),
+    return const Scaffold(
+      backgroundColor: AppColors.backgroundPrimary,
     );
   }
 }

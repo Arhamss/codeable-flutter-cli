@@ -5,8 +5,7 @@ version: 1.0.0+1
 publish_to: none
 
 environment:
-  sdk: ">=3.6.0 <4.0.0"
-  flutter: ^3.35.0
+  sdk: ^3.9.0
 
 dependencies:
   flutter:
@@ -15,69 +14,76 @@ dependencies:
     sdk: flutter
 
   # State Management
-  bloc: ^9.1.0
-  flutter_bloc: ^9.1.1
+  bloc: ^9.0.1
+  flutter_bloc: ^9.1.0
   equatable: ^2.0.7
 
   # Networking
-  dio: ^5.9.0
+  dio: ^5.8.0+1
+  http: ^1.3.0
 
   # Local Storage
-  hive_flutter: ^1.1.0
-  hive: ^2.2.3
+  hive_ce: ^2.19.1
 
   # Dependency Injection
-  get_it: ^9.2.0
+  get_it: ^8.0.3
 
   # Routing
-  go_router: ^17.0.1
+  go_router: ^14.8.1
 
   # Firebase
-  firebase_core: ^4.3.0
-  firebase_auth: ^6.1.3
-  firebase_messaging: ^16.1.0
-  firebase_remote_config: ^6.1.3
+  firebase_core: ^3.12.1
+  firebase_auth: ^5.5.1
+  firebase_messaging: ^15.2.5
+  firebase_remote_config: ^5.3.1
+  cloud_firestore: ^5.6.7
+  firebase_storage: ^12.4.7
 
   # Auth Providers
-  google_sign_in: ^7.2.0
-  sign_in_with_apple: ^7.0.1
+  google_sign_in: ^6.2.2
+  sign_in_with_apple: ^6.1.4
 
   # Localization
-  intl: ^0.20.2
+  intl: any
 
   # UI
-  flutter_svg: ^2.2.3
+  flutter_svg: ^2.0.17
   cached_network_image: ^3.4.1
-  google_fonts: ^6.3.3
-  lottie: ^3.3.2
+  lottie: ^3.3.1
   shimmer: ^3.0.0
-  carousel_slider: ^5.1.1
-  smooth_page_indicator: ^2.0.1
-  flutter_switch: ^0.3.2
-  flutter_slidable: ^4.0.3
+  smooth_page_indicator: ^1.2.0+3
+  blur: ^4.0.2
+  flutter_swipe_button: ^2.1.3
+
+  # Media
+  camera: ^0.11.1
+  image_picker: ^1.1.2
+  video_player: ^2.9.3
 
   # Utilities
-  logger: ^2.6.2
-  toastification: ^3.0.3
-  package_info_plus: ^9.0.0
-  url_launcher: ^6.3.2
+  logger: ^2.5.0
+  toastification: ^2.3.0
+  package_info_plus: ^8.1.3
+  url_launcher: ^6.3.1
   flutter_phoenix: ^1.1.1
-  permission_handler: ^12.0.1
-  image_picker: ^1.2.1
-  photo_manager: ^3.8.3
-  flutter_local_notifications: ^19.5.0
+  permission_handler: ^11.3.1
+  device_info_plus: ^11.3.3
+  flutter_local_notifications: ^20.0.0
   flutter_native_splash: ^2.4.6
+  crypto: ^3.0.6
+  purchases_flutter: ^8.4.3
 
   # Debug
   chucker_flutter: ^1.9.1
-  device_preview: ^1.3.1
+  device_preview: ^1.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.4
+  bloc_test: ^10.0.0
   intl_utils: ^2.8.8
-  hive_generator: ^2.0.1
+  hive_ce_generator: ^1.10.0
   very_good_analysis: ^9.0.0
   build_runner: ^2.4.0
 
@@ -87,14 +93,27 @@ flutter:
 
   assets:
     - assets/
-    - assets/vectors/
+    - assets/svgs/
     - assets/images/
-    - assets/lottie/
+    - assets/animation/
+    - assets/fonts/
+
+  fonts:
+    - family: DMSans
+      fonts:
+        - asset: assets/fonts/DMSans-Regular.ttf
+        - asset: assets/fonts/DMSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/DMSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/DMSans-Bold.ttf
+          weight: 700
 
 flutter_native_splash:
-  color: "#FFFFFF"
+  color: "#0D0B2E"
+  fullscreen: true
+  image: assets/images/splash-with-logo.png
   android_12:
-    color: "#FFFFFF"
-  android: true
-  ios: true
+    color: "#0D0B2E"
+    image: assets/images/splash-with-logo.png
 ''';

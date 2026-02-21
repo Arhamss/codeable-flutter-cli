@@ -131,7 +131,10 @@ const onboardingRepositoryTemplate = '''
 import 'package:{{project_name}}/utils/helpers/repository_response.dart';
 
 abstract class OnboardingRepository {
-  Future<RepositoryResponse<bool>> guestLogin();
+  // TODO: Define your onboarding methods
+  // Example:
+  // Future<RepositoryResponse<bool>> login({required String email, required String password});
+  // Future<RepositoryResponse<bool>> register({required String email, required String password});
 }
 ''';
 
@@ -139,11 +142,7 @@ const onboardingRepositoryImplTemplate = '''
 import 'package:{{project_name}}/core/api_service/api_service.dart';
 import 'package:{{project_name}}/core/app_preferences/app_preferences.dart';
 import 'package:{{project_name}}/core/di/injector.dart';
-import 'package:{{project_name}}/core/endpoints/endpoints.dart';
 import 'package:{{project_name}}/features/onboarding/domain/repository/onboarding_repository.dart';
-import 'package:{{project_name}}/utils/helpers/repository_response.dart';
-import 'package:{{project_name}}/utils/response_data_model/api_response_parser.dart';
-import 'package:{{project_name}}/features/onboarding/data/models/guest_login_response_model.dart';
 
 class OnboardingRepositoryImpl implements OnboardingRepository {
   OnboardingRepositoryImpl({
@@ -155,65 +154,7 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
   final ApiService _apiService;
   final AppPreferences _cache;
 
-  @override
-  Future<RepositoryResponse<bool>> guestLogin() async {
-    try {
-      final response = await _apiService.post(endpoint: Endpoints.guestLogin);
-      final parsed = ApiResponseParser.parse<GuestLoginResponseModel>(
-        response,
-        GuestLoginResponseModel.fromJson,
-      );
-
-      if (parsed != null) {
-        _cache.setAuthToken(parsed.accessToken);
-        _cache.setRefreshToken(parsed.refreshToken);
-        return RepositoryResponse(isSuccess: true, data: true);
-      }
-
-      return RepositoryResponse(
-        isSuccess: false,
-        message: 'Failed to parse guest login response',
-      );
-    } catch (e) {
-      return RepositoryResponse(
-        isSuccess: false,
-        message: e.toString(),
-      );
-    }
-  }
-}
-''';
-
-const guestLoginResponseModelTemplate = '''
-import 'package:equatable/equatable.dart';
-
-class GuestLoginResponseModel extends Equatable {
-  const GuestLoginResponseModel({
-    required this.accessToken,
-    required this.refreshToken,
-    this.expiresIn,
-  });
-
-  factory GuestLoginResponseModel.fromJson(Map<String, dynamic> json) {
-    return GuestLoginResponseModel(
-      accessToken: json['accessToken'] as String? ?? '',
-      refreshToken: json['refreshToken'] as String? ?? '',
-      expiresIn: json['expiresIn'] as int?,
-    );
-  }
-
-  final String accessToken;
-  final String refreshToken;
-  final int? expiresIn;
-
-  Map<String, dynamic> toJson() => {
-        'accessToken': accessToken,
-        'refreshToken': refreshToken,
-        'expiresIn': expiresIn,
-      };
-
-  @override
-  List<Object?> get props => [accessToken, refreshToken, expiresIn];
+  // TODO: Implement repository methods
 }
 ''';
 
@@ -221,7 +162,6 @@ const onboardingCubitTemplate = '''
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:{{project_name}}/features/onboarding/domain/repository/onboarding_repository.dart';
 import 'package:{{project_name}}/features/onboarding/presentation/cubit/state.dart';
-import 'package:{{project_name}}/utils/helpers/data_state.dart';
 
 class OnboardingCubit extends Cubit<OnboardingState> {
   OnboardingCubit({required this.repository})
@@ -229,19 +169,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
 
   final OnboardingRepository repository;
 
-  Future<void> guestLogin() async {
-    emit(state.copyWith(guestLogin: const DataState.loading()));
-    final response = await repository.guestLogin();
-    if (response.isSuccess) {
-      emit(state.copyWith(guestLogin: const DataState.loaded(data: true)));
-    } else {
-      emit(
-        state.copyWith(
-          guestLogin: DataState.failure(error: response.message),
-        ),
-      );
-    }
-  }
+  // TODO: Add cubit methods (login, register, etc.)
 }
 ''';
 
@@ -251,21 +179,21 @@ import 'package:{{project_name}}/utils/helpers/data_state.dart';
 
 class OnboardingState extends Equatable {
   const OnboardingState({
-    this.guestLogin = const DataState.initial(),
+    this.login = const DataState.initial(),
   });
 
-  final DataState<bool> guestLogin;
+  final DataState<bool> login;
 
   OnboardingState copyWith({
-    DataState<bool>? guestLogin,
+    DataState<bool>? login,
   }) {
     return OnboardingState(
-      guestLogin: guestLogin ?? this.guestLogin,
+      login: login ?? this.login,
     );
   }
 
   @override
-  List<Object?> get props => [guestLogin];
+  List<Object?> get props => [login];
 }
 ''';
 
@@ -296,20 +224,18 @@ class LoginScreen extends StatelessWidget {
                 style: context.b1.copyWith(color: AppColors.textSecondary),
               ),
               const Spacer(),
-              CustomButton(
+              SocialAuthButton(
                 text: 'Sign in with Google',
                 onPressed: () {
                   // TODO: Implement Google sign-in
                 },
               ),
               const SizedBox(height: 16),
-              CustomButton(
-                text: 'Continue as Guest',
+              SocialAuthButton(
+                text: 'Sign in with Apple',
                 onPressed: () {
-                  context.goNamed(AppRouteNames.homeScreen);
+                  // TODO: Implement Apple sign-in
                 },
-                backgroundColor: AppColors.surface,
-                textColor: AppColors.textPrimary,
               ),
               const SizedBox(height: 32),
             ],

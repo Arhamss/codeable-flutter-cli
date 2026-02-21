@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:mason_logger/mason_logger.dart';
 import 'package:my_dart_cli/src/generators/keystore_generator.dart';
@@ -74,7 +75,7 @@ class ProjectGenerator {
     }
     flutterCreateProgress.complete('Flutter project created');
 
-    // Step 2: Clean default lib/ and test/
+    // Step 2: Clean default lib/, test/, and remove unused platforms
     final cleanProgress = _logger.progress('Cleaning default files');
     final libDir = Directory('$projectPath/lib');
     if (libDir.existsSync()) {
@@ -86,6 +87,14 @@ class ProjectGenerator {
     if (testDir.existsSync()) {
       for (final entity in testDir.listSync()) {
         entity.deleteSync(recursive: true);
+      }
+    }
+
+    // Remove unused platform folders (linux, macos, web, windows)
+    for (final platform in ['linux', 'macos', 'web', 'windows']) {
+      final platformDir = Directory('$projectPath/$platform');
+      if (platformDir.existsSync()) {
+        platformDir.deleteSync(recursive: true);
       }
     }
     cleanProgress.complete('Default files cleaned');
@@ -110,6 +119,8 @@ class ProjectGenerator {
       'lib/core/locale/cubit',
       'lib/core/models/api_response',
       'lib/core/models/auth',
+      'lib/core/notifications',
+      'lib/core/permissions',
       // Features - Onboarding
       'lib/features/onboarding/data/models',
       'lib/features/onboarding/data/repository',
@@ -128,8 +139,9 @@ class ProjectGenerator {
       'lib/utils/widgets/core_widgets',
       // Assets
       'assets/images',
-      'assets/vectors',
-      'assets/lottie',
+      'assets/svgs',
+      'assets/animation',
+      'assets/fonts',
     ];
 
     for (final dir in directories) {
@@ -145,6 +157,7 @@ class ProjectGenerator {
     final files = <String, String>{
       // Entry points
       'lib/main_development.dart': render(mainDevelopmentTemplate, vars),
+      'lib/main_staging.dart': render(mainStagingTemplate, vars),
       'lib/main_production.dart': render(mainProductionTemplate, vars),
       'lib/bootstrap.dart': render(bootstrapTemplate, vars),
       'lib/exports.dart': render(exportsTemplate, vars),
@@ -202,9 +215,33 @@ class ProjectGenerator {
       'lib/core/locale/cubit/locale_state.dart':
           render(localeStateTemplate, vars),
 
-      // Core - Models
+      // Core - Models - API Response
       'lib/core/models/api_response/api_response_model.dart':
           render(apiResponseModelTemplate, vars),
+      'lib/core/models/api_response/api_error.dart':
+          render(apiErrorTemplate, vars),
+      'lib/core/models/api_response/base_api_response.dart':
+          render(baseApiResponseTemplate, vars),
+      'lib/core/models/api_response/api_response_handler.dart':
+          render(apiResponseHandlerTemplate, vars),
+      'lib/core/models/api_response/response_model.dart':
+          render(responseModelTemplate, vars),
+
+      // Core - Permissions
+      'lib/core/permissions/permission_manager.dart':
+          render(permissionManagerTemplate, vars),
+      'lib/core/permissions/permission_messages.dart':
+          render(permissionMessagesTemplate, vars),
+
+      // Core - Notifications
+      'lib/core/notifications/firebase_notifications.dart':
+          render(firebaseNotificationsTemplate, vars),
+      'lib/core/notifications/local_notification_service.dart':
+          render(localNotificationServiceTemplate, vars),
+
+      // Utils - Extensions
+      'lib/utils/extensions/null_check.dart':
+          render(nullCheckExtensionTemplate, vars),
 
       // Go Router
       'lib/go_router/exports.dart': render(routerExportsTemplate, vars),
@@ -218,6 +255,8 @@ class ProjectGenerator {
 
       // Utils - Helpers
       'lib/utils/helpers/data_state.dart': render(dataStateTemplate, vars),
+      'lib/utils/helpers/api_call_state.dart':
+          render(apiCallStateTemplate, vars),
       'lib/utils/helpers/repository_response.dart':
           render(repositoryResponseTemplate, vars),
       'lib/utils/helpers/logger_helper.dart':
@@ -225,6 +264,16 @@ class ProjectGenerator {
       'lib/utils/helpers/toast_helper.dart':
           render(toastHelperTemplate, vars),
       'lib/utils/helpers/typedef.dart': render(typedefTemplate, vars),
+      'lib/utils/helpers/focus_handler.dart':
+          render(focusHandlerTemplate, vars),
+      'lib/utils/helpers/string_helper.dart':
+          render(stringHelperTemplate, vars),
+      'lib/utils/helpers/color_helper.dart':
+          render(colorHelperTemplate, vars),
+      'lib/utils/helpers/decorations_helper.dart':
+          render(decorationsHelperTemplate, vars),
+      'lib/utils/helpers/layout_helper.dart':
+          render(layoutHelperTemplate, vars),
 
       // Utils - Response model
       'lib/utils/response_data_model/response_data_model.dart':
@@ -239,8 +288,36 @@ class ProjectGenerator {
           render(customAppBarTemplate, vars),
       'lib/utils/widgets/core_widgets/button.dart':
           render(customButtonTemplate, vars),
+      'lib/utils/widgets/core_widgets/outline_button.dart':
+          render(customOutlineButtonTemplate, vars),
+      'lib/utils/widgets/core_widgets/text_button.dart':
+          render(customTextButtonTemplate, vars),
+      'lib/utils/widgets/core_widgets/icon_button.dart':
+          render(customIconButtonTemplate, vars),
       'lib/utils/widgets/core_widgets/text_field.dart':
           render(customTextFieldTemplate, vars),
+      'lib/utils/widgets/core_widgets/search_field.dart':
+          render(searchFieldTemplate, vars),
+      'lib/utils/widgets/core_widgets/loading_widget.dart':
+          render(loadingWidgetTemplate, vars),
+      'lib/utils/widgets/core_widgets/shimmer_loading_widget.dart':
+          render(shimmerLoadingWidgetTemplate, vars),
+      'lib/utils/widgets/core_widgets/retry_widget.dart':
+          render(retryWidgetTemplate, vars),
+      'lib/utils/widgets/core_widgets/empty_state_widget.dart':
+          render(emptyStateWidgetTemplate, vars),
+      'lib/utils/widgets/core_widgets/confirmation_dialog.dart':
+          render(confirmationDialogTemplate, vars),
+      'lib/utils/widgets/core_widgets/section_title.dart':
+          render(sectionTitleTemplate, vars),
+      'lib/utils/widgets/core_widgets/cached_network_image.dart':
+          render(cachedNetworkImageTemplate, vars),
+      'lib/utils/widgets/core_widgets/social_auth_button.dart':
+          render(socialAuthButtonTemplate, vars),
+      'lib/utils/widgets/core_widgets/bottom_sheet.dart':
+          render(bottomSheetTemplate, vars),
+      'lib/utils/widgets/core_widgets/paginated_list_view.dart':
+          render(paginatedListViewTemplate, vars),
 
       // Onboarding feature
       'lib/features/onboarding/domain/repository/onboarding_repository.dart':
@@ -248,9 +325,7 @@ class ProjectGenerator {
       'lib/features/onboarding/data/repository/'
               'onboarding_repository_impl.dart':
           render(onboardingRepositoryImplTemplate, onboardingVars),
-      'lib/features/onboarding/data/models/'
-              'guest_login_response_model.dart':
-          render(guestLoginResponseModelTemplate, onboardingVars),
+      'lib/features/onboarding/data/models/.gitkeep': '',
       'lib/features/onboarding/presentation/cubit/cubit.dart':
           render(onboardingCubitTemplate, onboardingVars),
       'lib/features/onboarding/presentation/cubit/state.dart':
@@ -261,8 +336,9 @@ class ProjectGenerator {
 
       // Placeholder assets
       'assets/images/.gitkeep': '',
-      'assets/vectors/.gitkeep': '',
-      'assets/lottie/.gitkeep': '',
+      'assets/svgs/.gitkeep': '',
+      'assets/animation/.gitkeep': '',
+      'assets/fonts/.gitkeep': '',
     };
 
     for (final entry in files.entries) {
@@ -329,14 +405,17 @@ class ProjectGenerator {
 
     iosProgress.complete('iOS configured');
 
-    // Step 10: Generate keystore
+    // Step 10: Copy bundled assets (splash, app icons, SVGs)
+    await _copyBundledAssets(projectPath);
+
+    // Step 11: Generate keystore
     await KeystoreGenerator(logger: _logger).generate(
       projectPath: projectPath,
       projectName: snakeName,
       orgName: orgName,
     );
 
-    // Step 11: Run flutter pub get
+    // Step 12: Run flutter pub get
     final pubGetProgress = _logger.progress('Running flutter pub get');
     final pubGetResult = await Process.run(
       'flutter',
@@ -370,5 +449,105 @@ class ProjectGenerator {
       ..info('');
 
     return true;
+  }
+
+  /// Resolves the CLI package's bundled assets directory path.
+  Future<String> _resolveAssetsPath() async {
+    final packageUri =
+        Uri.parse('package:my_dart_cli/src/assets/marker');
+    final resolved = await Isolate.resolvePackageUri(packageUri);
+    if (resolved == null) {
+      throw Exception('Could not resolve CLI package asset path');
+    }
+    // resolved points to lib/src/assets/marker, go up one to get assets dir
+    return resolved.resolve('.').toFilePath();
+  }
+
+  /// Copies all bundled assets (splash, app icons, SVGs) into the
+  /// generated project.
+  Future<void> _copyBundledAssets(String projectPath) async {
+    final assetsProgress = _logger.progress('Copying app icons & splash');
+
+    try {
+      final assetsRoot = await _resolveAssetsPath();
+
+      // 1. Splash image → assets/images/
+      _copyFile(
+        '$assetsRoot/splash/splash-with-logo.png',
+        '$projectPath/assets/images/splash-with-logo.png',
+      );
+
+      // 2. SVG logos → assets/svgs/
+      final svgDir = Directory('$assetsRoot/svgs');
+      if (svgDir.existsSync()) {
+        for (final file in svgDir.listSync().whereType<File>()) {
+          final name = file.uri.pathSegments.last;
+          _copyFile(file.path, '$projectPath/assets/svgs/$name');
+        }
+      }
+
+      // 3. Android app icons → android/app/src/main/res/
+      final androidResBase = '$projectPath/android/app/src/main/res';
+      // Clear default Flutter mipmap icons before copying ours
+      final resDir = Directory(androidResBase);
+      if (resDir.existsSync()) {
+        for (final entity in resDir.listSync()) {
+          if (entity is Directory &&
+              entity.path.contains('mipmap')) {
+            entity.deleteSync(recursive: true);
+          }
+        }
+      }
+      final androidSrcDir = Directory('$assetsRoot/android');
+      if (androidSrcDir.existsSync()) {
+        _copyDirectory(androidSrcDir.path, androidResBase);
+      }
+
+      // 4. iOS app icons → ios/Runner/Assets.xcassets/AppIcon.appiconset/
+      final iosIconDst =
+          '$projectPath/ios/Runner/Assets.xcassets/AppIcon.appiconset';
+      final iosIconSrc = Directory('$assetsRoot/ios/AppIcon.appiconset');
+      if (iosIconSrc.existsSync()) {
+        // Clear default Flutter icons before copying ours
+        final dstDir = Directory(iosIconDst);
+        if (dstDir.existsSync()) {
+          for (final file in dstDir.listSync().whereType<File>()) {
+            file.deleteSync();
+          }
+        } else {
+          dstDir.createSync(recursive: true);
+        }
+        for (final file in iosIconSrc.listSync().whereType<File>()) {
+          final name = file.uri.pathSegments.last;
+          _copyFile(file.path, '$iosIconDst/$name');
+        }
+      }
+
+      assetsProgress.complete('App icons & splash copied');
+    } catch (e) {
+      assetsProgress.fail('Failed to copy assets: $e');
+    }
+  }
+
+  /// Recursively copies a directory tree, preserving sub-folder structure.
+  void _copyDirectory(String srcPath, String dstPath) {
+    final srcDir = Directory(srcPath);
+    for (final entity in srcDir.listSync(recursive: true)) {
+      final relativePath = entity.path.substring(srcDir.path.length);
+      if (entity is File) {
+        final destFile = File('$dstPath$relativePath');
+        destFile.parent.createSync(recursive: true);
+        entity.copySync(destFile.path);
+      }
+    }
+  }
+
+  /// Copies a single file, creating parent directories as needed.
+  void _copyFile(String src, String dst) {
+    final srcFile = File(src);
+    if (srcFile.existsSync()) {
+      File(dst).parent.createSync(recursive: true);
+      srcFile.copySync(dst);
+    }
   }
 }

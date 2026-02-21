@@ -37,10 +37,6 @@ const appEnArbTemplate = '''
   "@home": {
     "description": "Home screen title"
   },
-  "continueAsGuest": "Continue as Guest",
-  "@continueAsGuest": {
-    "description": "Guest login button text"
-  },
   "loginToContinue": "Log in to Continue",
   "@loginToContinue": {
     "description": "Login screen title"
@@ -59,7 +55,6 @@ const appEsArbTemplate = '''
   "login": "Iniciar sesi\\u00f3n",
   "logout": "Cerrar sesi\\u00f3n",
   "home": "Inicio",
-  "continueAsGuest": "Continuar como invitado",
   "loginToContinue": "Inicia sesi\\u00f3n para continuar",
   "somethingWentWrong": "Algo sali\\u00f3 mal. Por favor, int\\u00e9ntalo de nuevo m\\u00e1s tarde."
 }

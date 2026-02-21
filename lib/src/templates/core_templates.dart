@@ -288,7 +288,7 @@ class LoggingInterceptor extends Interceptor {
 ''';
 
 const baseStorageTemplate = '''
-import 'package:hive_flutter/adapters.dart';
+import 'package:hive_ce/hive_ce.dart';
 
 abstract class BaseStorage {
   late Box<dynamic> _box;
@@ -382,10 +382,10 @@ class AppPreferences extends BaseStorage {
     remove(_userIdKey);
   }
 
-  /// Check if user is a guest
-  bool getIsUserGuest() {
+  /// Check if user is authenticated
+  bool get isAuthenticated {
     final token = getAuthToken();
-    return token == null || token.isEmpty;
+    return token != null && token.isNotEmpty;
   }
 
   /// Clear all auth data
@@ -432,7 +432,7 @@ abstract class Injector {
 
 const appModulesTemplate = '''
 import 'package:get_it/get_it.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce/hive_ce.dart';
 import 'package:{{project_name}}/core/api_service/api_service.dart';
 import 'package:{{project_name}}/core/app_preferences/app_preferences.dart';
 
@@ -476,7 +476,6 @@ class Endpoints {
   static String get apiVersion => ApiEnvironment.current.apiVersion;
 
   /// Authentication
-  static const guestLogin = 'auth/guest';
   static const refresh = 'auth/refresh';
   static const login = 'auth/login';
   static const logout = 'auth/logout';
@@ -638,5 +637,640 @@ class ApiError {
 
   final String? message;
   final String? code;
+}
+''';
+
+const apiErrorTemplate = '''
+import 'package:equatable/equatable.dart';
+
+class ApiError extends Equatable {
+  const ApiError({
+    required this.code,
+    required this.message,
+    required this.timestamp,
+  });
+
+  factory ApiError.fromJson(Map<String, dynamic> json) {
+    return ApiError(
+      code: json['code'] as String?,
+      message: json['message'] as String,
+      timestamp: json['timestamp'] as String?,
+    );
+  }
+
+  final String? code;
+  final String message;
+  final String? timestamp;
+
+  Map<String, dynamic> toJson() => {
+        'code': code,
+        'message': message,
+        'timestamp': timestamp,
+      };
+
+  @override
+  List<Object?> get props => [code, message, timestamp];
+
+  @override
+  String toString() => '\\\$code: \\\$message';
+}
+''';
+
+const baseApiResponseTemplate = '''
+import 'package:{{project_name}}/core/models/api_response/api_error.dart';
+
+class BaseApiResponse<T> {
+  BaseApiResponse({
+    required this.statusCode,
+    this.error,
+    this.data,
+  });
+
+  factory BaseApiResponse.fromJson(
+    Map<String, dynamic> json,
+    T Function(Map<String, dynamic>) parser,
+  ) {
+    final statusCode = json['statusCode'] as int;
+    final error = json['error'] != null
+        ? ApiError.fromJson(json['error'] as Map<String, dynamic>)
+        : null;
+
+    T? parsedData;
+    if (json['data'] != null && error == null) {
+      parsedData = parser(json['data'] as Map<String, dynamic>);
+    }
+
+    return BaseApiResponse<T>(
+      statusCode: statusCode,
+      error: error,
+      data: parsedData,
+    );
+  }
+
+  final int statusCode;
+  final ApiError? error;
+  final T? data;
+
+  bool get hasError => error != null;
+}
+''';
+
+const apiResponseHandlerTemplate = '''
+import 'package:dio/dio.dart';
+import 'package:{{project_name}}/core/models/api_response/api_response_model.dart';
+import 'package:{{project_name}}/core/models/api_response/base_api_response.dart';
+
+class ApiResponseHandler<T extends BaseApiResponse<dynamic>> {
+  ApiResponseHandler(this.parser, this.response);
+
+  final T Function(Map<String, dynamic>) parser;
+  final Response<dynamic> response;
+
+  ResponseModel<T> handleResponse() {
+    try {
+      final statusCode = response.statusCode ?? 0;
+
+      if (statusCode >= 200 && statusCode < 300) {
+        final body = response.data;
+        if (body is! Map<String, dynamic>) {
+          return ResponseModel<T>(
+            status: ResponseStatus.nullResponse,
+            error: 'Invalid response format',
+          );
+        }
+
+        final parsedData = parser(body);
+
+        if (parsedData.hasError) {
+          return ResponseModel<T>(
+            status: ResponseStatus.responseError,
+            error: parsedData.error?.message ?? 'Unknown API error',
+            response: parsedData,
+          );
+        }
+
+        return ResponseModel<T>(
+          status: ResponseStatus.success,
+          response: parsedData,
+        );
+      }
+
+      return ResponseModel<T>(
+        status: ResponseStatus.responseError,
+        error: 'Request failed with status code \\\$statusCode',
+      );
+    } catch (e) {
+      return ResponseModel<T>(
+        status: ResponseStatus.responseError,
+        error: 'Exception during parsing: \\\$e',
+      );
+    }
+  }
+}
+''';
+
+const responseModelTemplate = '''
+import 'package:dio/dio.dart';
+import 'package:{{project_name}}/core/models/api_response/api_response_handler.dart';
+import 'package:{{project_name}}/core/models/api_response/base_api_response.dart';
+
+enum ResponseStatus {
+  nullResponse,
+  nullArgument,
+  success,
+  responseError,
+  sessionExpired,
+}
+
+class ResponseModel<T> {
+  ResponseModel({
+    required this.status,
+    this.response,
+    this.error,
+  });
+
+  final T? response;
+  final String? error;
+  final ResponseStatus status;
+
+  bool get isSuccess => status == ResponseStatus.success;
+
+  bool get isError => status == ResponseStatus.responseError || isNull;
+
+  bool get isNull => status == ResponseStatus.nullResponse;
+
+  static ResponseModel<T> fromApiResponse<T extends BaseApiResponse<dynamic>>(
+    Response<dynamic> response,
+    T Function(Map<String, dynamic> json) parser,
+  ) {
+    try {
+      return ApiResponseHandler<T>(parser, response).handleResponse();
+    } on Exception catch (e) {
+      return ResponseModel<T>(
+        status: ResponseStatus.responseError,
+        error: e.toString(),
+      );
+    }
+  }
+}
+''';
+
+const permissionManagerTemplate = '''
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+/// Permission states
+enum PermissionState {
+  granted,
+  denied,
+  permanentlyDenied,
+  restricted,
+  limited,
+  provisional,
+  unknown,
+}
+
+/// Permission request result
+class PermissionResult {
+  const PermissionResult({
+    required this.state,
+    this.message,
+    this.shouldShowRationale = false,
+  });
+
+  final PermissionState state;
+  final String? message;
+  final bool shouldShowRationale;
+
+  bool get isGranted => state == PermissionState.granted;
+  bool get isDenied => state == PermissionState.denied;
+  bool get isPermanentlyDenied => state == PermissionState.permanentlyDenied;
+}
+
+class PermissionManager {
+  static bool _isRequestingPermissions = false;
+  static bool _isDialogShowing = false;
+
+  static PermissionState _convertStatus(PermissionStatus status) {
+    switch (status) {
+      case PermissionStatus.granted:
+        return PermissionState.granted;
+      case PermissionStatus.denied:
+        return PermissionState.denied;
+      case PermissionStatus.permanentlyDenied:
+        return PermissionState.permanentlyDenied;
+      case PermissionStatus.restricted:
+        return PermissionState.restricted;
+      case PermissionStatus.limited:
+        return PermissionState.limited;
+      case PermissionStatus.provisional:
+        return PermissionState.provisional;
+    }
+  }
+
+  /// Request location permission
+  static Future<PermissionResult> requestLocationPermission() async {
+    try {
+      final isServiceEnabled =
+          await Permission.location.serviceStatus.isEnabled;
+      if (!isServiceEnabled) {
+        return const PermissionResult(
+          state: PermissionState.denied,
+          message: 'Location services are disabled.',
+        );
+      }
+      final currentStatus = await Permission.location.status;
+      if (currentStatus.isGranted) {
+        return const PermissionResult(state: PermissionState.granted);
+      }
+      if (currentStatus.isPermanentlyDenied) {
+        return const PermissionResult(
+          state: PermissionState.permanentlyDenied,
+          message: 'Location access is required. Please enable it in Settings.',
+        );
+      }
+      final status = await Permission.location.request();
+      return PermissionResult(
+        state: _convertStatus(status),
+        message: status.isPermanentlyDenied
+            ? 'Location access is required. Please enable it in Settings.'
+            : null,
+        shouldShowRationale: status.isDenied,
+      );
+    } catch (e) {
+      debugPrint('Error requesting location permission: \\\$e');
+      return const PermissionResult(state: PermissionState.unknown);
+    }
+  }
+
+  /// Request camera permission
+  static Future<PermissionResult> requestCameraPermission() async {
+    try {
+      final status = await Permission.camera.request();
+      return PermissionResult(
+        state: _convertStatus(status),
+        message: status.isPermanentlyDenied
+            ? 'Camera access is required. Please enable it in Settings.'
+            : null,
+        shouldShowRationale: status.isDenied,
+      );
+    } catch (e) {
+      debugPrint('Error requesting camera permission: \\\$e');
+      return const PermissionResult(state: PermissionState.unknown);
+    }
+  }
+
+  /// Request photo library permission
+  static Future<PermissionResult> requestPhotosPermission() async {
+    try {
+      final status = await Permission.photos.request();
+      return PermissionResult(
+        state: _convertStatus(status),
+        message: status.isPermanentlyDenied
+            ? 'Photo library access is required. Please enable it in Settings.'
+            : null,
+        shouldShowRationale: status.isDenied,
+      );
+    } catch (e) {
+      debugPrint('Error requesting photos permission: \\\$e');
+      return const PermissionResult(state: PermissionState.unknown);
+    }
+  }
+
+  /// Generic permission request
+  static Future<PermissionResult> requestPermission(
+    Permission permission,
+  ) async {
+    try {
+      final status = await permission.request();
+      return PermissionResult(
+        state: _convertStatus(status),
+        message: status.isPermanentlyDenied
+            ? 'Permission is required. Please enable it in Settings.'
+            : null,
+        shouldShowRationale: status.isDenied,
+      );
+    } catch (e) {
+      debugPrint('Error requesting permission: \\\$e');
+      return const PermissionResult(state: PermissionState.unknown);
+    }
+  }
+
+  /// Request permission with automatic dialog handling
+  static Future<bool> requestPermissionWithDialog({
+    required BuildContext context,
+    required Permission permission,
+    required String permissionName,
+    String? customPermanentlyDeniedMessage,
+  }) async {
+    try {
+      final result = await requestPermission(permission);
+      if (result.isGranted) return true;
+      if (result.isPermanentlyDenied) {
+        await _showPermissionSettingsDialog(
+          context: context,
+          permissionName: permissionName,
+          message: customPermanentlyDeniedMessage ??
+              '\\\$permissionName access is required. Please enable it in Settings.',
+        );
+      }
+      return false;
+    } catch (e) {
+      debugPrint('Error requesting permission with dialog: \\\$e');
+      return false;
+    }
+  }
+
+  /// Check if a permission is granted
+  static Future<bool> isGranted(Permission permission) async {
+    try {
+      return await permission.status.isGranted;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Request multiple permissions at once
+  static Future<Map<Permission, PermissionResult>>
+      requestMultiplePermissions(List<Permission> permissions) async {
+    if (_isRequestingPermissions) return {};
+    try {
+      _isRequestingPermissions = true;
+      final statusMap = await permissions.request();
+      final resultMap = <Permission, PermissionResult>{};
+      for (final entry in statusMap.entries) {
+        resultMap[entry.key] = PermissionResult(
+          state: _convertStatus(entry.value),
+          shouldShowRationale: entry.value.isDenied,
+        );
+      }
+      return resultMap;
+    } finally {
+      _isRequestingPermissions = false;
+    }
+  }
+
+  /// Open app settings
+  static Future<bool> openAppSettingsPage() async {
+    try {
+      return await openAppSettings();
+    } catch (e) {
+      return false;
+    }
+  }
+
+  static Future<void> _showPermissionSettingsDialog({
+    required BuildContext context,
+    required String permissionName,
+    required String message,
+  }) async {
+    if (_isDialogShowing) return;
+    _isDialogShowing = true;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('\\\$permissionName Permission Required'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              await openAppSettingsPage();
+            },
+            child: const Text('Settings'),
+          ),
+        ],
+      ),
+    );
+    _isDialogShowing = false;
+  }
+}
+''';
+
+const permissionMessagesTemplate = '''
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+
+class PermissionMessages {
+  static String getCameraSettingsMessage(BuildContext context) {
+    return Platform.isIOS
+        ? 'Camera access is required. Please enable it in Settings > Privacy & Security > Camera.'
+        : 'Camera access is required. Please enable it in Settings > Apps > Permissions.';
+  }
+
+  static String getNotificationSettingsMessage(BuildContext context) {
+    return Platform.isIOS
+        ? 'Notification access is required. Please enable it in Settings > Notifications.'
+        : 'Notification access is required. Please enable it in Settings > Apps > Notifications.';
+  }
+
+  static String getLocationSettingsMessage(BuildContext context) {
+    return Platform.isIOS
+        ? 'Location access is required. Please enable it in Settings > Privacy & Security > Location Services.'
+        : 'Location access is required. Please enable it in Settings > Apps > Permissions.';
+  }
+
+  static String getPhotoLibrarySettingsMessage(BuildContext context) {
+    return Platform.isIOS
+        ? 'Photo library access is required. Please enable it in Settings > Privacy & Security > Photos.'
+        : 'Photo library access is required. Please enable it in Settings > Apps > Permissions.';
+  }
+}
+''';
+
+const firebaseNotificationsTemplate = '''
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
+
+class FirebaseNotificationService {
+  factory FirebaseNotificationService() {
+    return _instance;
+  }
+
+  FirebaseNotificationService._internal();
+
+  static final FirebaseNotificationService _instance =
+      FirebaseNotificationService._internal();
+
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+
+  final StreamController<Map<String, dynamic>> navigationStreamController =
+      StreamController.broadcast();
+
+  Stream<Map<String, dynamic>> get navigationStream =>
+      navigationStreamController.stream;
+
+  Future<String?> getFcmToken() async {
+    try {
+      final token = await _firebaseMessaging.getToken();
+      debugPrint('FCM Token: \\\$token');
+      return token;
+    } catch (e) {
+      debugPrint('Error fetching FCM token: \\\$e');
+      return null;
+    }
+  }
+
+  Future<bool> deleteFCMToken() async {
+    try {
+      await _firebaseMessaging.deleteToken();
+      return true;
+    } catch (e) {
+      debugPrint('Error deleting FCM token: \\\$e');
+      return false;
+    }
+  }
+
+  Future<void> initialize() async {
+    await _firebaseMessaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    FirebaseMessaging.onMessageOpenedApp.listen(_onMessageOpenedApp);
+    FirebaseMessaging.onMessage.listen(_onForegroundMessage);
+  }
+
+  Future<void> _onMessageOpenedApp(RemoteMessage message) async {
+    navigationStreamController.add(message.data);
+  }
+
+  Future<void> _onForegroundMessage(RemoteMessage message) async {
+    debugPrint('Foreground message: \\\${message.data}');
+    // TODO: Handle foreground notifications (show local notification)
+  }
+}
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  debugPrint('Background message: \\\${message.data}');
+}
+''';
+
+const localNotificationServiceTemplate = '''
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+class LocalNotificationService {
+  factory LocalNotificationService() {
+    return _instance;
+  }
+
+  LocalNotificationService._internal();
+
+  static final LocalNotificationService _instance =
+      LocalNotificationService._internal();
+
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  Future<void> initializeLocalNotifications() async {
+    const androidInitializationSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const darwinInitializationSettings = DarwinInitializationSettings();
+
+    const initializationSettings = InitializationSettings(
+      android: androidInitializationSettings,
+      iOS: darwinInitializationSettings,
+    );
+
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
+    );
+  }
+
+  Future<void> _onDidReceiveNotificationResponse(
+    NotificationResponse notificationResponse,
+  ) async {
+    final payload = notificationResponse.payload;
+    if (payload == null) return;
+
+    try {
+      final decodedPayload = json.decode(payload) as Map<String, dynamic>;
+      debugPrint('Parsed payload: \\\$decodedPayload');
+      // TODO: Handle notification tap navigation
+    } catch (e) {
+      debugPrint('Error parsing notification payload: \\\$e');
+    }
+  }
+
+  Future<void> sendLocalNotification(
+    String? title,
+    String? body,
+    String payload,
+  ) async {
+    const androidNotificationDetails = AndroidNotificationDetails(
+      'default_channel',
+      'Default',
+      channelDescription: 'Default notification channel',
+      importance: Importance.max,
+      priority: Priority.high,
+      ticker: 'ticker',
+    );
+
+    const notificationDetails = NotificationDetails(
+      android: androidNotificationDetails,
+      iOS: DarwinNotificationDetails(),
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      title ?? 'Notification',
+      body ?? '',
+      notificationDetails,
+      payload: payload,
+    );
+  }
+}
+''';
+
+const nullCheckExtensionTemplate = '''
+import 'dart:developer';
+
+import 'package:flutter/foundation.dart';
+
+extension NullCheck on Object? {
+  bool get isNull => this == null;
+
+  bool get isNotNull => this != null;
+}
+
+extension NullOrEmptyStringCheck on String? {
+  bool get isNullOrEmpty => this == null || this!.isEmpty;
+
+  bool get isNotNullAndNotEmpty => this != null && this!.isNotEmpty;
+}
+
+extension NullOrEmptyListCheck<T> on List<T>? {
+  bool get isNullOrEmpty => this == null || this!.isEmpty;
+
+  bool get isNotNullAndNotEmpty => this != null && this!.isNotEmpty;
+}
+
+void debugLog(
+  String message, {
+  StackTrace? stackTrace,
+}) {
+  if (kDebugMode) {
+    log(message, stackTrace: stackTrace);
+  }
 }
 ''';

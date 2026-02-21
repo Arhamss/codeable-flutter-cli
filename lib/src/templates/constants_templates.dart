@@ -45,83 +45,97 @@ class AppColors {
 
 const appTextStyleTemplate = '''
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:{{project_name}}/constants/app_colors.dart';
+
+const String _fontFamily = 'DMSans';
 
 extension AppTextStyle on BuildContext {
   // Headers
-  TextStyle get h1 => GoogleFonts.plusJakartaSans(
+  TextStyle get h1 => const TextStyle(
+        fontFamily: _fontFamily,
         fontSize: 32,
         fontWeight: FontWeight.w700,
-        color: const Color(0xFF1A1A1A),
+        color: AppColors.textPrimary,
       );
 
-  TextStyle get h2 => GoogleFonts.plusJakartaSans(
+  TextStyle get h2 => const TextStyle(
+        fontFamily: _fontFamily,
         fontSize: 28,
         fontWeight: FontWeight.w700,
-        color: const Color(0xFF1A1A1A),
+        color: AppColors.textPrimary,
       );
 
-  TextStyle get h3 => GoogleFonts.plusJakartaSans(
+  TextStyle get h3 => const TextStyle(
+        fontFamily: _fontFamily,
         fontSize: 24,
         fontWeight: FontWeight.w600,
-        color: const Color(0xFF1A1A1A),
+        color: AppColors.textPrimary,
       );
 
   // Titles
-  TextStyle get t1 => GoogleFonts.plusJakartaSans(
+  TextStyle get t1 => const TextStyle(
+        fontFamily: _fontFamily,
         fontSize: 20,
         fontWeight: FontWeight.w600,
-        color: const Color(0xFF1A1A1A),
+        color: AppColors.textPrimary,
       );
 
-  TextStyle get t2 => GoogleFonts.plusJakartaSans(
+  TextStyle get t2 => const TextStyle(
+        fontFamily: _fontFamily,
         fontSize: 18,
         fontWeight: FontWeight.w600,
-        color: const Color(0xFF1A1A1A),
+        color: AppColors.textPrimary,
       );
 
-  TextStyle get t3 => GoogleFonts.plusJakartaSans(
+  TextStyle get t3 => const TextStyle(
+        fontFamily: _fontFamily,
         fontSize: 16,
         fontWeight: FontWeight.w600,
-        color: const Color(0xFF1A1A1A),
+        color: AppColors.textPrimary,
       );
 
   // Body
-  TextStyle get b1 => GoogleFonts.plusJakartaSans(
+  TextStyle get b1 => const TextStyle(
+        fontFamily: _fontFamily,
         fontSize: 14,
         fontWeight: FontWeight.w400,
-        color: const Color(0xFF1A1A1A),
+        color: AppColors.textPrimary,
       );
 
-  TextStyle get b2 => GoogleFonts.plusJakartaSans(
+  TextStyle get b2 => const TextStyle(
+        fontFamily: _fontFamily,
         fontSize: 13,
         fontWeight: FontWeight.w400,
-        color: const Color(0xFF1A1A1A),
+        color: AppColors.textPrimary,
       );
 
-  TextStyle get b3 => GoogleFonts.plusJakartaSans(
+  TextStyle get b3 => const TextStyle(
+        fontFamily: _fontFamily,
         fontSize: 12,
         fontWeight: FontWeight.w400,
-        color: const Color(0xFF1A1A1A),
+        color: AppColors.textPrimary,
       );
 
   // Labels
-  TextStyle get l1 => GoogleFonts.plusJakartaSans(
+  TextStyle get l1 => const TextStyle(
+        fontFamily: _fontFamily,
         fontSize: 14,
         fontWeight: FontWeight.w500,
-        color: const Color(0xFF666666),
+        color: AppColors.textSecondary,
       );
 
-  TextStyle get l2 => GoogleFonts.plusJakartaSans(
+  TextStyle get l2 => const TextStyle(
+        fontFamily: _fontFamily,
         fontSize: 12,
         fontWeight: FontWeight.w500,
-        color: const Color(0xFF666666),
+        color: AppColors.textSecondary,
       );
 
-  TextStyle get l3 => GoogleFonts.plusJakartaSans(
+  TextStyle get l3 => const TextStyle(
+        fontFamily: _fontFamily,
         fontSize: 10,
         fontWeight: FontWeight.w500,
-        color: const Color(0xFF666666),
+        color: AppColors.textSecondary,
       );
 }
 ''';
@@ -133,11 +147,11 @@ class AssetPaths {
   // Images
   static const String appLogo = 'assets/images/app_logo.png';
 
-  // Vectors
-  // static const String homeIcon = 'assets/vectors/home_icon.svg';
+  // SVGs
+  // static const String homeIcon = 'assets/svgs/home_icon.svg';
 
-  // Lottie
-  // static const String loadingAnimation = 'assets/lottie/loading.json';
+  // Animations
+  // static const String loadingAnimation = 'assets/animation/loading.json';
 }
 ''';
 
