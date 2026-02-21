@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://github.com/ArsalImam/codeable_cli">
+<a href="https://gocodeable.com/">
   <img src="https://img.shields.io/badge/Codeable-CLI-blue?style=for-the-badge&logo=dart&logoColor=white" alt="Codeable CLI" />
 </a>
 
@@ -561,6 +561,6 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 <div align="center">
 
-**Built by [Codeable](https://github.com/ArsalImam)** &nbsp;&bull;&nbsp; [GitHub](https://github.com/ArsalImam/codeable_cli) &nbsp;&bull;&nbsp; [pub.dev](https://pub.dev/packages/codeable_cli)
+**Built with 💙 by [Codeable](https://gocodeable.com/)** &nbsp;&bull;&nbsp; [GitHub](https://github.com/ArsalImam/codeable_cli) &nbsp;&bull;&nbsp; [pub.dev](https://pub.dev/packages/codeable_cli)
 
 </div>
