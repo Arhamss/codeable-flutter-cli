@@ -1,35 +1,61 @@
 <div align="center">
 
+<a href="https://github.com/ArsalImam/codeable_cli">
+  <img src="https://img.shields.io/badge/Codeable-CLI-blue?style=for-the-badge&logo=dart&logoColor=white" alt="Codeable CLI" />
+</a>
+
 # Codeable CLI
 
 **A production-ready Flutter project scaffolding tool.**
 
 Instantly generate Flutter projects with Clean Architecture, BLoC/Cubit state management, Dio networking, Hive storage, GoRouter navigation, multi-flavor builds, Firebase integration, and 40+ reusable UI components — all wired together and ready to go.
 
-[![Pub Version](https://img.shields.io/pub/v/codeable_cli.svg)](https://pub.dev/packages/codeable_cli)
-[![Style: Very Good Analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Pub Version](https://img.shields.io/pub/v/codeable_cli.svg?style=for-the-badge)](https://pub.dev/packages/codeable_cli)
+[![Style: Very Good Analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg?style=for-the-badge)](https://pub.dev/packages/very_good_analysis)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+<a href="https://github.com/ArsalImam/codeable_cli">GitHub</a> &nbsp;&bull;&nbsp; <a href="https://pub.dev/packages/codeable_cli">pub.dev</a> &nbsp;&bull;&nbsp; <a href="https://github.com/ArsalImam/codeable_cli/issues">Issues</a>
 
 </div>
 
 ---
 
-## Why Codeable CLI?
+## Table of Contents
+
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Commands](#commands)
+- [Generated Architecture](#generated-architecture)
+- [Included UI Components](#included-ui-components)
+- [Multi-Flavor Builds](#multi-flavor-builds)
+- [Platform Configuration](#platform-configuration)
+- [AI-Assisted Development](#ai-assisted-development)
+- [FAQ](#faq)
+- [Contributing](#contributing)
+- [Contributors](#contributors)
+- [License](#license)
+
+---
+
+## Overview
 
 Starting a new Flutter project means hours of boilerplate — setting up architecture, configuring flavors, wiring DI, adding interceptors, building reusable widgets, and configuring platform files. **Codeable CLI does all of that in seconds.**
 
-You get a project that's structured exactly like a production app from day one:
-
-- Clean Architecture with feature-first organization
-- Cubit-based state management with proper data flow
-- Pre-configured API layer with auth interceptors and error handling
-- 40+ production-ready, reusable UI components
-- Multi-flavor builds (development, staging, production) out of the box
-- Android keystore generation and signing configuration
-- iOS permissions, Podfile, and entitlements pre-configured
-- Firebase directory structure for multi-environment setup
-- Localization support with ARB files
-- AI assistant config files (CLAUDE.md, .cursorrules) for better AI-assisted development
+| Metric | Detail |
+|--------|--------|
+| Architecture | Clean Architecture (feature-first) |
+| State Management | BLoC/Cubit with DataState |
+| Networking | Dio with auth, logging, Chucker interceptors |
+| Storage | Hive-based local storage |
+| Navigation | GoRouter with named routes |
+| UI Components | 40+ production-ready widgets |
+| Build Flavors | Development, Staging, Production |
+| Platforms | Android & iOS pre-configured |
+| Firebase | Multi-environment directory structure |
+| Localization | ARB files with context.l10n |
+| AI Config | CLAUDE.md + .cursorrules |
 
 ---
 
@@ -54,7 +80,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.0
+dart pub global activate codeable_cli 1.0.1
 ```
 
 ### Or run without activating
@@ -106,6 +132,11 @@ That's it. Your project is ready with the full architecture, all dependencies in
 codeable_cli feature profile
 ```
 
+This creates the full feature module **and** auto-wires everything:
+- Cubit registered in `app_page.dart`'s MultiBlocProvider
+- Route added to `go_router` with named route constants
+- Navigate with `context.goNamed(AppRouteNames.profileScreen)`
+
 ### Verify everything works
 
 ```bash
@@ -148,7 +179,6 @@ my_app/
 │   │   ├── app_preferences/        # Hive-based local storage
 │   │   ├── di/                     # GetIt dependency injection
 │   │   ├── endpoints/              # API endpoint definitions
-│   │   ├── guards/                 # Auth & guest guards
 │   │   ├── locale/                 # Locale cubit for i18n
 │   │   ├── models/                 # API response & auth models
 │   │   ├── notifications/          # Firebase & local notifications
@@ -205,12 +235,13 @@ lib/features/profile/
     └── widgets/
 ```
 
-Each generated file comes with boilerplate — the repository interface, implementation wired to ApiService, cubit with DataState, and a basic screen scaffold.
+Each generated file comes with boilerplate — the repository interface, implementation wired to `ApiService` and `AppPreferences` (cache), cubit with `DataState`, and a screen scaffold with `customAppBar` and `BlocBuilder`.
 
-After generating, you just need to:
-1. Register the cubit in `app_page.dart`
-2. Add the route in `go_router/router.dart`
-3. Register the repository in `app_modules.dart`
+**Auto-wired out of the box:**
+- Cubit registered in `app_page.dart`'s `MultiBlocProvider`
+- Route added to `go_router/router.dart`
+- Route constants added to `AppRoutes` and `AppRouteNames`
+- Screen import added to `go_router/exports.dart`
 
 ---
 
@@ -260,7 +291,7 @@ Repository Interface (Domain)
     ↓ implemented by
 Repository Implementation (Data)
     ↓ uses
-ApiService (Dio)
+ApiService (Dio) + AppPreferences (Cache)
 ```
 
 ### State Management
@@ -411,18 +442,114 @@ These files give AI assistants full context about your project's architecture, s
 
 ---
 
-## Requirements
+## FAQ
 
-| Tool | Version |
-|------|---------|
-| Dart SDK | >= 3.0 |
-| Flutter SDK | >= 3.0 |
+<details>
+<summary><b>Do I need Flutter installed before using Codeable CLI?</b></summary>
+
+Yes. Codeable CLI runs `flutter create` under the hood and then overlays the architecture on top. You need both Dart SDK (>= 3.0) and Flutter SDK (>= 3.0) installed.
+</details>
+
+<details>
+<summary><b>Can I use this with an existing Flutter project?</b></summary>
+
+The `create` command is designed for new projects. However, the `feature` command works inside any Codeable-structured project. If your existing project follows a similar architecture, you can use the `feature` command to generate new modules.
+</details>
+
+<details>
+<summary><b>How do I add Firebase to a generated project?</b></summary>
+
+The directory structure is already in place at `firebase/{development,staging,production}/`. Simply drop your `google-services.json` (Android) and `GoogleService-Info.plist` (iOS) into the appropriate flavor directory.
+</details>
+
+<details>
+<summary><b>Can I customize the generated code after scaffolding?</b></summary>
+
+Absolutely. The generated code is plain Dart/Flutter — no code generation or build_runner dependencies for the architecture itself. Modify anything you need.
+</details>
+
+<details>
+<summary><b>Does the feature command require manual wiring?</b></summary>
+
+No. As of v1.0.1, the `feature` command auto-wires everything: it registers the cubit in `app_page.dart`, adds routes to `go_router`, and creates route constants. You just need to start building your UI.
+</details>
 
 ---
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request.
+Contributions, issues, and feature requests are welcome!
+
+```bash
+# Fork the repo, then:
+git clone https://github.com/<your-username>/codeable_cli.git
+cd codeable_cli
+dart pub get
+
+# Make your changes, then:
+dart test
+dart analyze
+
+# Submit a pull request
+```
+
+See the [issues page](https://github.com/ArsalImam/codeable_cli/issues) for open tasks.
+
+---
+
+## Contributors
+
+<table>
+<tr>
+<td align="center">
+<a href="https://github.com/Arhamss">
+<img src="https://github.com/Arhamss.png" width="80" style="border-radius:50%;" alt="Syed Arham Imran"/>
+<br />
+<b>Syed Arham Imran</b>
+</a>
+<br />
+<a href="https://www.linkedin.com/in/syed-arham">LinkedIn</a>
+</td>
+<td align="center">
+<a href="https://github.com/Abdullah-Zeb-0301">
+<img src="https://github.com/Abdullah-Zeb-0301.png" width="80" style="border-radius:50%;" alt="Abdullah Zeb"/>
+<br />
+<b>Abdullah Zeb</b>
+</a>
+<br />
+<a href="https://linkedin.com/in/abdullah-zeb-65095b226/">LinkedIn</a>
+</td>
+<td align="center">
+<a href="https://github.com/Manas1255">
+<img src="https://github.com/Manas1255.png" width="80" style="border-radius:50%;" alt="Muhammad Anas Akhtar"/>
+<br />
+<b>Muhammad Anas Akhtar</b>
+</a>
+<br />
+<a href="https://www.linkedin.com/feed/update/urn:li:activity:7426607827072413697/">LinkedIn</a>
+</td>
+</tr>
+<tr>
+<td align="center">
+<a href="https://github.com/ShoaibIrfan">
+<img src="https://github.com/ShoaibIrfan.png" width="80" style="border-radius:50%;" alt="Muhammad Shoaib Irfan"/>
+<br />
+<b>Muhammad Shoaib Irfan</b>
+</a>
+<br />
+<a href="https://www.linkedin.com/in/shoaib-irfan-2ba9991b9/">LinkedIn</a>
+</td>
+<td align="center">
+<a href="https://github.com/shahab699">
+<img src="https://github.com/shahab699.png" width="80" style="border-radius:50%;" alt="Shahab Arif"/>
+<br />
+<b>Shahab Arif</b>
+</a>
+<br />
+<a href="https://www.linkedin.com/in/shahab-arif-b272721b7/">LinkedIn</a>
+</td>
+</tr>
+</table>
 
 ---
 
@@ -434,6 +561,6 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 <div align="center">
 
-**Built by [Codeable](https://github.com/ArsalImam)**
+**Built by [Codeable](https://github.com/ArsalImam)** &nbsp;&bull;&nbsp; [GitHub](https://github.com/ArsalImam/codeable_cli) &nbsp;&bull;&nbsp; [pub.dev](https://pub.dev/packages/codeable_cli)
 
 </div>
