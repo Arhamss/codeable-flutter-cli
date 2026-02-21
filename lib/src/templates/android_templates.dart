@@ -139,10 +139,10 @@ tasks.configureEach {
 ''';
 
 const keyPropertiesTemplate = r'''
-storePassword={{keystore_password}}
-keyPassword={{keystore_password}}
-keyAlias=upload
-storeFile=upload-keystore.jks
+storePassword=android
+keyPassword=android
+keyAlias={{project_name}}-alias
+storeFile={{project_name}}-keystore.jks
 ''';
 
 const gradlePropertiesTemplate = r'''

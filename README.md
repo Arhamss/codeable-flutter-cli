@@ -415,7 +415,7 @@ flutter run --flavor production -t lib/main_production.dart
 
 ### Android (pre-configured)
 - `build.gradle.kts` with flavor dimensions, signing config, ProGuard, desugaring
-- Auto-generated keystore at `android/app/upload-keystore.jks`
+- Auto-generated keystore at `android/app/<project_name>-keystore.jks`
 - Signing credentials in `android/key.properties`
 - Internet, camera, location, notification permissions in AndroidManifest.xml
 

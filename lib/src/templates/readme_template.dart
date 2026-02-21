@@ -244,7 +244,7 @@ flutter build apk --flavor production -t lib/main_production.dart
 flutter build appbundle --flavor production -t lib/main_production.dart
 ```
 
-The release build uses a keystore at `android/app/upload-keystore.jks` configured in `android/key.properties`.
+The release build uses a keystore at `android/app/{{project_name}}-keystore.jks` configured in `android/key.properties`.
 
 ### iOS
 

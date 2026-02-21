@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:mason_logger/mason_logger.dart';
 
@@ -17,8 +16,10 @@ class KeystoreGenerator {
     final progress = _logger.progress('Generating keystore');
 
     try {
-      final password = _generatePassword(16);
-      final keystorePath = '$projectPath/android/app/upload-keystore.jks';
+      final keystoreFileName = '$projectName-keystore.jks';
+      final keystoreAlias = '$projectName-alias';
+      const password = 'android';
+      final keystorePath = '$projectPath/android/app/$keystoreFileName';
       final keyPropertiesPath = '$projectPath/android/key.properties';
 
       // Generate JKS keystore using keytool
@@ -36,7 +37,7 @@ class KeystoreGenerator {
           '-validity',
           '10000',
           '-alias',
-          'upload',
+          keystoreAlias,
           '-dname',
           'CN=$projectName,OU=Dev,O=$orgName,L=Unknown,ST=Unknown,C=US',
           '-storepass',
@@ -56,8 +57,8 @@ class KeystoreGenerator {
       final keyPropertiesContent = '''
 storePassword=$password
 keyPassword=$password
-keyAlias=upload
-storeFile=upload-keystore.jks
+keyAlias=$keystoreAlias
+storeFile=$keystoreFileName
 ''';
       File(keyPropertiesPath).writeAsStringSync(keyPropertiesContent);
 
@@ -100,11 +101,4 @@ storeFile=upload-keystore.jks
     }
   }
 
-  String _generatePassword(int length) {
-    const chars =
-        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    final random = Random.secure();
-    return List.generate(length, (_) => chars[random.nextInt(chars.length)])
-        .join();
-  }
 }
