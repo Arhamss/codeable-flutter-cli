@@ -1,11 +1,14 @@
 # Changelog
 
+## 1.0.3
+
+- All Codeable links now point to [gocodeable.com](https://gocodeable.com/)
+
 ## 1.0.2
 
 - Revamped README with Table of Contents, FAQ, contributors section, and improved formatting
 - Updated project structure docs (removed deprecated guards directory)
 - Updated feature command docs to reflect auto-wiring behavior
-- All Codeable links now point to [gocodeable.com](https://gocodeable.com/)
 
 ## 1.0.1
 
