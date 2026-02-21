@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1
+
+- `feature` command now auto-wires everything: registers cubit in `app_page.dart`, adds route to `go_router`, and adds route constants
+- Generated feature screens include `customAppBar` and `BlocBuilder` out of the box
+- Repository implementations now include both `ApiService` and `AppPreferences` (cache)
+- Removed deprecated `legacyCustomAppBar` from templates
+- Removed unnecessary `.gitkeep` from feature widgets folder
+
 ## 1.0.0
 
 - Initial release
