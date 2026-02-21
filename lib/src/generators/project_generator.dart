@@ -15,6 +15,7 @@ import 'package:codeable_cli/src/templates/core_widgets_templates.dart';
 import 'package:codeable_cli/src/templates/feature_templates.dart';
 import 'package:codeable_cli/src/templates/ios_templates.dart';
 import 'package:codeable_cli/src/templates/l10n_templates.dart';
+import 'package:codeable_cli/src/templates/navigation_templates.dart';
 import 'package:codeable_cli/src/templates/pubspec_template.dart';
 import 'package:codeable_cli/src/templates/ai_config_templates.dart';
 import 'package:codeable_cli/src/templates/readme_template.dart';
@@ -142,6 +143,9 @@ class ProjectGenerator {
       'lib/core/models/auth',
       'lib/core/notifications',
       'lib/core/permissions',
+      // Navigation
+      'lib/features/navigation/presentation/views',
+      'lib/core/models',
       // Go Router
       'lib/go_router',
       // L10n
@@ -317,6 +321,11 @@ class ProjectGenerator {
         nullCheckExtensionTemplate,
         vars,
       ),
+
+      // Navigation — NavItem model + shell navigation widget (commented out)
+      'lib/core/models/navigation_item.dart': navItemModelTemplate,
+      'lib/features/navigation/presentation/views/app_navigation.dart':
+          render(navigationWidgetTemplate, vars),
 
       // Go Router — use base templates (no onboarding) when roles exist
       'lib/go_router/exports.dart': render(
@@ -559,11 +568,9 @@ class ProjectGenerator {
         'lib/features/onboarding/presentation/widgets/.gitkeep': '',
       },
 
-      // Placeholder assets
-      'assets/images/.gitkeep': '',
-      'assets/vectors/.gitkeep': '',
+      // Placeholder assets (images, vectors, fonts get real files via
+      // _copyBundledAssets; only animation needs a placeholder)
       'assets/animation/.gitkeep': '',
-      'assets/fonts/.gitkeep': '',
 
       // README
       'README.md': render(readmeTemplate, vars),
@@ -573,9 +580,11 @@ class ProjectGenerator {
       '.cursorrules': render(cursorRulesTemplate, vars),
 
       // Android Studio run configurations
-      '.run/development.run.xml': runConfigDevelopmentTemplate,
-      '.run/staging.run.xml': runConfigStagingTemplate,
-      '.run/production.run.xml': runConfigProductionTemplate,
+      '.idea/runConfigurations/development.xml':
+          runConfigDevelopmentTemplate,
+      '.idea/runConfigurations/staging.xml': runConfigStagingTemplate,
+      '.idea/runConfigurations/production.xml':
+          runConfigProductionTemplate,
     };
 
     for (final entry in files.entries) {
@@ -635,6 +644,11 @@ class ProjectGenerator {
     final manifestPath =
         '$projectPath/android/app/src/main/AndroidManifest.xml';
     File(manifestPath).writeAsStringSync(androidManifestTemplate);
+
+    // Move MainActivity.kt to match the org-based namespace.
+    // flutter create uses the project name (e.g., com/example/test_app/)
+    // but our namespace is the org name (e.g., com/example/testapp/).
+    _relocateMainActivity(projectPath, orgName);
 
     androidProgress.complete('Android configured');
 
@@ -790,6 +804,12 @@ class ProjectGenerator {
         }
       }
 
+      // 5. Fonts → assets/fonts/ (preserves subdirectory structure)
+      final fontsSrcDir = Directory('$assetsRoot/fonts');
+      if (fontsSrcDir.existsSync()) {
+        _copyDirectory(fontsSrcDir.path, '$projectPath/assets/fonts');
+      }
+
       assetsProgress.complete('App icons & splash copied');
     } catch (e) {
       assetsProgress.fail('Failed to copy assets: $e');
@@ -815,6 +835,58 @@ class ProjectGenerator {
     if (srcFile.existsSync()) {
       File(dst).parent.createSync(recursive: true);
       srcFile.copySync(dst);
+    }
+  }
+
+  /// Moves MainActivity.kt so its package matches the org-based namespace.
+  ///
+  /// `flutter create` generates `com/example/test_app/MainActivity.kt`
+  /// but our build.gradle.kts sets `namespace = "com.example.testapp"`.
+  /// Android resolves `.MainActivity` against the namespace, so the Kotlin
+  /// file must live under the matching directory.
+  void _relocateMainActivity(String projectPath, String orgName) {
+    final kotlinBase = '$projectPath/android/app/src/main/kotlin';
+    final orgPath = orgName.replaceAll('.', '/');
+    final targetDir = '$kotlinBase/$orgPath';
+    final targetFile = '$targetDir/MainActivity.kt';
+
+    // If already correct, nothing to do
+    if (File(targetFile).existsSync()) return;
+
+    // Find the existing MainActivity.kt
+    final kotlinDir = Directory(kotlinBase);
+    if (!kotlinDir.existsSync()) return;
+
+    File? found;
+    for (final f in kotlinDir.listSync(recursive: true).whereType<File>()) {
+      if (f.path.endsWith('MainActivity.kt')) {
+        found = f;
+        break;
+      }
+    }
+    if (found == null) return;
+
+    // Read, update package declaration, write to new location
+    var content = found.readAsStringSync();
+    final packageRe = RegExp(r'package\s+\S+');
+    content = content.replaceFirst(packageRe, 'package $orgName');
+
+    Directory(targetDir).createSync(recursive: true);
+    File(targetFile).writeAsStringSync(content);
+
+    // Remove old file and clean up empty parent dirs
+    final oldDir = found.parent;
+    found.deleteSync();
+    _deleteEmptyParents(oldDir, kotlinDir);
+  }
+
+  /// Deletes empty directories upward until [stopAt].
+  void _deleteEmptyParents(Directory dir, Directory stopAt) {
+    var current = dir;
+    while (current.path != stopAt.path && current.listSync().isEmpty) {
+      final parent = current.parent;
+      current.deleteSync();
+      current = parent;
     }
   }
 

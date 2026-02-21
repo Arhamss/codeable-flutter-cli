@@ -80,7 +80,7 @@ features/<feature_name>/
 - Colors: `AppColors.blackPrimary`, `AppColors.white`, `AppColors.textSecondary`, etc.
 - Text styles via context extension: `context.h1`, `context.t1`, `context.b1`, `context.l1`
 - Text style modifiers: `.secondary` (white), `.tertiary` (gray)
-- Font: Plus Jakarta Sans via `GoogleFonts.plusJakartaSans`
+- Fonts: BBBPoppins (headings/titles via `AppFonts.heading`), SFProRounded (body/labels via `AppFonts.body`)
 - Assets: `AssetPaths.arrowLeftIcon`, `AssetPaths.searchIcon`, etc.
 
 ### Storage
@@ -176,7 +176,7 @@ Each feature lives in `lib/features/<name>/` with:
 - Colors: Use `AppColors` constants (e.g., `AppColors.blackPrimary`, `AppColors.white`, `AppColors.textSecondary`)
 - Text: Use context extension (e.g., `context.h1`, `context.t1`, `context.b1`, `context.l1`)
 - Text modifiers: `.secondary` (white text), `.tertiary` (gray text)
-- Font: Plus Jakarta Sans via GoogleFonts
+- Fonts: BBBPoppins for headings/titles, SFProRounded for body/labels
 - Assets: Reference via `AssetPaths` constants
 
 ### API Layer

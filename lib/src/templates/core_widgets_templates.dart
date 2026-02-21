@@ -91,15 +91,15 @@ PreferredSizeWidget customAppBar({
     systemOverlayStyle: SystemUiOverlayStyle.dark,
     forceMaterialTransparency: true,
     toolbarHeight: toolbarHeight,
-    leadingWidth:
-        16 + 40,
+    centerTitle: true,
+    leadingWidth: showBackButton ? 16 + 40 : 0,
     leading: showBackButton
         ? (leading ??
             Padding(
               padding: _appBarLeadingPadding,
               child: CustomBackButton(onPressed: onBackPressed),
             ))
-        : null,
+        : const SizedBox.shrink(),
     title: titleWidget ??
         Text(
           title,
@@ -2143,7 +2143,6 @@ class CustomLoadingWidget extends StatelessWidget {
 
 
 const String outlineButtonTemplate = '''
-import 'package:google_fonts/google_fonts.dart';
 import 'package:{{project_name}}/exports.dart';
 
 class CustomOutlineButton extends StatelessWidget {
@@ -2233,7 +2232,7 @@ class CustomOutlineButton extends StatelessWidget {
                   ],
                   Text(
                     text,
-                    style: GoogleFonts.urbanist(
+                    style: TextStyle(
                       color: disabled ? disabledTextColor : textColor,
                       fontWeight: fontWeight,
                       fontSize: fontSize,

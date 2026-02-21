@@ -70,96 +70,82 @@ abstract class AppColors {
 
 const appTextStyleTemplate = r'''
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:{{project_name}}/constants/app_colors.dart';
 
+/// Font family constants used throughout the app.
+abstract class AppFonts {
+  static const heading = 'BBBPoppins';
+  static const body = 'SFProRounded';
+}
+
 extension AppTextStyle on BuildContext {
-  // Headers
-  TextStyle get h1 => GoogleFonts.plusJakartaSans(
-    fontSize: 32,
-    fontWeight: FontWeight.w700,
-    letterSpacing: -0.64,
-    color: AppColors.blackPrimary,
-  );
+  TextStyle _heading(
+    double size,
+    FontWeight weight, {
+    Color color = AppColors.textPrimary,
+    FontStyle fontStyle = FontStyle.normal,
+    double? height,
+  }) {
+    return TextStyle(
+      fontFamily: AppFonts.heading,
+      fontSize: size,
+      fontWeight: weight,
+      fontStyle: fontStyle,
+      color: color,
+      height: height,
+    );
+  }
 
-  TextStyle get h2 => GoogleFonts.plusJakartaSans(
-    fontSize: 28,
-    fontWeight: FontWeight.w600,
-    letterSpacing: -0.56,
-    color: AppColors.blackPrimary,
-  );
+  TextStyle _body(
+    double size,
+    FontWeight weight, {
+    Color color = AppColors.textPrimary,
+    FontStyle fontStyle = FontStyle.normal,
+    double? height,
+  }) {
+    return TextStyle(
+      fontFamily: AppFonts.body,
+      fontSize: size,
+      fontWeight: weight,
+      fontStyle: fontStyle,
+      color: color,
+      height: height,
+    );
+  }
 
-  TextStyle get h3 => GoogleFonts.plusJakartaSans(
-    fontSize: 24,
-    fontWeight: FontWeight.w500,
-    letterSpacing: -0.48,
-    color: AppColors.blackPrimary,
-  );
+  // ─── Headlines (BBBPoppins) ───
 
-  // Title Styles
-  TextStyle get t1 => GoogleFonts.plusJakartaSans(
-    fontSize: 20,
-    fontWeight: FontWeight.w600,
-    letterSpacing: -0.32,
-    color: AppColors.blackPrimary,
-  );
+  TextStyle get h1 => _heading(40, FontWeight.w700, height: 1);
+  TextStyle get h2 => _heading(28, FontWeight.w700);
+  TextStyle get h3 => _heading(24, FontWeight.w600);
 
-  TextStyle get t2 => GoogleFonts.plusJakartaSans(
-    fontSize: 18,
-    fontWeight: FontWeight.w700,
-    letterSpacing: -0.28,
-    color: AppColors.blackPrimary,
-  );
+  // ─── Titles (BBBPoppins) ───
 
-  TextStyle get t3 => GoogleFonts.plusJakartaSans(
-    fontSize: 16,
-    fontWeight: FontWeight.w500,
-    letterSpacing: -0.32,
-    color: AppColors.blackPrimary,
-  );
+  TextStyle get t1 => _heading(20, FontWeight.w600);
+  TextStyle get t2 => _heading(18, FontWeight.w600);
+  TextStyle get t3 => _heading(16, FontWeight.w600);
 
-  // Body Styles
-  TextStyle get b1 => GoogleFonts.plusJakartaSans(
-    fontSize: 14,
-    fontWeight: FontWeight.w500,
-    letterSpacing: -0.28,
-    color: AppColors.blackPrimary,
-  );
+  // ─── Body (SFProRounded) ───
 
-  TextStyle get b2 => GoogleFonts.plusJakartaSans(
-    fontSize: 14,
-    fontWeight: FontWeight.w400,
-    letterSpacing: -0.28,
-    color: AppColors.blackPrimary,
-  );
+  TextStyle get b1 => _body(16, FontWeight.w600);
+  TextStyle get b2 => _body(14, FontWeight.w400);
+  TextStyle get b3 => _body(12, FontWeight.w600);
 
-  TextStyle get b3 => GoogleFonts.plusJakartaSans(
-    fontSize: 12,
-    fontWeight: FontWeight.w400,
-    letterSpacing: -0.24,
-    color: AppColors.blackPrimary,
-  );
+  // ─── Labels (SFProRounded) ───
 
-  // Label Styles
-  TextStyle get l1 => GoogleFonts.plusJakartaSans(
-    fontSize: 14,
-    fontWeight: FontWeight.w600,
-    letterSpacing: -0.28,
-    color: AppColors.blackPrimary,
-  );
+  TextStyle get l1 => _body(14, FontWeight.w600);
+  TextStyle get l2 => _body(12, FontWeight.w500);
+  TextStyle get l3 => _body(10, FontWeight.w400);
 
-  TextStyle get l2 => GoogleFonts.plusJakartaSans(
-    fontSize: 12,
-    fontWeight: FontWeight.w500,
-    letterSpacing: -0.24,
-    color: AppColors.blackPrimary,
-  );
+  // ─── Weight variants & italics ───
 
-  TextStyle get l3 => GoogleFonts.plusJakartaSans(
-    fontSize: 10,
-    fontWeight: FontWeight.w500,
-    letterSpacing: -0.20,
-    color: AppColors.blackPrimary,
+  TextStyle get thickText => _body(18, FontWeight.w800);
+  TextStyle get lightText => _body(18, FontWeight.w300);
+  TextStyle get extraLightText => _body(18, FontWeight.w200);
+  TextStyle get italicBody => _body(
+    14,
+    FontWeight.w400,
+    fontStyle: FontStyle.italic,
   );
 }
 
@@ -169,20 +155,23 @@ extension TextStyleSecondary on TextStyle {
   TextStyle get tertiary => copyWith(color: AppColors.textTertiary);
 }
 
-extension TextStylePlusJakartaSans on TextStyle {
-  TextStyle get plusJakartaSans => GoogleFonts.plusJakartaSans(
-    fontSize: fontSize,
-    fontWeight: fontWeight,
-    color: color,
-    fontStyle: fontStyle,
-    letterSpacing: letterSpacing,
-    wordSpacing: wordSpacing,
-    height: height,
-    decoration: decoration,
-    decorationColor: decorationColor,
-    decorationStyle: decorationStyle,
-    decorationThickness: decorationThickness,
-  );
+/// Alias on TextStyle so you can write `.withStyle(...)` if you prefer
+extension TextStyleWithStyle on TextStyle {
+  TextStyle withStyle({
+    double? fontSize,
+    FontWeight? fontWeight,
+    Color? color,
+    FontStyle? fontStyle,
+    String? fontFamily,
+  }) {
+    return copyWith(
+      fontFamily: fontFamily,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+      color: color,
+    );
+  }
 }
 ''';
 

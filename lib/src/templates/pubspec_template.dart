@@ -48,7 +48,6 @@ dependencies:
   intl: any
 
   # UI
-  google_fonts: ^6.2.1
   flutter_svg: ^2.0.17
   cached_network_image: ^3.4.1
   lottie: ^3.3.1
@@ -101,15 +100,68 @@ flutter:
     - assets/fonts/
 
   fonts:
-    - family: DMSans
+    - family: BBBPoppins
       fonts:
-        - asset: assets/fonts/DMSans-Regular.ttf
-        - asset: assets/fonts/DMSans-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/DMSans-SemiBold.ttf
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-DisplayRegular.ttf
+          weight: 400
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-DisplayRegularItalic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-TextRegular.ttf
+          weight: 400
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-TextRegularItalic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-TextSemiBold.ttf
           weight: 600
-        - asset: assets/fonts/DMSans-Bold.ttf
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-TextSemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-DisplaySemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-DisplaySemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-TextBold.ttf
           weight: 700
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-TextBoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-DisplayBold.ttf
+          weight: 700
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-DisplayBoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-TextBlack.ttf
+          weight: 900
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-TextBlackItalic.ttf
+          weight: 900
+          style: italic
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-DisplayBlack.ttf
+          weight: 900
+        - asset: assets/fonts/bbb-poppins/BBBPoppinsTN-DisplayBlackItalic.ttf
+          weight: 900
+          style: italic
+    - family: SFProRounded
+      fonts:
+        - asset: assets/fonts/sf-pro-rounded/SF-Pro-Rounded-Thin.otf
+          weight: 100
+        - asset: assets/fonts/sf-pro-rounded/SF-Pro-Rounded-Ultralight.otf
+          weight: 200
+        - asset: assets/fonts/sf-pro-rounded/SF-Pro-Rounded-Light.otf
+          weight: 300
+        - asset: assets/fonts/sf-pro-rounded/SF-Pro-Rounded-Regular.otf
+          weight: 400
+        - asset: assets/fonts/sf-pro-rounded/SF-Pro-Rounded-Medium.otf
+          weight: 500
+        - asset: assets/fonts/sf-pro-rounded/SF-Pro-Rounded-Semibold.otf
+          weight: 600
+        - asset: assets/fonts/sf-pro-rounded/SF-Pro-Rounded-Bold.otf
+          weight: 700
+        - asset: assets/fonts/sf-pro-rounded/SF-Pro-Rounded-Heavy.otf
+          weight: 800
+        - asset: assets/fonts/sf-pro-rounded/SF-Pro-Rounded-Black.otf
+          weight: 900
 
 flutter_native_splash:
   color: "#0D0B2E"
