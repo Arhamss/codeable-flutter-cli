@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2
+
+- Revamped README with Table of Contents, FAQ, contributors section, and improved formatting
+- Updated project structure docs (removed deprecated guards directory)
+- Updated feature command docs to reflect auto-wiring behavior
+
 ## 1.0.1
 
 - `feature` command now auto-wires everything: registers cubit in `app_page.dart`, adds route to `go_router`, and adds route constants
