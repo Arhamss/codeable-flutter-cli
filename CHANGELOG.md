@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.7
+
+- Added shell navigation scaffolding (StatefulShellRoute, AppNavigation, NavItem model) — commented out with placeholder values for easy activation
+- Added bundled `arrow_left_icon.svg` for app bar back button
+- iOS flavor builds fully configured (xcschemes, 27 build configurations, per-flavor bundle IDs and app names)
+- Per-flavor app icons for iOS (AppIcon-dev, AppIcon-stg) and Android (development/staging source sets)
+- Bundled BBBPoppins (headings) and SFProRounded (body) fonts with updated text styles
+- Run configurations moved to `.idea/runConfigurations/` with `buildFlavor` option for Android Studio
+- Fixed app crash from MainActivity namespace mismatch (`_relocateMainActivity`)
+- Added `UIApplicationSceneManifest` and `ITSAppUsesNonExemptEncryption` to Info.plist
+- Firebase packages kept active in pubspec (initialization remains commented out in DI)
+- Centered app bar title by default, no leading image when back button is hidden
+
 ## 1.0.6
 
 - Fixed `--version` flag to report correct version
