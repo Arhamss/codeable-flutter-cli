@@ -100,6 +100,42 @@ flutter {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
+
+// Copy google-services.json from firebase/<flavor>/ into app/src/<flavor>/
+// so the Google Services plugin picks it up automatically.
+// Skips gracefully if the file doesn't exist (Firebase not yet configured).
+android.productFlavors.forEach { flavor ->
+    val flavorName = flavor.name
+    val src = rootProject.file("firebase/$flavorName/google-services.json")
+    val dst = file("src/$flavorName/google-services.json")
+
+    tasks.register<Copy>("copy${flavorName.replaceFirstChar { it.uppercase() }}GoogleServices") {
+        description = "Copies google-services.json for $flavorName flavor"
+        if (src.exists()) {
+            from(src)
+            into(dst.parentFile)
+        } else {
+            doLast {
+                logger.warn("google-services.json not found at ${src.path} — skipping (add it when you set up Firebase)")
+            }
+        }
+    }
+}
+
+tasks.configureEach {
+    if (name.startsWith("process") && name.endsWith("GoogleServices")) {
+        val flavorName = android.productFlavors
+            .map { it.name }
+            .firstOrNull { name.contains(it, ignoreCase = true) }
+
+        if (flavorName != null) {
+            val copyTaskName = "copy${flavorName.replaceFirstChar { it.uppercase() }}GoogleServices"
+            if (project.tasks.names.contains(copyTaskName)) {
+                dependsOn(copyTaskName)
+            }
+        }
+    }
+}
 ''';
 
 const keyPropertiesTemplate = r'''

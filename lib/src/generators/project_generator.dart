@@ -403,19 +403,27 @@ class ProjectGenerator {
     File('$projectPath/ios/Runner/RunnerRelease.entitlements')
         .writeAsStringSync(iosReleaseEntitlementsTemplate);
 
+    // Inject "Copy GoogleService-Info.plist" run script into Xcode project
+    _injectGoogleServiceCopyScript(projectPath);
+
     iosProgress.complete('iOS configured');
 
-    // Step 10: Copy bundled assets (splash, app icons, SVGs)
+    // Step 10: Create firebase config directory structure
+    for (final flavor in ['development', 'staging', 'production']) {
+      Directory('$projectPath/firebase/$flavor').createSync(recursive: true);
+    }
+
+    // Step 11: Copy bundled assets (splash, app icons, SVGs)
     await _copyBundledAssets(projectPath);
 
-    // Step 11: Generate keystore
+    // Step 12: Generate keystore
     await KeystoreGenerator(logger: _logger).generate(
       projectPath: projectPath,
       projectName: snakeName,
       orgName: orgName,
     );
 
-    // Step 12: Run flutter pub get
+    // Step 13: Run flutter pub get
     final pubGetProgress = _logger.progress('Running flutter pub get');
     final pubGetResult = await Process.run(
       'flutter',
@@ -549,5 +557,90 @@ class ProjectGenerator {
       File(dst).parent.createSync(recursive: true);
       srcFile.copySync(dst);
     }
+  }
+
+  // Use a fixed unique ID for the build phase
+  static const _copyGoogleServicePhaseId =
+      'C0DE4B1E2F22000000000001';
+
+  /// Injects a "Copy GoogleService-Info.plist" Run Script build phase
+  /// into the Xcode project. The script copies the correct plist per
+  /// flavor (development/staging/production) from `firebase/<flavor>/`.
+  /// If no plist is found, it prints a warning and continues (does NOT
+  /// fail the build), so the project works before Firebase is set up.
+  void _injectGoogleServiceCopyScript(String projectPath) {
+    final pbxprojFile = File(
+      '$projectPath/ios/Runner.xcodeproj/project.pbxproj',
+    );
+    if (!pbxprojFile.existsSync()) return;
+
+    var content = pbxprojFile.readAsStringSync();
+
+    // 1. Add the build phase definition before
+    //    /* End PBXShellScriptBuildPhase section */
+    const id = _copyGoogleServicePhaseId;
+    // Shell script with $PLIST var — use raw segments to avoid
+    // Dart treating shell variables as interpolation.
+    final phaseDefinition = '\t\t$id'
+        r' /* Copy GoogleService-Info.plist */ = {'
+        '\n\t\t\tisa = PBXShellScriptBuildPhase;'
+        '\n\t\t\tbuildActionMask = 2147483647;'
+        '\n\t\t\tfiles = ('
+        '\n\t\t\t);'
+        '\n\t\t\tinputFileListPaths = ('
+        '\n\t\t\t);'
+        '\n\t\t\tinputPaths = ('
+        '\n\t\t\t);'
+        '\n\t\t\tname = "Copy GoogleService-Info.plist";'
+        '\n\t\t\toutputFileListPaths = ('
+        '\n\t\t\t);'
+        '\n\t\t\toutputPaths = ('
+        '\n\t\t\t);'
+        '\n\t\t\trunOnlyForDeploymentPostprocessing = 0;'
+        '\n\t\t\tshellPath = /bin/sh;'
+        '\n\t\t\tshellScript = '
+        r'''"#!/bin/sh\n'''
+        r'''PROJECT_DIR=\"${SRCROOT}/..\"\n'''
+        r'''FIREBASE_CONFIG_DIR=\"${PROJECT_DIR}/firebase\"\n'''
+        r'''\n'''
+        r'''case \"${CONFIGURATION}\" in\n'''
+        r'''    \"Debug-development\"|\"Release-development\"|\"Profile-development\")\n'''
+        r'''        PLIST=\"${FIREBASE_CONFIG_DIR}/development/GoogleService-Info.plist\"\n'''
+        r'''    ;;\n'''
+        r'''    \"Debug-staging\"|\"Release-staging\"|\"Profile-staging\")\n'''
+        r'''        PLIST=\"${FIREBASE_CONFIG_DIR}/staging/GoogleService-Info.plist\"\n'''
+        r'''    ;;\n'''
+        r'''    \"Debug-production\"|\"Release-production\"|\"Profile-production\")\n'''
+        r'''        PLIST=\"${FIREBASE_CONFIG_DIR}/production/GoogleService-Info.plist\"\n'''
+        r'''    ;;\n'''
+        r'''    *)\n'''
+        r'''        echo \"warning: Unknown configuration ${CONFIGURATION} — skipping GoogleService-Info.plist copy\"\n'''
+        r'''        exit 0\n'''
+        r'''    ;;\n'''
+        r'''esac\n'''
+        r'''\n'''
+        r'''if [ -f \"$PLIST\" ]; then\n'''
+        r'''    cp \"$PLIST\" \"${PROJECT_DIR}/ios/Runner/GoogleService-Info.plist\"\n'''
+        r'''    echo \"${CONFIGURATION} GoogleService-Info.plist copied\"\n'''
+        r'''else\n'''
+        r'''    echo \"warning: GoogleService-Info.plist not found at $PLIST — skipping (add it when you set up Firebase)\"\n'''
+        r'''fi\n";'''
+        '\n\t\t};';
+
+    content = content.replaceFirst(
+      '/* End PBXShellScriptBuildPhase section */',
+      '$phaseDefinition\n/* End PBXShellScriptBuildPhase section */',
+    );
+
+    // 2. Add the phase reference in Runner target's buildPhases,
+    //    right after "Run Script" (9740EEB61CF901F6004384FC)
+    content = content.replaceFirst(
+      '9740EEB61CF901F6004384FC /* Run Script */,',
+      '9740EEB61CF901F6004384FC /* Run Script */,\n'
+          '\t\t\t\t$id '
+          '/* Copy GoogleService-Info.plist */,',
+    );
+
+    pbxprojFile.writeAsStringSync(content);
   }
 }
