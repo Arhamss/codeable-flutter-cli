@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.5
+
+- Fixed repository and issue tracker URLs to point to the correct GitHub repo
+- Shortened package description to meet pub.dev guidelines (60-180 characters)
+- Added example file for pub.dev documentation score
+
 ## 1.0.4
 
 - All Codeable links now point to [gocodeable.com](https://gocodeable.com/)

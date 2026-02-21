@@ -14,7 +14,7 @@ Instantly generate Flutter projects with Clean Architecture, BLoC/Cubit state ma
 [![Style: Very Good Analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg?style=for-the-badge)](https://pub.dev/packages/very_good_analysis)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-<a href="https://github.com/ArsalImam/codeable_cli">GitHub</a> &nbsp;&bull;&nbsp; <a href="https://pub.dev/packages/codeable_cli">pub.dev</a> &nbsp;&bull;&nbsp; <a href="https://github.com/ArsalImam/codeable_cli/issues">Issues</a>
+<a href="https://github.com/Arhamss/codeable-flutter-cli">GitHub</a> &nbsp;&bull;&nbsp; <a href="https://pub.dev/packages/codeable_cli">pub.dev</a> &nbsp;&bull;&nbsp; <a href="https://github.com/Arhamss/codeable-flutter-cli/issues">Issues</a>
 
 </div>
 
@@ -80,7 +80,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.4
+dart pub global activate codeable_cli 1.0.5
 ```
 
 ### Or run without activating
@@ -493,7 +493,7 @@ dart analyze
 # Submit a pull request
 ```
 
-See the [issues page](https://github.com/ArsalImam/codeable_cli/issues) for open tasks.
+See the [issues page](https://github.com/Arhamss/codeable-flutter-cli/issues) for open tasks.
 
 ---
 
@@ -561,6 +561,6 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 <div align="center">
 
-**Built with 💙 by [Codeable](https://gocodeable.com/)** &nbsp;&bull;&nbsp; [GitHub](https://github.com/ArsalImam/codeable_cli) &nbsp;&bull;&nbsp; [pub.dev](https://pub.dev/packages/codeable_cli)
+**Built with 💙 by [Codeable](https://gocodeable.com/)** &nbsp;&bull;&nbsp; [GitHub](https://github.com/Arhamss/codeable-flutter-cli) &nbsp;&bull;&nbsp; [pub.dev](https://pub.dev/packages/codeable_cli)
 
 </div>

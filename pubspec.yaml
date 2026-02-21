@@ -2,10 +2,10 @@ name: codeable_cli
 description: >-
   A CLI tool that scaffolds production-ready Flutter projects with Clean
   Architecture, BLoC/Cubit, Dio, Hive, GoRouter, multi-flavor builds,
-  Firebase setup, and 40+ reusable UI components.
-version: 1.0.4
-repository: https://github.com/ArsalImam/codeable_cli
-issue_tracker: https://github.com/ArsalImam/codeable_cli/issues
+  and Firebase integration.
+version: 1.0.5
+repository: https://github.com/Arhamss/codeable-flutter-cli
+issue_tracker: https://github.com/Arhamss/codeable-flutter-cli/issues
 
 environment:
   sdk: ^3.11.0
