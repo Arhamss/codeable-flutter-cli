@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://gocodeable.com/">
-  <img src="https://img.shields.io/badge/Codeable-CLI-blue?style=for-the-badge&logo=dart&logoColor=white" alt="Codeable CLI" />
+  <img src="https://img.shields.io/badge/Codeable-CLI-blue?style=for-the-badge&logo=data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNTAzLjkgMzI0LjQ5Ij4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xIHsKICAgICAgICBmaWxsOiAjZmZmOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8ZyBpZD0iTGF5ZXJfMS0yIiBkYXRhLW5hbWU9IkxheWVyXzEiPgogICAgPGc+CiAgICAgIDxwb2x5Z29uIGNsYXNzPSJjbHMtMSIgcG9pbnRzPSIxMjggMTYyLjI0IDI1MS45NSAzOC4zNiAyOTAuMjQgMCAyMTMuNTkgMCAxNjIuMjUgMCAwIDE2Mi4yNCAxNjAuNzkgMzIzLjA0IDIyNC43OSAyNTkuMDMgMTI4IDE2Mi4yNCIvPgogICAgICA8cG9seWdvbiBjbGFzcz0iY2xzLTEiIHBvaW50cz0iMzQzLjExIDEuNTEgMjc5LjEgNjUuNTIgMzc1LjgzIDE2Mi4yNCAyNTEuOTUgMjg2LjE5IDIxMy41OSAzMjQuNDkgMjkwLjI1IDMyNC40OSAzNDEuNTkgMzI0LjQ5IDUwMy45IDE2Mi4yNCAzNDMuMTEgMS41MSIvPgogICAgICA8cmVjdCBjbGFzcz0iY2xzLTEiIHg9IjIwMi42NiIgeT0iMTEzLjI3IiB3aWR0aD0iOTcuOTUiIGhlaWdodD0iOTcuOTUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC00MS4wMiAyMjUuNDUpIHJvdGF0ZSgtNDUpIi8+CiAgICA8L2c+CiAgPC9nPgo8L3N2Zz4=&logoColor=white" alt="Codeable CLI" />
 </a>
 
 # Codeable CLI
@@ -80,7 +80,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.3
+dart pub global activate codeable_cli 1.0.4
 ```
 
 ### Or run without activating

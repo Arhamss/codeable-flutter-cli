@@ -1,8 +1,9 @@
 # Changelog
 
-## 1.0.3
+## 1.0.4
 
 - All Codeable links now point to [gocodeable.com](https://gocodeable.com/)
+- Added custom Codeable logo to README badge
 
 ## 1.0.2
 
