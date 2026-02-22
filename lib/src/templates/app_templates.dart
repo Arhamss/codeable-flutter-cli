@@ -240,7 +240,6 @@ class _SplashScreenState extends State<SplashScreen> {
       context.goNamed(AppRouteNames.loginScreen);
     } else {
       AppLogger.info('Auth token found');
-      context.goNamed(AppRouteNames.homeScreen);
     }
   }
 

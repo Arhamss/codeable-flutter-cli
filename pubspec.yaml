@@ -3,7 +3,7 @@ description: >-
   A CLI tool that scaffolds production-ready Flutter projects with Clean
   Architecture, BLoC/Cubit, Dio, Hive, GoRouter, multi-flavor builds,
   and Firebase integration.
-version: 1.0.7
+version: 1.0.8
 repository: https://github.com/Arhamss/codeable-flutter-cli
 issue_tracker: https://github.com/Arhamss/codeable-flutter-cli/issues
 

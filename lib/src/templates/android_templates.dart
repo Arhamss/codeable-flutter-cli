@@ -65,12 +65,12 @@ android {
         create("staging") {
             dimension = "default"
             applicationIdSuffix = ".stg"
-            manifestPlaceholders["appName"] = "[STG] {{ProjectName}}"
+            manifestPlaceholders["appName"] = "{{ProjectName}} [STG]"
         }
         create("development") {
             dimension = "default"
             applicationIdSuffix = ".dev"
-            manifestPlaceholders["appName"] = "[DEV] {{ProjectName}}"
+            manifestPlaceholders["appName"] = "{{ProjectName}} [DEV]"
         }
     }
 
@@ -98,7 +98,13 @@ flutter {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.10")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+}
+
+// Suppress Java 8 source/target deprecation warnings from dependencies
+tasks.withType<JavaCompile> {
+    options.compilerArgs.addAll(listOf("-Xlint:-options", "-Xlint:-deprecation"))
 }
 
 // Copy google-services.json from firebase/<flavor>/ into app/src/<flavor>/

@@ -895,9 +895,9 @@ class ProjectGenerator {
   // ---------------------------------------------------------------------------
 
   static const _flavors = [
-    {'name': 'production', 'suffix': '', 'prefix': '', 'icon': 'AppIcon'},
-    {'name': 'staging', 'suffix': '.stg', 'prefix': '[STG] ', 'icon': 'AppIcon-stg'},
-    {'name': 'development', 'suffix': '.dev', 'prefix': '[DEV] ', 'icon': 'AppIcon-dev'},
+    {'name': 'production', 'suffix': '', 'label': '', 'icon': 'AppIcon'},
+    {'name': 'staging', 'suffix': '.stg', 'label': ' [STG]', 'icon': 'AppIcon-stg'},
+    {'name': 'development', 'suffix': '.dev', 'label': ' [DEV]', 'icon': 'AppIcon-dev'},
   ];
 
   static const _buildTypes = ['Debug', 'Release', 'Profile'];
@@ -1019,9 +1019,9 @@ class ProjectGenerator {
             final bundleId = fl['suffix']!.isEmpty
                 ? orgName
                 : '$orgName${fl['suffix']}';
-            final appName = fl['prefix']!.isEmpty
+            final appName = fl['label']!.isEmpty
                 ? projectName
-                : '${fl['prefix']}$projectName';
+                : '$projectName${fl['label']}';
             final iconName = fl['icon']!;
 
             // Replace PRODUCT_BUNDLE_IDENTIFIER

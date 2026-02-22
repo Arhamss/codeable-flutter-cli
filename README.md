@@ -80,7 +80,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.7
+dart pub global activate codeable_cli 1.0.8
 ```
 
 ### Or run without activating
@@ -451,8 +451,8 @@ Three flavors are configured out of the box with separate entry points:
 | Flavor | Entry Point | Bundle ID Suffix | Display Name | App Icon |
 |--------|-------------|-----------------|--------------|----------|
 | `production` | `lib/main_production.dart` | _(none)_ | `MyApp` | `AppIcon` |
-| `staging` | `lib/main_staging.dart` | `.stg` | `[STG] MyApp` | `AppIcon-stg` |
-| `development` | `lib/main_development.dart` | `.dev` | `[DEV] MyApp` | `AppIcon-dev` |
+| `staging` | `lib/main_staging.dart` | `.stg` | `MyApp [STG]` | `AppIcon-stg` |
+| `development` | `lib/main_development.dart` | `.dev` | `MyApp [DEV]` | `AppIcon-dev` |
 
 ```bash
 flutter run --flavor development -t lib/main_development.dart

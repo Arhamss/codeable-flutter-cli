@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.8
+
+- Flavor display names now use suffix format: `MyApp [DEV]`, `MyApp [STG]`
+- Added `kotlin-stdlib:2.2.10` dependency to Android build.gradle.kts
+- Suppressed Java 8 source/target deprecation warnings from dependencies
+- Removed home screen navigation from splash (logs auth token only)
+
 ## 1.0.7
 
 - Added shell navigation scaffolding (StatefulShellRoute, AppNavigation, NavItem model) — commented out with placeholder values for easy activation
