@@ -115,7 +115,7 @@ codeable_cli --help
 
 Create a new project:
 ```bash
-codeable_cli create --name my_app --org com.example.myapp
+codeable_cli create --name my_app --app-name "My App" --org com.example.myapp
 ```
 
 Navigate into the project:
