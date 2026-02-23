@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.9
+## 1.0.10
 
 - Added `--app-name` option to `create` command for setting the app display name separately from the project name
 - Toast helper now uses custom SVG icons (success, error, info) instead of Material Icons
