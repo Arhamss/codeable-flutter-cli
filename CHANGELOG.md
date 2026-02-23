@@ -1,13 +1,14 @@
 # Changelog
 
-## 1.0.10
+## 1.0.11
 
 - Added `--app-name` option to `create` command for setting the app display name separately from the project name
 - Toast helper now uses custom SVG icons (success, error, info) instead of Material Icons
 - Removed `showWarningToast` from toast helper
 - `CustomSocialAuthButton.iconPath` is now required
 - Login screen includes emblem logo and social auth icons out of the box
-- Added emblem, codeable logo, and social auth SVG assets to generated projects
+- Bundled all SVG assets (search, filter, dropdown, tick, star, social auth, emblem, codeable logo)
+- Cleaned up `AssetPaths` — removed unused entries, fixed duplicate `errorIcon`
 - README code blocks split for easier copying
 
 ## 1.0.8

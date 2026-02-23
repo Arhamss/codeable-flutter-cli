@@ -179,62 +179,10 @@ const assetPathsTemplate = '''
 class AssetPaths {
   const AssetPaths._();
 
-  /// SVG Icons
-  static const homeNavbarSelectedIcon = 'assets/vectors/home_selected.svg';
-  static const homeNavbarUnselectedIcon = 'assets/vectors/home_unselected.svg';
-  static const ordersNavbarSelectedIcon = 'assets/vectors/orders_selected.svg';
-  static const ordersNavbarUnselectedIcon =
-      'assets/vectors/orders_unselected.svg';
-  static const profileNavbarSelectedIcon =
-      'assets/vectors/profile_selected.svg';
-  static const profileNavbarUnselectedIcon =
-      'assets/vectors/profile_unselected.svg';
-  static const cartNavbarUnselectedIcon = 'assets/vectors/cart_unselected.svg';
-  static const tickIcon = 'assets/vectors/tick_icon.svg';
-  static const errorIcon = 'assets/vectors/error_icon.svg';
-  static const searchIcon = 'assets/vectors/search_icon.svg';
-  static const filterIcon = 'assets/vectors/filter_icon.svg';
-  static const favoriteSelectedIcon =
-      'assets/vectors/favorite_selected_icon.svg';
-  static const favoriteUnselectedIcon =
-      'assets/vectors/favorite_unselected_icon.svg';
+  /// SVG Icons — bundled with the project
   static const arrowLeftIcon = 'assets/vectors/arrow_left_icon.svg';
-  static const dropdownArrowIcon = 'assets/vectors/dropdown_arrow_icon.svg';
-  static const crossIcon = 'assets/vectors/cross_icon.svg';
-  static const cartIcon = 'assets/vectors/cart_icon.svg';
-  static const minusIcon = 'assets/vectors/minus_icon.svg';
-  static const plusIcon = 'assets/vectors/plus_icon.svg';
-  static const editProfileIcon = 'assets/vectors/edit_profile_icon.svg';
-  static const savedAddressIcon = 'assets/vectors/saved_address_icon.svg';
-  static const paymentMethodIcon = 'assets/vectors/payment_method_icon.svg';
-  static const wishlistIcon = 'assets/vectors/wishlist_icon.svg';
-  static const privacyPolicyIcon = 'assets/vectors/privacy_policy_icon.svg';
-  static const logoutIcon = 'assets/vectors/logout_icon.svg';
-  static const helpAndSupportIcon = 'assets/vectors/help_and_support_icon.svg';
-  static const deleteAccountIcon = 'assets/vectors/delete_account_icon.svg';
-  static const arrowRightIcon = 'assets/vectors/arrow_right_icon.svg';
-  static const editIcon = 'assets/vectors/edit_icon.svg';
-  static const pkFlagIcon = 'assets/vectors/pk_flag_icon.svg';
-  static const arrowDownIcon = 'assets/vectors/arrow_down_icon.svg';
-  static const arrowUpIcon = 'assets/vectors/arrow_up_icon.svg';
-  static const calendarIcon = 'assets/vectors/calendar_icon.svg';
-  static const galleryIcon = 'assets/vectors/gallery_icon.svg';
-  static const cameraIcon = 'assets/vectors/camera_icon.svg';
-  static const locationIcon = 'assets/vectors/location_icon.svg';
-  static const trashIcon = 'assets/vectors/trash_icon.svg';
-  static const editAddressIcon = 'assets/vectors/edit_address_icon.svg';
-  static const masterCardLogoIcon = 'assets/vectors/mastercard_logo.svg';
-  static const visaLogoIcon = 'assets/vectors/visacard_logo.svg';
-  static const promoCodeIcon = 'assets/vectors/promo_code_icon.svg';
-  static const creditCardIcon = 'assets/vectors/credit_card_icon.svg';
-  static const cashOnDeliveryIcon = 'assets/vectors/cash_on_delivery_icon.svg';
-  static const easyPaisaIcon = 'assets/vectors/easypaisa_icon.svg';
-  static const starFilledIcon = 'assets/vectors/star_filled_icon.svg';
-  static const starUnfilledIcon = 'assets/vectors/star_empty_icon.svg';
   static const googleIcon = 'assets/vectors/google_icon.svg';
   static const appleIcon = 'assets/vectors/apple_icon.svg';
-  static const googleSvg = 'assets/vectors/google_logo.svg';
-  static const appleSvg = 'assets/vectors/apple_logo.svg';
   static const successIcon = 'assets/vectors/success_icon.svg';
   static const errorIcon = 'assets/vectors/error_icon.svg';
   static const infoIcon = 'assets/vectors/info_icon.svg';
@@ -243,11 +191,13 @@ class AssetPaths {
   static const codeableDark = 'assets/vectors/codeable_dark.svg';
   static const codeableWhite = 'assets/vectors/codeable_white.svg';
 
-  /// PNG Images
-  static const appLogo = 'assets/images/app_logo.png';
-  static const productPlaceholder = 'assets/images/product_placeholder.png';
-  static const loginImage = 'assets/images/login_image.jpg';
-  static const profileImageIcon = 'assets/images/profile_image.svg';
+  /// SVG Icons — add your own assets for these
+  static const tickIcon = 'assets/vectors/tick_icon.svg';
+  static const searchIcon = 'assets/vectors/search_icon.svg';
+  static const filterIcon = 'assets/vectors/filter_icon.svg';
+  static const dropdownArrowIcon = 'assets/vectors/dropdown_arrow_icon.svg';
+  static const starFilledIcon = 'assets/vectors/star_filled_icon.svg';
+  static const starUnfilledIcon = 'assets/vectors/star_empty_icon.svg';
 
   /// Dummy Asset
   static const dummyIcon = 'assets/images/dummy.png';
