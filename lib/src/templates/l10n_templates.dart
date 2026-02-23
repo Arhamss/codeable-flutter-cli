@@ -21,7 +21,7 @@ header: "// dart format off\\n// coverage:ignore-file"
 const appEnArbTemplate = '''
 {
   "@@locale": "en",
-  "appName": "{{ProjectName}}",
+  "appName": "{{app_name}}",
   "@appName": {
     "description": "The name of the application"
   },
@@ -51,7 +51,7 @@ const appEnArbTemplate = '''
 const appEsArbTemplate = '''
 {
   "@@locale": "es",
-  "appName": "{{ProjectName}}",
+  "appName": "{{app_name}}",
   "login": "Iniciar sesi\\u00f3n",
   "logout": "Cerrar sesi\\u00f3n",
   "home": "Inicio",

@@ -52,16 +52,20 @@ class TemplateEngine {
   static Map<String, String> buildVars({
     required String projectName,
     required String orgName,
+    String appName = '',
     String description = 'A new Flutter project',
   }) {
     final snakeName = toSnakeCase(projectName)
         .replaceAll(RegExp('[^a-z0-9_]'), '')
         .replaceAll(RegExp('^[0-9]'), '');
+    final resolvedAppName =
+        appName.isEmpty ? toPascalCase(snakeName) : appName;
     return {
       'project_name': snakeName,
       'ProjectName': toPascalCase(snakeName),
       'projectName': toCamelCase(snakeName),
       'org_name': orgName,
+      'app_name': resolvedAppName,
       'description': description,
     };
   }

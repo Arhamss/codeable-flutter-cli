@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:codeable_cli/src/generators/project_generator.dart';
+import 'package:codeable_cli/src/template_engine.dart';
 
 class CreateCommand extends Command<int> {
   CreateCommand({required Logger logger}) : _logger = logger {
@@ -16,6 +17,11 @@ class CreateCommand extends Command<int> {
         'org',
         abbr: 'o',
         help: 'The organization/app identifier (e.g., com.example.app).',
+      )
+      ..addOption(
+        'app-name',
+        abbr: 'a',
+        help: 'The display name of the app (e.g., My App).',
       )
       ..addOption(
         'description',
@@ -52,6 +58,15 @@ class CreateCommand extends Command<int> {
       projectName = _logger.prompt(
         'What is the project name?',
         defaultValue: 'my_app',
+      );
+    }
+
+    // Get app name (display name)
+    var appName = argResults?['app-name'] as String?;
+    if (appName == null || appName.isEmpty) {
+      appName = _logger.prompt(
+        'What is the name of your app? (e.g., My App)',
+        defaultValue: TemplateEngine.toPascalCase(projectName),
       );
     }
 
@@ -102,6 +117,7 @@ class CreateCommand extends Command<int> {
     _logger.info('');
     _logger.info(
       'Creating ${lightCyan.wrap(projectName)} '
+      '(${lightCyan.wrap(appName)}) '
       'with org ${lightCyan.wrap(orgName)}...',
     );
     _logger.info('');
@@ -119,6 +135,7 @@ class CreateCommand extends Command<int> {
     final generator = ProjectGenerator(logger: _logger);
     final success = await generator.generate(
       projectName: projectName,
+      appName: appName,
       orgName: orgName,
       description: description,
       outputPath: outputDir,

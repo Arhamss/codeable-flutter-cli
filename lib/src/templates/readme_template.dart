@@ -67,18 +67,24 @@ Feature/
 
 ### Initial Setup
 
+Clone the repo:
 ```bash
-# Clone the repo
 git clone <repository-url>
 cd {{project_name}}
+```
 
-# Install dependencies
+Install dependencies:
+```bash
 flutter pub get
+```
 
-# Generate localization files
+Generate localization files:
+```bash
 flutter gen-l10n
+```
 
-# iOS pods (first time)
+iOS pods (first time):
+```bash
 cd ios && pod install && cd ..
 ```
 

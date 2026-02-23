@@ -33,6 +33,7 @@ class ProjectGenerator {
     required String orgName,
     required String description,
     required String outputPath,
+    String appName = '',
     List<String> roles = const [],
   }) async {
     final snakeName = TemplateEngine.toSnakeCase(
@@ -42,6 +43,7 @@ class ProjectGenerator {
     final vars = TemplateEngine.buildVars(
       projectName: snakeName,
       orgName: orgName,
+      appName: appName,
       description: description,
     );
 
@@ -925,7 +927,7 @@ class ProjectGenerator {
     var content = pbxprojFile.readAsStringSync();
 
     final orgName = vars['org_name']!;
-    final projectName = vars['ProjectName']!;
+    final projectName = vars['app_name']!;
 
     // --- Step 1: Parse XCConfigurationList to map config UUIDs → target ---
     // target indices: 1=project, 2=runner, 3=tests

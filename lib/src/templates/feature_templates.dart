@@ -218,6 +218,11 @@ class LoginScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
+              SvgPicture.asset(
+                AssetPaths.emblemDark,
+                height: 80,
+              ),
+              const SizedBox(height: 24),
               Text(
                 'Welcome',
                 style: context.h1,
@@ -230,6 +235,7 @@ class LoginScreen extends StatelessWidget {
               const Spacer(),
               CustomSocialAuthButton(
                 text: 'Sign in with Google',
+                iconPath: AssetPaths.googleIcon,
                 onPressed: () {
                   // TODO: Implement Google sign-in
                 },
@@ -237,6 +243,7 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 16),
               CustomSocialAuthButton(
                 text: 'Sign in with Apple',
+                iconPath: AssetPaths.appleIcon,
                 onPressed: () {
                   // TODO: Implement Apple sign-in
                 },

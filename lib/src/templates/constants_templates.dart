@@ -235,6 +235,13 @@ class AssetPaths {
   static const appleIcon = 'assets/vectors/apple_icon.svg';
   static const googleSvg = 'assets/vectors/google_logo.svg';
   static const appleSvg = 'assets/vectors/apple_logo.svg';
+  static const successIcon = 'assets/vectors/success_icon.svg';
+  static const errorIcon = 'assets/vectors/error_icon.svg';
+  static const infoIcon = 'assets/vectors/info_icon.svg';
+  static const emblemDark = 'assets/vectors/emblem_dark.svg';
+  static const emblemWhite = 'assets/vectors/emblem_white.svg';
+  static const codeableDark = 'assets/vectors/codeable_dark.svg';
+  static const codeableWhite = 'assets/vectors/codeable_white.svg';
 
   /// PNG Images
   static const appLogo = 'assets/images/app_logo.png';
@@ -251,7 +258,7 @@ const constantsTemplate = r'''
 class AppConstants {
   AppConstants._();
 
-  static const String appName = '{{ProjectName}}';
+  static const String appName = '{{app_name}}';
   static const String privacyPolicy = 'https://example.com/privacy';
   static const String brandPlaceHolder = 'assets/images/placeholder_brand.png';
   static const String productPlaceHolder =

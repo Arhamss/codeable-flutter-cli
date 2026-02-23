@@ -260,8 +260,8 @@ class AppLogger {
 ''';
 
 const toastHelperTemplate = '''
-import 'package:{{project_name}}/exports.dart';
 import 'package:toastification/toastification.dart';
+import 'package:{{project_name}}/exports.dart';
 
 class ToastHelper {
   static void showErrorToast(String? message) {
@@ -270,16 +270,16 @@ class ToastHelper {
       backgroundColor: AppColors.error,
       borderRadius: BorderRadius.circular(48),
       borderSide: BorderSide.none,
-      icon: const Icon(
-        Icons.cancel_outlined,
-        color: AppColors.textOnPrimary,
-        size: 18,
+      icon: Padding(
+        padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
+        child: SvgPicture.asset(AssetPaths.errorIcon, height: 24, width: 24),
       ),
       title: Text(
         message ?? 'Something went wrong. Please try again later.',
         style: const TextStyle(
+          fontFamily: AppFonts.body,
           fontWeight: FontWeight.w500,
-          fontSize: 13,
+          fontSize: 16,
           color: AppColors.textOnPrimary,
         ),
         maxLines: 3,
@@ -291,6 +291,7 @@ class ToastHelper {
       closeOnClick: true,
       pauseOnHover: true,
       dragToClose: true,
+      showProgressBar: false,
     );
   }
 
@@ -300,22 +301,23 @@ class ToastHelper {
       backgroundColor: AppColors.positiveBottomStatusBackground,
       borderRadius: BorderRadius.circular(48),
       borderSide: BorderSide.none,
-      icon: const Icon(
-        Icons.check_circle_outline,
-        color: AppColors.success,
-        size: 18,
+      icon: Padding(
+        padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
+        child: SvgPicture.asset(AssetPaths.successIcon, height: 24, width: 24),
       ),
       title: Text(
         message,
         style: const TextStyle(
+          fontFamily: AppFonts.body,
           fontWeight: FontWeight.w500,
-          fontSize: 13,
+          fontSize: 16,
           color: AppColors.textPrimary,
         ),
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
       ),
       autoCloseDuration: const Duration(seconds: 3),
+      showProgressBar: false,
       alignment: Alignment.topCenter,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       closeOnClick: true,
@@ -330,16 +332,16 @@ class ToastHelper {
       backgroundColor: AppColors.warningBottomStatusBackground,
       borderRadius: BorderRadius.circular(48),
       borderSide: BorderSide.none,
-      icon: const Icon(
-        Icons.info_outline,
-        color: AppColors.warning,
-        size: 18,
+      icon: Padding(
+        padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
+        child: SvgPicture.asset(AssetPaths.infoIcon, height: 24, width: 24),
       ),
       title: Text(
         message,
         style: const TextStyle(
+          fontFamily: AppFonts.body,
           fontWeight: FontWeight.w500,
-          fontSize: 13,
+          fontSize: 16,
           color: AppColors.textPrimary,
         ),
         maxLines: 3,
@@ -351,36 +353,7 @@ class ToastHelper {
       closeOnClick: true,
       pauseOnHover: true,
       dragToClose: true,
-    );
-  }
-
-  static void showWarningToast(String message) {
-    toastification.show(
-      type: ToastificationType.warning,
-      backgroundColor: AppColors.warningBottomStatusBackground,
-      borderRadius: BorderRadius.circular(48),
-      borderSide: BorderSide.none,
-      icon: const Icon(
-        Icons.warning_amber_outlined,
-        color: AppColors.warning,
-        size: 18,
-      ),
-      title: Text(
-        message,
-        style: const TextStyle(
-          fontWeight: FontWeight.w500,
-          fontSize: 13,
-          color: AppColors.textPrimary,
-        ),
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-      ),
-      autoCloseDuration: const Duration(seconds: 3),
-      alignment: Alignment.topCenter,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      closeOnClick: true,
-      pauseOnHover: true,
-      dragToClose: true,
+      showProgressBar: false,
     );
   }
 }

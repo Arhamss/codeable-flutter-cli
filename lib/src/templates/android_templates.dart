@@ -60,7 +60,7 @@ android {
         create("production") {
             dimension = "default"
             applicationIdSuffix = ""
-            manifestPlaceholders["appName"] = "{{ProjectName}}"
+            manifestPlaceholders["appName"] = "{{app_name}}"
         }
         create("staging") {
             dimension = "default"

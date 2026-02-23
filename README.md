@@ -80,7 +80,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.8
+dart pub global activate codeable_cli 1.0.9
 ```
 
 ### Or run without activating
@@ -113,14 +113,18 @@ codeable_cli --help
 
 ## Quick Start
 
+Create a new project:
 ```bash
-# Create a new project
 codeable_cli create --name my_app --org com.example.myapp
+```
 
-# Navigate into the project
+Navigate into the project:
+```bash
 cd my_app
+```
 
-# Run it
+Run it:
+```bash
 flutter run --flavor development -t lib/main_development.dart
 ```
 
@@ -167,6 +171,7 @@ codeable_cli create [options]
 | Option | Description | Default |
 |--------|-------------|---------|
 | `-n, --name` | Project name (snake_case) | Prompted interactively |
+| `-a, --app-name` | Display name of the app (e.g., `My App`) | Prompted interactively |
 | `-o, --org` | Organization identifier (e.g., `com.example.app`) | Prompted interactively |
 | `-d, --description` | Project description | `A new Flutter project` |
 | `--output` | Output directory | `.` (current directory) |
