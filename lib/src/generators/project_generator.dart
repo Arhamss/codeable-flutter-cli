@@ -1111,6 +1111,18 @@ class ProjectGenerator {
       return '${sectionM.group(1)}$section${sectionM.group(3)}';
     });
 
+    // --- Step 6: Disable automatic signing for Runner target ---
+    // Add ProvisioningStyle = Manual to Runner's TargetAttributes so Xcode
+    // does not default to "Automatically manage signing".
+    content = content.replaceFirstMapped(
+      RegExp(
+        r'(97C146ED1CF9000F007C117D = \{[^}]*?'
+        r'CreatedOnToolsVersion = [^;]+;)',
+      ),
+      (m) => '${m.group(1)}\n'
+          '\t\t\t\t\tProvisioningStyle = Manual;',
+    );
+
     pbxprojFile.writeAsStringSync(content);
   }
 

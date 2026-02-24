@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.13
+
+- Suppressed Java 8 source/target deprecation warnings globally via root `build.gradle.kts`
+- Disabled automatic signing in iOS (ProvisioningStyle = Manual) so Xcode doesn't pre-select a team
+
 ## 1.0.12
 
 - Added `change-app-name` command to update app display name across Android, iOS, l10n, and constants
