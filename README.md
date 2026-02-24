@@ -80,7 +80,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.11
+dart pub global activate codeable_cli 1.0.12
 ```
 
 ### Or run without activating
@@ -89,6 +89,12 @@ If you prefer not to globally activate (e.g., in CI), you can run commands direc
 
 ```bash
 dart pub global run codeable_cli:codeable_cli <command> <args>
+```
+
+### Update to the latest version
+
+```bash
+codeable_cli update
 ```
 
 ### Verify installation
@@ -298,6 +304,26 @@ Updates the package name in `pubspec.yaml`, renames all `package:old_name/` impo
 
 ---
 
+### `change-app-name` — Change app display name
+
+```bash
+codeable_cli change-app-name --name "New App Name"
+```
+
+| Option | Description |
+|--------|-------------|
+| `-n, --name` | The new display name (e.g., `"My App"`) |
+
+Updates the app display name across the entire project:
+- `android/app/build.gradle.kts` (flavor `manifestPlaceholders`)
+- `ios/Runner.xcodeproj/project.pbxproj` (`FLAVOR_APP_NAME`)
+- `lib/constants/app_constants.dart` (`AppConstants.appName`)
+- `lib/l10n/app_*.arb` (localization `appName` key)
+
+Staging and development flavors are automatically suffixed with `[STG]` and `[DEV]`.
+
+---
+
 ### `change-id` — Change bundle identifier
 
 ```bash
@@ -308,14 +334,6 @@ Updates the application/bundle identifier in:
 - `android/app/build.gradle.kts` (namespace + applicationId)
 - `android/app/src/main/AndroidManifest.xml` (package attribute)
 - `ios/Runner.xcodeproj/project.pbxproj` (PRODUCT_BUNDLE_IDENTIFIER)
-
----
-
-### `update` — Update the CLI
-
-```bash
-codeable_cli update
-```
 
 ---
 

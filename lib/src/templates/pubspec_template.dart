@@ -14,79 +14,79 @@ dependencies:
     sdk: flutter
 
   # State Management
-  bloc: ^9.0.1
-  flutter_bloc: ^9.1.0
-  equatable: ^2.0.7
+  bloc: ^9.2.0
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.8
 
   # Networking
-  dio: ^5.8.0+1
-  http: ^1.3.0
+  dio: ^5.9.1
+  http: ^1.6.0
 
   # Local Storage
-  hive_ce: ^2.19.1
-  hive_ce_flutter: ^2.1.0
+  hive_ce: ^2.19.3
+  hive_ce_flutter: ^2.3.4
 
   # Dependency Injection
-  get_it: ^8.0.3
+  get_it: ^9.2.1
 
   # Routing
-  go_router: ^14.8.1
+  go_router: ^17.1.0
 
   # Firebase
-  firebase_core: ^3.12.1
-  firebase_auth: ^5.5.1
-  firebase_messaging: ^15.2.5
-  firebase_remote_config: ^5.3.1
-  cloud_firestore: ^5.6.7
-  firebase_storage: ^12.4.7
+  firebase_core: ^4.4.0
+  firebase_auth: ^6.1.4
+  firebase_messaging: ^16.1.1
+  firebase_remote_config: ^6.1.4
+  cloud_firestore: ^6.1.2
+  firebase_storage: ^13.0.6
 
   # Auth Providers
-  google_sign_in: ^6.2.2
-  sign_in_with_apple: ^6.1.4
+  google_sign_in: ^7.2.0
+  sign_in_with_apple: ^7.0.1
 
   # Localization
   intl: any
 
   # UI
-  flutter_svg: ^2.0.17
+  flutter_svg: ^2.2.3
   cached_network_image: ^3.4.1
-  lottie: ^3.3.1
+  lottie: ^3.3.2
   shimmer: ^3.0.0
-  smooth_page_indicator: ^1.2.0+3
+  smooth_page_indicator: ^2.0.1
   blur: ^4.0.2
   flutter_swipe_button: ^2.1.3
 
   # Media
-  camera: ^0.11.1
-  image_picker: ^1.1.2
-  video_player: ^2.9.3
+  camera: ^0.11.4
+  image_picker: ^1.2.1
+  video_player: ^2.11.0
 
   # Utilities
-  logger: ^2.5.0
-  toastification: ^2.3.0
-  package_info_plus: ^8.1.3
-  url_launcher: ^6.3.1
+  logger: ^2.6.2
+  toastification: ^3.0.3
+  package_info_plus: ^9.0.0
+  url_launcher: ^6.3.2
   flutter_phoenix: ^1.1.1
-  permission_handler: ^11.3.1
-  device_info_plus: ^11.3.3
-  flutter_local_notifications: ^20.0.0
-  flutter_native_splash: ^2.4.6
-  crypto: ^3.0.6
-  purchases_flutter: ^8.4.3
+  permission_handler: ^12.0.1
+  device_info_plus: ^12.3.0
+  flutter_local_notifications: ^20.1.0
+  flutter_native_splash: ^2.4.7
+  crypto: ^3.0.7
+  purchases_flutter: ^9.12.2
 
   # Debug
   chucker_flutter: ^1.9.1
-  device_preview: ^1.2.0
+  device_preview: ^1.3.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.4
   bloc_test: ^10.0.0
-  intl_utils: ^2.8.8
-  hive_ce_generator: ^1.10.0
-  very_good_analysis: ^9.0.0
-  build_runner: ^2.4.0
+  intl_utils: ^2.8.14
+  hive_ce_generator: ^1.11.1
+  very_good_analysis: ^10.2.0
+  build_runner: ^2.11.1
 
 flutter:
   uses-material-design: true

@@ -65,12 +65,12 @@ android {
         create("staging") {
             dimension = "default"
             applicationIdSuffix = ".stg"
-            manifestPlaceholders["appName"] = "{{ProjectName}} [STG]"
+            manifestPlaceholders["appName"] = "{{app_name}} [STG]"
         }
         create("development") {
             dimension = "default"
             applicationIdSuffix = ".dev"
-            manifestPlaceholders["appName"] = "{{ProjectName}} [DEV]"
+            manifestPlaceholders["appName"] = "{{app_name}} [DEV]"
         }
     }
 
@@ -100,11 +100,6 @@ flutter {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.10")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
-}
-
-// Suppress Java 8 source/target deprecation warnings from dependencies
-tasks.withType<JavaCompile> {
-    options.compilerArgs.addAll(listOf("-Xlint:-options", "-Xlint:-deprecation"))
 }
 
 // Copy google-services.json from firebase/<flavor>/ into app/src/<flavor>/
@@ -155,6 +150,42 @@ const gradlePropertiesTemplate = r'''
 org.gradle.jvmargs=-Xmx8G -XX:MaxMetaspaceSize=4G -XX:ReservedCodeCacheSize=512m -XX:+HeapDumpOnOutOfMemoryError
 android.useAndroidX=true
 android.enableJetifier=true
+''';
+
+const androidRootBuildGradleTemplate = r'''
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+val newBuildDir: Directory =
+    rootProject.layout.buildDirectory
+        .dir("../../build")
+        .get()
+rootProject.layout.buildDirectory.value(newBuildDir)
+
+subprojects {
+    val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
+    project.layout.buildDirectory.value(newSubprojectBuildDir)
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+// Suppress Java 8 source/target deprecation warnings from all modules
+subprojects {
+    tasks.withType<JavaCompile>().configureEach {
+        options.compilerArgs.addAll(
+            listOf("-Xlint:-options", "-Xlint:-deprecation"),
+        )
+    }
+}
+
+tasks.register<Delete>("clean") {
+    delete(rootProject.layout.buildDirectory)
+}
 ''';
 
 // Using raw string to avoid Dart interpolation of ${appName} etc.

@@ -642,6 +642,11 @@ class ProjectGenerator {
       '$projectPath/android/gradle.properties',
     ).writeAsStringSync(gradlePropertiesTemplate);
 
+    // Replace root build.gradle.kts (suppresses Java 8 warnings globally)
+    File(
+      '$projectPath/android/build.gradle.kts',
+    ).writeAsStringSync(androidRootBuildGradleTemplate);
+
     // Write AndroidManifest
     final manifestPath =
         '$projectPath/android/app/src/main/AndroidManifest.xml';

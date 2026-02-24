@@ -42,6 +42,7 @@ class CodeableCliCommandRunner extends CompletionCommandRunner<int> {
     addCommand(CreateCommand(logger: _logger));
     addCommand(FeatureCommand(logger: _logger));
     addCommand(RenameCommand(logger: _logger));
+    addCommand(ChangeAppNameCommand(logger: _logger));
     addCommand(ChangeIdCommand(logger: _logger));
     addCommand(SampleCommand(logger: _logger));
     addCommand(UpdateCommand(logger: _logger, pubUpdater: _pubUpdater));

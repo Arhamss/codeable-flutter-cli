@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.12
+
+- Added `change-app-name` command to update app display name across Android, iOS, l10n, and constants
+- Updated all dependency versions to latest (Firebase 4.x, GoRouter 17.x, get_it 9.x, etc.)
+- Fixed staging/development flavors using PascalCase instead of app display name
+- Moved `update` command documentation near Installation in README
+
 ## 1.0.11
 
 - Added `--app-name` option to `create` command for setting the app display name separately from the project name
