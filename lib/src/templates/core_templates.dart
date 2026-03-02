@@ -2,6 +2,7 @@ const apiServiceTemplate = '''
 import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:{{project_name}}/config/flavor_config.dart';
 import 'package:{{project_name}}/core/api_service/app_api_exception.dart';
 import 'package:{{project_name}}/core/api_service/authentication_interceptor.dart';
 import 'package:{{project_name}}/core/api_service/log_interceptor.dart';
@@ -24,7 +25,9 @@ class ApiService {
 
     _dio.interceptors.add(AuthInterceptor(_appPreferences, _dio));
     _dio.interceptors.add(LoggingInterceptor());
-    _dio.interceptors.add(ChuckerDioInterceptor());
+    if (FlavorConfig.isDev()) {
+      _dio.interceptors.add(ChuckerDioInterceptor());
+    }
   }
 
   static final ApiService _instance = ApiService._internal();

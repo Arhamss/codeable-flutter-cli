@@ -80,7 +80,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.13
+dart pub global activate codeable_cli 1.0.14
 ```
 
 ### Or run without activating
@@ -405,7 +405,7 @@ AppColors.success         // Success green
 Pre-configured Dio client with:
 - **Auth interceptor** — automatically attaches bearer token from local storage
 - **Log interceptor** — request/response logging for development
-- **Chucker interceptor** — in-app network inspector (shake to view)
+- **Chucker interceptor** — in-app network inspector (development only)
 - **60s timeout** with centralized error handling via `AppApiException`
 
 ### Dependency Injection

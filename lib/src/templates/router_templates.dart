@@ -3,6 +3,7 @@ import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:{{project_name}}/app/view/splash.dart';
+import 'package:{{project_name}}/config/flavor_config.dart';
 import 'package:{{project_name}}/features/onboarding/presentation/views/login_screen.dart';
 // TODO: Uncomment when adding shell navigation
 // import 'package:{{project_name}}/features/navigation/presentation/views/app_navigation.dart';
@@ -24,7 +25,9 @@ class AppRouter {
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
     navigatorKey: _rootNavigatorKey,
-    observers: [ChuckerFlutter.navigatorObserver],
+    observers: [
+      if (FlavorConfig.isDev()) ChuckerFlutter.navigatorObserver,
+    ],
     routes: [
       GoRoute(
         name: AppRouteNames.splash,
@@ -126,6 +129,7 @@ import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:{{project_name}}/app/view/splash.dart';
+import 'package:{{project_name}}/config/flavor_config.dart';
 // TODO: Uncomment when adding shell navigation
 // import 'package:{{project_name}}/features/navigation/presentation/views/app_navigation.dart';
 
@@ -146,7 +150,9 @@ class AppRouter {
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
     navigatorKey: _rootNavigatorKey,
-    observers: [ChuckerFlutter.navigatorObserver],
+    observers: [
+      if (FlavorConfig.isDev()) ChuckerFlutter.navigatorObserver,
+    ],
     routes: [
       GoRoute(
         name: AppRouteNames.splash,

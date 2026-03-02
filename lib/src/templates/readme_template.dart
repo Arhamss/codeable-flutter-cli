@@ -380,7 +380,7 @@ Add more by creating new ARB files and updating `l10n.yaml`.
 | Image Caching      | `cached_network_image`        | Efficient image loading          |
 | Notifications      | `firebase_messaging`, `flutter_local_notifications` | Push & local |
 | UI Utilities       | `shimmer`, `toastification`   | Loading states & toasts          |
-| Debugging          | `chucker_flutter`             | Network inspector                |
+| Debugging          | `chucker_flutter`             | Network inspector (dev only)     |
 
 See [`pubspec.yaml`](pubspec.yaml) for the full dependency list.
 

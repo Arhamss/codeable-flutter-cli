@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.14
+
+- Chucker Flutter network inspector is now only active in the development flavor (disabled in staging and production)
+
 ## 1.0.13
 
 - Suppressed Java 8 source/target deprecation warnings globally via root `build.gradle.kts`
