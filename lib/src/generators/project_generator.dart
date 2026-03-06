@@ -345,6 +345,10 @@ class ProjectGenerator {
 
       // L10n
       'lib/l10n/l10n.dart': render(l10nDartTemplate, vars),
+      'lib/l10n/localization_service.dart': render(
+        localizationServiceTemplate,
+        vars,
+      ),
       'lib/l10n/arb/app_en.arb': render(appEnArbTemplate, vars),
       'lib/l10n/arb/app_es.arb': render(appEsArbTemplate, vars),
 
@@ -580,6 +584,22 @@ class ProjectGenerator {
       // AI Assistant Config
       'CLAUDE.md': render(claudeMdTemplate, vars),
       '.cursorrules': render(cursorRulesTemplate, vars),
+      '.claude/commands/localize.md': render(
+        localizeCommandTemplate,
+        vars,
+      ),
+      '.claude/commands/fix-rtl.md': render(
+        fixRtlCommandTemplate,
+        vars,
+      ),
+      '.claude/commands/add-api.md': render(
+        addApiCommandTemplate,
+        vars,
+      ),
+      '.claude/commands/add-cubit-state.md': render(
+        addCubitStateCommandTemplate,
+        vars,
+      ),
 
       // Android Studio run configurations
       '.idea/runConfigurations/development.xml':

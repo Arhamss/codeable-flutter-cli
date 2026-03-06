@@ -162,6 +162,7 @@ import 'package:{{project_name}}/constants/app_colors.dart';
 import 'package:{{project_name}}/core/locale/cubit/locale_cubit.dart';
 import 'package:{{project_name}}/go_router/exports.dart';
 import 'package:{{project_name}}/l10n/gen/app_localizations.dart';
+import 'package:{{project_name}}/l10n/localization_service.dart';
 import 'package:toastification/toastification.dart';
 
 class AppView extends StatelessWidget {
@@ -188,6 +189,14 @@ class AppView extends StatelessWidget {
                 ),
                 scaffoldBackgroundColor: AppColors.backgroundPrimary,
                 useMaterial3: true,
+                pageTransitionsTheme: const PageTransitionsTheme(
+                  builders: <TargetPlatform, PageTransitionsBuilder>{
+                    TargetPlatform.android:
+                        FadeForwardsPageTransitionsBuilder(
+                          backgroundColor: Colors.transparent,
+                        ),
+                  },
+                ),
                 textSelectionTheme: TextSelectionThemeData(
                   cursorColor: AppColors.blackPrimary,
                   selectionColor:
@@ -199,7 +208,10 @@ class AppView extends StatelessWidget {
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
               debugShowCheckedModeBanner: false,
-              builder: DevicePreview.appBuilder,
+              builder: (context, child) {
+                Localization.update(AppLocalizations.of(context));
+                return DevicePreview.appBuilder(context, child);
+              },
             ),
           ),
         );

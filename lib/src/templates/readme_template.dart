@@ -145,8 +145,9 @@ cd ios && pod install && cd ..
 │   │   ├── routes.dart          ← Route paths & names
 │   │   └── exports.dart         ← Router barrel exports
 │   ├── l10n/
-│   │   ├── l10n.dart            ← context.l10n extension
-│   │   └── arb/                 ← ARB translation files
+│   │   ├── l10n.dart                  ← context.l10n extension
+│   │   ├── localization_service.dart  ← static Localization.xxx accessor
+│   │   └── arb/                       ← ARB translation files
 │   └── utils/
 │       ├── extensions/          ← Dart extensions
 │       ├── helpers/             ← Utility helpers
@@ -351,9 +352,18 @@ This project uses Flutter's built-in localization with ARB files.
    flutter gen-l10n
    ```
 
-4. Use in code:
+4. Add a static getter to `lib/l10n/localization_service.dart`:
    ```dart
+   static String greeting(String name) => _instance.greeting(name);
+   ```
+
+5. Use in code:
+   ```dart
+   // In widgets/screens (have BuildContext) — preferred
    Text(context.l10n.greeting('World'))
+
+   // In non-widget code (validators, formatters, models)
+   Localization.greeting('World')
    ```
 
 ### Supported Locales

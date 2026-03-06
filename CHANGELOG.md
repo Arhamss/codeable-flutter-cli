@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.0.16
+
+- Added `pageTransitionsTheme` to `ThemeData` with `FadeForwardsPageTransitionsBuilder` for smooth Android page transitions
+
+## 1.0.15
+
+- `feature` command no longer auto-prompts for role selection when multiple role directories exist
+- Role selection is now opt-in: use `--role <name>` to specify a role directly, or `--pick-role` (`-R`) to interactively choose from existing role directories
+- Without `--role` or `--pick-role`, features are created directly in `lib/features/`
+- Added `Localization` static service (`lib/l10n/localization_service.dart`) for accessing localized strings without `BuildContext`
+- `Localization.keyName` works anywhere (validators, formatters, models); `context.l10n.keyName` remains preferred in widgets
+- `l10n.dart` barrel file now exports `localization_service.dart` so a single import gives access to both `context.l10n` and `Localization`
+- `AppView` builder auto-updates the `Localization` service on every locale change
+- Added `/localize` Claude Code slash command (`.claude/commands/localize.md`) that auto-localizes an entire feature directory
+- Fixed all remaining `EdgeInsets.only(left/right)` and `EdgeInsets.fromLTRB` in templates to use `EdgeInsetsDirectional` for proper RTL support
+- Added `/fix-rtl` Claude Code command to migrate `EdgeInsets` to `EdgeInsetsDirectional` in existing projects
+- Added `/add-api` Claude Code command to wire up a new API endpoint end-to-end through all architecture layers
+- Added `/add-cubit-state` Claude Code command to add new state fields and cubit methods to existing features
+- Updated CLAUDE.md and .cursorrules templates with localization pattern documentation
+
 ## 1.0.14
 
 - Chucker Flutter network inspector is now only active in the development flavor (disabled in staging and production)

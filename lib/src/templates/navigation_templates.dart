@@ -54,7 +54,7 @@ import 'package:{{project_name}}/core/models/navigation_item.dart';
 //             ),
 //           ],
 //         ),
-//         padding: const EdgeInsets.only(left: 32, right: 32, bottom: 12),
+//         padding: const EdgeInsetsDirectional.only(start: 32, end: 32, bottom: 12),
 //         child: Row(
 //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //           children: List.generate(

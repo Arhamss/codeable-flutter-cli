@@ -54,8 +54,8 @@ Starting a new Flutter project means hours of boilerplate — setting up archite
 | Build Flavors | Development, Staging, Production |
 | Platforms | Android & iOS pre-configured |
 | Firebase | Multi-environment directory structure |
-| Localization | ARB files with context.l10n |
-| AI Config | CLAUDE.md + .cursorrules |
+| Localization | ARB files with `context.l10n` + static `Localization` service |
+| AI Config | CLAUDE.md + .cursorrules + `/localize` Claude command |
 
 ---
 
@@ -80,7 +80,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.14
+dart pub global activate codeable_cli 1.0.16
 ```
 
 ### Or run without activating
@@ -142,7 +142,7 @@ That's it. Your project is ready with the full architecture, all dependencies in
 codeable_cli feature profile
 ```
 
-This creates the full feature module **and** auto-wires everything:
+This creates the full feature module directly in `lib/features/profile/` **and** auto-wires everything:
 - Cubit registered in `app_page.dart`'s MultiBlocProvider
 - Route added to `go_router` with named route constants
 - Navigate with `context.goNamed(AppRouteNames.profileScreen)`
@@ -156,6 +156,12 @@ codeable_cli feature home --role customer
 ```
 
 This creates `lib/features/customer/home/` with all files and classes prefixed — `CustomerHomeScreen`, `CustomerHomeCubit`, route `/customer-home`.
+
+To interactively pick from existing role directories:
+
+```bash
+codeable_cli feature home --pick-role
+```
 
 ### Verify everything works
 
@@ -209,7 +215,7 @@ my_app/
 │   ├── features/
 │   │   └── onboarding/             # Sample feature (login screen)
 │   ├── go_router/                  # GoRouter config, routes, named routes
-│   ├── l10n/                       # Localization (ARB files, context.l10n)
+│   ├── l10n/                       # Localization (ARB files, context.l10n, Localization service)
 │   └── utils/
 │       ├── extensions/             # Dart extensions
 │       ├── helpers/                # Toast, layout, decorations, logger, etc.
@@ -232,12 +238,13 @@ my_app/
 Must be run from inside an existing Codeable project.
 
 ```bash
-codeable_cli feature <feature_name> [--role <role>]
+codeable_cli feature <feature_name> [--role <role> | --pick-role]
 ```
 
 | Option | Description |
 |--------|-------------|
-| `--role, -r` | Optional role prefix (e.g., `customer`, `admin`). Places the feature under `features/<role>/` and prefixes all file names, class names, and routes with the role. |
+| `--role, -r` | Role prefix (e.g., `customer`, `admin`). Places the feature under `features/<role>/` and prefixes all file names, class names, and routes with the role. |
+| `--pick-role, -R` | Interactively pick a role from existing role directories under `lib/features/`. |
 
 **Basic example:**
 
@@ -538,6 +545,10 @@ Generated projects include configuration files for AI coding assistants:
 
 - **CLAUDE.md** — Project structure, patterns, and conventions for [Claude Code](https://claude.ai/claude-code)
 - **.cursorrules** — Architecture rules and coding guidelines for [Cursor](https://cursor.com)
+- **`.claude/commands/localize.md`** — `/localize` — auto-localizes an entire feature directory (scans for hardcoded strings, adds ARB keys, updates the `Localization` service, replaces strings, and verifies)
+- **`.claude/commands/fix-rtl.md`** — `/fix-rtl` — migrates `EdgeInsets` to `EdgeInsetsDirectional` for proper RTL/LTR support
+- **`.claude/commands/add-api.md`** — `/add-api` — wires up a new API endpoint end-to-end (endpoint constant, repository, cubit, state)
+- **`.claude/commands/add-cubit-state.md`** — `/add-cubit-state` — adds new state fields and cubit methods to an existing feature
 
 These files give AI assistants full context about your project's architecture, so they generate code that follows your patterns.
 

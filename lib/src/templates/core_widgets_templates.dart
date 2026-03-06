@@ -66,8 +66,8 @@ class CustomCircleButton extends StatelessWidget {
 }
 
 /// Standard padding for app bar leading (wraps [CustomBackButton] / [CustomCircleButton]).
-const EdgeInsets _appBarLeadingPadding = EdgeInsets.only(
-  left: 16,
+const EdgeInsetsDirectional _appBarLeadingPadding = EdgeInsetsDirectional.only(
+  start: 16,
   bottom: 8,
   top: 8,
 );
@@ -989,7 +989,7 @@ class CustomConfirmationDialog extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 24),
               child: Column(
                 children: [
                   CustomButton(
@@ -1579,7 +1579,7 @@ class _CustomDropdownContentState extends State<_CustomDropdownContent> {
                 height: 24,
                 child: widget.showValidation && hasError && state.errorText != null
                     ? Padding(
-                        padding: const EdgeInsets.only(top: 6, left: 12),
+                        padding: const EdgeInsetsDirectional.only(top: 6, start: 12),
                         child: Text(
                           state.errorText!,
                           style: context.b3.copyWith(
@@ -3645,7 +3645,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
                       height: 24,
                       child: showError
                           ? Padding(
-                              padding: const EdgeInsets.only(top: 6, left: 12),
+                              padding: const EdgeInsetsDirectional.only(top: 6, start: 12),
                               child: Text(
                                 state.errorText!,
                                 style: context.b3.copyWith(
@@ -3920,11 +3920,11 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
                 maxWidth: 340,
                 minHeight: 80,
               ),
-              padding: EdgeInsets.only(
+              padding: EdgeInsetsDirectional.only(
                 top: 12,
-                right: 20,
+                end: 20,
                 bottom: 12,
-                left: 16,
+                start: 16,
               ),
               decoration: BoxDecoration(
                 color: AppColors.cartNotificationBackground,
@@ -4351,8 +4351,8 @@ class CustomStarRatingWidget extends StatelessWidget {
         final isFilled = index < rating;
         
         return Padding(
-          padding: EdgeInsets.only(
-            right: index < maxRating - 1 ? spacing : 0,
+          padding: EdgeInsetsDirectional.only(
+            end: index < maxRating - 1 ? spacing : 0,
           ),
           child: SvgPicture.asset(
             isFilled 
@@ -5148,7 +5148,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   height: hasError ? errorAreaHeightWithError : errorAreaHeight,
                   child: hasError
                       ? Padding(
-                          padding: const EdgeInsets.only(top: 6, left: 12, right: 12),
+                          padding: const EdgeInsetsDirectional.only(top: 6, start: 12, end: 12),
                           child: Text(
                             validationError,
                             style: context.b3.copyWith(
