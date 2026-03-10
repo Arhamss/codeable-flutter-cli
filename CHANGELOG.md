@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.17
+
+- Auto-install [codeable Claude plugin](https://github.com/gocodeable/codeable-claude-plugin) in generated projects via `.claude/settings.json`
+- New projects get all 34 commands, 13 skills, 9 agents, and 2 hooks from the plugin automatically — no manual setup needed
+- Removed inline `.claude/commands/` files (localize, fix-rtl, add-api, add-cubit-state) — the plugin now provides these and 30 more
+
 ## 1.0.16
 
 - Added `pageTransitionsTheme` to `ThemeData` with `FadeForwardsPageTransitionsBuilder` for smooth Android page transitions

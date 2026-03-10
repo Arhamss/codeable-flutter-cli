@@ -55,7 +55,7 @@ Starting a new Flutter project means hours of boilerplate — setting up archite
 | Platforms | Android & iOS pre-configured |
 | Firebase | Multi-environment directory structure |
 | Localization | ARB files with `context.l10n` + static `Localization` service |
-| AI Config | CLAUDE.md + .cursorrules + `/localize` Claude command |
+| AI Config | CLAUDE.md + .cursorrules + [Codeable Claude Plugin](https://github.com/gocodeable/codeable-claude-plugin) (auto-installed) |
 
 ---
 
@@ -80,7 +80,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.16
+dart pub global activate codeable_cli 1.0.17
 ```
 
 ### Or run without activating
@@ -545,12 +545,20 @@ Generated projects include configuration files for AI coding assistants:
 
 - **CLAUDE.md** — Project structure, patterns, and conventions for [Claude Code](https://claude.ai/claude-code)
 - **.cursorrules** — Architecture rules and coding guidelines for [Cursor](https://cursor.com)
-- **`.claude/commands/localize.md`** — `/localize` — auto-localizes an entire feature directory (scans for hardcoded strings, adds ARB keys, updates the `Localization` service, replaces strings, and verifies)
-- **`.claude/commands/fix-rtl.md`** — `/fix-rtl` — migrates `EdgeInsets` to `EdgeInsetsDirectional` for proper RTL/LTR support
-- **`.claude/commands/add-api.md`** — `/add-api` — wires up a new API endpoint end-to-end (endpoint constant, repository, cubit, state)
-- **`.claude/commands/add-cubit-state.md`** — `/add-cubit-state` — adds new state fields and cubit methods to an existing feature
+- **`.claude/settings.json`** — Auto-installs the [Codeable Claude Plugin](https://github.com/gocodeable/codeable-claude-plugin)
 
-These files give AI assistants full context about your project's architecture, so they generate code that follows your patterns.
+### Codeable Claude Plugin (auto-installed)
+
+The plugin is automatically configured in every generated project. When you open the project with Claude Code, you get:
+
+| Component | Count | Highlights |
+|-----------|-------|------------|
+| **Skills** | 13 | Architecture, BLoC, Dio, GoRouter, Hive, Firebase, testing, security patterns |
+| **Commands** | 34 | `/feature`, `/add-api`, `/localize`, `/add-auth-flow`, `/add-pagination`, `/generate-tests`, `/release-build`, and more |
+| **Agents** | 9 | Code reviewer, test writer, security auditor, performance analyzer, API migrator |
+| **Hooks** | 2 | Auto-lint on edit, analysis summary on stop |
+
+No manual plugin installation needed — just open the project with Claude Code and start using commands.
 
 ---
 
