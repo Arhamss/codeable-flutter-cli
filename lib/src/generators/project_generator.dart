@@ -584,22 +584,7 @@ class ProjectGenerator {
       // AI Assistant Config
       'CLAUDE.md': render(claudeMdTemplate, vars),
       '.cursorrules': render(cursorRulesTemplate, vars),
-      '.claude/commands/localize.md': render(
-        localizeCommandTemplate,
-        vars,
-      ),
-      '.claude/commands/fix-rtl.md': render(
-        fixRtlCommandTemplate,
-        vars,
-      ),
-      '.claude/commands/add-api.md': render(
-        addApiCommandTemplate,
-        vars,
-      ),
-      '.claude/commands/add-cubit-state.md': render(
-        addCubitStateCommandTemplate,
-        vars,
-      ),
+      '.claude/settings.json': claudeSettingsTemplate,
 
       // Android Studio run configurations
       '.idea/runConfigurations/development.xml':

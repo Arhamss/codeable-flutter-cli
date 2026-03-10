@@ -1,3 +1,19 @@
+const claudeSettingsTemplate = r'''
+{
+  "extraKnownMarketplaces": {
+    "codeable-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "gocodeable/codeable-claude-plugin"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "codeable@codeable-plugins": true
+  }
+}
+''';
+
 const claudeMdTemplate = r'''
 # Project: {{ProjectName}}
 
