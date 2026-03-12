@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.21
+
+### Branding
+- PNG banner with raw GitHub URL for pub.dev rendering (SVGs not supported on pub.dev)
+
 ## 1.0.20
 
 ### Branding
