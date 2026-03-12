@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="Codeable Flutter CLI" width="900" />
+  <img src="https://raw.githubusercontent.com/Arhamss/codeable-flutter-cli/main/assets/banner.png" alt="Codeable Flutter CLI" width="900" />
 </p>
 
 <p align="center">
