@@ -1,41 +1,17 @@
-<div align="center">
+<p align="center">
+  <img src="https://img.shields.io/badge/FLUTTER-CLI-b7ff00?style=for-the-badge&labelColor=0e0926" alt="Flutter CLI" />
+  <img src="https://img.shields.io/badge/DART-352e5c?style=for-the-badge&labelColor=0e0926&logo=dart&logoColor=b7ff00" alt="Dart" />
+  <img src="https://img.shields.io/badge/FLUTTER-352e5c?style=for-the-badge&labelColor=0e0926&logo=flutter&logoColor=b7ff00" alt="Flutter" />
+  <img src="https://img.shields.io/pub/v/codeable_cli?style=for-the-badge&color=6b6190&labelColor=0e0926" alt="pub.dev" />
+</p>
 
-<a href="https://gocodeable.com/">
-  <img src="https://img.shields.io/badge/Codeable-CLI-blue?style=for-the-badge&logo=data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNTAzLjkgMzI0LjQ5Ij4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xIHsKICAgICAgICBmaWxsOiAjZmZmOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8ZyBpZD0iTGF5ZXJfMS0yIiBkYXRhLW5hbWU9IkxheWVyXzEiPgogICAgPGc+CiAgICAgIDxwb2x5Z29uIGNsYXNzPSJjbHMtMSIgcG9pbnRzPSIxMjggMTYyLjI0IDI1MS45NSAzOC4zNiAyOTAuMjQgMCAyMTMuNTkgMCAxNjIuMjUgMCAwIDE2Mi4yNCAxNjAuNzkgMzIzLjA0IDIyNC43OSAyNTkuMDMgMTI4IDE2Mi4yNCIvPgogICAgICA8cG9seWdvbiBjbGFzcz0iY2xzLTEiIHBvaW50cz0iMzQzLjExIDEuNTEgMjc5LjEgNjUuNTIgMzc1LjgzIDE2Mi4yNCAyNTEuOTUgMjg2LjE5IDIxMy41OSAzMjQuNDkgMjkwLjI1IDMyNC40OSAzNDEuNTkgMzI0LjQ5IDUwMy45IDE2Mi4yNCAzNDMuMTEgMS41MSIvPgogICAgICA8cmVjdCBjbGFzcz0iY2xzLTEiIHg9IjIwMi42NiIgeT0iMTEzLjI3IiB3aWR0aD0iOTcuOTUiIGhlaWdodD0iOTcuOTUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC00MS4wMiAyMjUuNDUpIHJvdGF0ZSgtNDUpIi8+CiAgICA8L2c+CiAgPC9nPgo8L3N2Zz4=&logoColor=white" alt="Codeable CLI" />
-</a>
+<p align="center">
+  <strong>Production-ready Flutter project scaffolding — Clean Architecture, BLoC/Cubit, Dio, Hive, GoRouter, multi-flavor builds, and 30+ UI components, all wired together in seconds.</strong>
+</p>
 
-# Codeable CLI
-
-**A production-ready Flutter project scaffolding tool.**
-
-Instantly generate Flutter projects with Clean Architecture, BLoC/Cubit state management, Dio networking, Hive storage, GoRouter navigation, multi-flavor builds (Android + iOS), Firebase integration, and 30+ reusable UI components — all wired together and ready to go.
-
-[![Pub Version](https://img.shields.io/pub/v/codeable_cli.svg?style=for-the-badge)](https://pub.dev/packages/codeable_cli)
-[![Style: Very Good Analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg?style=for-the-badge)](https://pub.dev/packages/very_good_analysis)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-
-<a href="https://github.com/Arhamss/codeable-flutter-cli">GitHub</a> &nbsp;&bull;&nbsp; <a href="https://pub.dev/packages/codeable_cli">pub.dev</a> &nbsp;&bull;&nbsp; <a href="https://github.com/Arhamss/codeable-flutter-cli/issues">Issues</a>
-
-</div>
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Commands](#commands)
-- [Generated Architecture](#generated-architecture)
-- [Included UI Components](#included-ui-components)
-- [Multi-Flavor Builds](#multi-flavor-builds)
-- [Platform Configuration](#platform-configuration)
-- [AI-Assisted Development](#ai-assisted-development)
-- [FAQ](#faq)
-- [Contributing](#contributing)
-- [Contributors](#contributors)
-- [License](#license)
+<p align="center">
+  <a href="https://pub.dev/packages/codeable_cli">pub.dev</a> &nbsp;&bull;&nbsp; <a href="https://github.com/Arhamss/codeable-flutter-cli">GitHub</a> &nbsp;&bull;&nbsp; <a href="https://github.com/Arhamss/codeable-flutter-cli/issues">Issues</a>
+</p>
 
 ---
 
@@ -55,7 +31,25 @@ Starting a new Flutter project means hours of boilerplate — setting up archite
 | Platforms | Android & iOS pre-configured |
 | Firebase | Multi-environment directory structure |
 | Localization | ARB files with `context.l10n` + static `Localization` service |
-| AI Config | CLAUDE.md + .cursorrules + [Codeable Flutter CLI Claude Plugin](https://github.com/gocodeable/codeable-flutter-cli-claude-plugin) (auto-installed) |
+| AI Config | CLAUDE.md + .cursorrules + [Claude Plugin](https://github.com/gocodeable/codeable-flutter-cli-claude-plugin) (auto-installed) |
+
+---
+
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Commands](#commands)
+- [Generated Architecture](#generated-architecture)
+- [Included UI Components](#included-ui-components)
+- [Multi-Flavor Builds](#multi-flavor-builds)
+- [Platform Configuration](#platform-configuration)
+- [AI-Assisted Development](#ai-assisted-development)
+- [FAQ](#faq)
+- [Contributing](#contributing)
+- [Contributors](#contributors)
+- [License](#license)
 
 ---
 
@@ -394,6 +388,26 @@ Adds a new locale to your project:
 
 ---
 
+### `sample` — Add sample features
+
+```bash
+codeable_cli sample
+```
+
+Adds pre-built sample features showcasing the architecture patterns and UI components.
+
+---
+
+### `update` — Update CLI
+
+```bash
+codeable_cli update
+```
+
+Updates Codeable CLI to the latest version from pub.dev.
+
+---
+
 ## Generated Architecture
 
 ### Clean Architecture
@@ -610,6 +624,12 @@ The plugin is automatically configured in every generated project. When you open
 
 No manual plugin installation needed — just open the project with Claude Code and start using commands.
 
+For existing projects, run inside Claude Code:
+```
+/plugin marketplace add gocodeable/codeable-flutter-cli-claude-plugin
+/plugin install codeable-flutter-cli@codeable-plugins
+```
+
 ---
 
 ## FAQ
@@ -725,12 +745,17 @@ See the [issues page](https://github.com/Arhamss/codeable-flutter-cli/issues) fo
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+MIT
 
----
-
-<div align="center">
-
-**Built with 💙 by [Codeable](https://gocodeable.com/)** &nbsp;&bull;&nbsp; [GitHub](https://github.com/Arhamss/codeable-flutter-cli) &nbsp;&bull;&nbsp; [pub.dev](https://pub.dev/packages/codeable_cli)
-
-</div>
+<p align="center">
+  <br />
+  <a href="https://gocodeable.com">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="assets/codeable_wordmark_white.svg" />
+      <source media="(prefers-color-scheme: light)" srcset="assets/codeable_wordmark.svg" />
+      <img src="assets/codeable_wordmark.svg" alt="Codeable" width="140" />
+    </picture>
+  </a>
+  <br />
+  <sub>Built with 💙 by <a href="https://gocodeable.com">Codeable</a></sub>
+</p>

@@ -7,6 +7,10 @@
 - Added `remove-feature` command — safely removes a feature and unwires its cubit, routes, and imports (inverse of `feature`)
 - Added `add-locale` command — adds a new language/locale ARB file with TODO placeholders from the English reference
 
+### Branding
+- Updated README with Codeable branding (lime/purple badge strip, dynamic pub.dev version badge, wordmark footer with dark/light mode)
+- Added Codeable wordmark SVG assets
+
 ### New Claude Plugin Skills (10 skill templates)
 - `add-model` — Generate data models with fromJson/toJson/copyWith/Equatable
 - `add-pagination` — Wire paginated API calls using PaginationModel in cubit state with PaginatedListView
