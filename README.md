@@ -1,12 +1,9 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Arhamss/codeable-flutter-cli/main/assets/banner.png" alt="Codeable Flutter CLI" width="900" />
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/FLUTTER-CLI-b7ff00?style=for-the-badge&labelColor=0e0926" alt="Flutter CLI" />
+  <img src="https://img.shields.io/badge/CODEABLE-FLUTTER_CLI-b7ff00?style=for-the-badge&labelColor=0e0926" alt="Codeable Flutter CLI" />
   <img src="https://img.shields.io/badge/DART-352e5c?style=for-the-badge&labelColor=0e0926&logo=dart&logoColor=b7ff00" alt="Dart" />
   <img src="https://img.shields.io/badge/FLUTTER-352e5c?style=for-the-badge&labelColor=0e0926&logo=flutter&logoColor=b7ff00" alt="Flutter" />
   <img src="https://img.shields.io/pub/v/codeable_cli?style=for-the-badge&color=6b6190&labelColor=0e0926" alt="pub.dev" />
+  <img src="https://img.shields.io/badge/LICENSE-MIT-6b6190?style=for-the-badge&labelColor=0e0926" alt="MIT" />
 </p>
 
 <p align="center">
