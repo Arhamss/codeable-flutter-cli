@@ -626,7 +626,7 @@ No manual plugin installation needed — just open the project with Claude Code 
 
 For existing projects, run inside Claude Code:
 ```
-/plugin marketplace add gocodeable/codeable-flutter-cli-claude-plugin
+/plugin marketplace add https://github.com/gocodeable/codeable-flutter-cli-claude-plugin.git
 /plugin install codeable-flutter-cli@codeable-plugins
 ```
 

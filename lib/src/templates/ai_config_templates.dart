@@ -3,8 +3,8 @@ const claudeSettingsTemplate = r'''
   "extraKnownMarketplaces": {
     "codeable-plugins": {
       "source": {
-        "source": "github",
-        "repo": "gocodeable/codeable-flutter-cli-claude-plugin"
+        "source": "url",
+        "url": "https://github.com/gocodeable/codeable-flutter-cli-claude-plugin.git"
       }
     }
   },
