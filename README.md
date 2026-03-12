@@ -74,7 +74,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.18
+dart pub global activate codeable_cli 1.0.19
 ```
 
 ### Or run without activating

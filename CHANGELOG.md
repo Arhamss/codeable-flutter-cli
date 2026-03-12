@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.19
+
+### Fixes
+- Plugin marketplace source now uses HTTPS URL instead of SSH — plugin installs on any machine without SSH key setup
+- Updated plugin version to 1.1.1
+
 ## 1.0.18
 
 ### New CLI Commands
