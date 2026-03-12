@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.20
+
+### Branding
+- Added branded banner SVG matching Codeable design system (dark purple gradient, logo, lime accent pills)
+
 ## 1.0.19
 
 ### Fixes
