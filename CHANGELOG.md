@@ -1,10 +1,29 @@
 # Changelog
 
+## 1.0.18
+
+### New CLI Commands
+- Added `doctor` command — checks project health (cubit registration, route wiring, import consistency, localization key parity across ARB files)
+- Added `remove-feature` command — safely removes a feature and unwires its cubit, routes, and imports (inverse of `feature`)
+- Added `add-locale` command — adds a new language/locale ARB file with TODO placeholders from the English reference
+
+### New Claude Plugin Skills (10 skill templates)
+- `add-model` — Generate data models with fromJson/toJson/copyWith/Equatable
+- `add-pagination` — Wire paginated API calls using PaginationModel in cubit state with PaginatedListView
+- `add-form` — Generate validated form screens with CustomTextField, FieldValidators, and cubit submission
+- `add-di` — Register services/repositories in GetIt dependency injection
+- `add-hive-model` — Generate Hive TypeAdapter models with auto TypeId assignment
+- `add-test` — Generate cubit and repository unit tests with mocktail and bloc_test
+- `add-bottom-nav` — Wire bottom navigation with GoRouter ShellRoute
+- `add-interceptor` — Add custom Dio interceptors to ApiService
+- `implement-screen` — Build screens from description/Figma using core widgets and project patterns
+- `add-firebase-config` — Configure Firebase for all 3 flavors using `flutterfire configure`
+
 ## 1.0.17
 
-- Auto-install [codeable Claude plugin](https://github.com/gocodeable/codeable-claude-plugin) in generated projects via `.claude/settings.json`
-- New projects get all 34 commands, 13 skills, 9 agents, and 2 hooks from the plugin automatically — no manual setup needed
-- Removed inline `.claude/commands/` files (localize, fix-rtl, add-api, add-cubit-state) — the plugin now provides these and 30 more
+- Auto-install [Codeable Flutter CLI Claude Plugin](https://github.com/gocodeable/codeable-flutter-cli-claude-plugin) in generated projects via `.claude/settings.json`
+- New projects get all commands, skills, agents, and hooks from the plugin automatically — no manual setup needed
+- Removed inline `.claude/commands/` files (localize, fix-rtl, add-api, add-cubit-state) — the plugin now provides these and more
 
 ## 1.0.16
 

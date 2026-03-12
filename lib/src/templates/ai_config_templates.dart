@@ -4,12 +4,12 @@ const claudeSettingsTemplate = r'''
     "codeable-plugins": {
       "source": {
         "source": "github",
-        "repo": "gocodeable/codeable-claude-plugin"
+        "repo": "gocodeable/codeable-flutter-cli-claude-plugin"
       }
     }
   },
   "enabledPlugins": {
-    "codeable@codeable-plugins": true
+    "codeable-flutter-cli@codeable-plugins": true
   }
 }
 ''';
@@ -664,4 +664,1349 @@ class ProfileState extends Equatable {
 - Always update copyWith AND props when adding fields.
 - Do NOT modify unrelated code.
 - Preserve existing imports and formatting.
+''';
+
+const addModelCommandTemplate = r'''
+---
+name: add-model
+description: Generate a data model with fromJson, toJson, copyWith, Equatable in a feature's data/models/ directory.
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, TodoWrite
+argument-hint: "<feature-path> <model-name> e.g. lib/features/profile GET ProfileModel"
+---
+
+# Add Data Model
+
+You are a model generation agent. Your job is to create a well-structured data model class in the appropriate feature directory, following the project's established patterns.
+
+## Arguments
+
+$ARGUMENTS: `<feature-path> <model-name>`
+
+Example: `lib/features/profile ProfileModel`
+
+If arguments are missing, ask the user for the feature path and model name. Then ask for the fields (name and type pairs).
+
+## Process
+
+### Step 1: Gather Field Information
+1. Ask the user for the model fields. For each field, collect:
+   - Field name (camelCase)
+   - Field type (String, int, double, bool, DateTime, List<T>, or another model)
+   - Whether it's nullable (default: yes, use `?`)
+
+### Step 2: Create Model File
+1. Determine the file path: `<feature-path>/data/models/<model_name_snake_case>.dart`
+2. Create the model following this exact pattern:
+
+```dart
+import 'package:equatable/equatable.dart';
+
+class ProfileModel extends Equatable {
+  const ProfileModel({
+    this.id,
+    this.name,
+    this.email,
+  });
+
+  factory ProfileModel.fromJson(Map<String, dynamic> json) {
+    return ProfileModel(
+      id: json['id'] as int?,
+      name: json['name'] as String?,
+      email: json['email'] as String?,
+    );
+  }
+
+  final int? id;
+  final String? name;
+  final String? email;
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'email': email,
+  };
+
+  ProfileModel copyWith({
+    int? id,
+    String? name,
+    String? email,
+  }) {
+    return ProfileModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+    );
+  }
+
+  @override
+  List<Object?> get props => [id, name, email];
+}
+```
+
+### Step 3: Handle Nested Models
+- If a field references another model, import it properly.
+- For `List<T>` fields in fromJson, use: `(json['items'] as List<dynamic>?)?.map((e) => ItemModel.fromJson(e as Map<String, dynamic>)).toList()`
+- For DateTime fields: `json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null`
+- For DateTime toJson: `'created_at': createdAt?.toIso8601String()`
+
+### Step 4: Offer Repository Integration
+- Ask the user if this model needs to be returned by a repository method.
+- If yes, offer to update the repository interface and implementation to use this model.
+
+### Step 5: Verify
+1. Run `flutter analyze --no-pub` to check for errors.
+2. Fix any issues.
+
+## Rules
+
+- Always extend `Equatable` and implement `props`.
+- Always include `fromJson`, `toJson`, and `copyWith`.
+- Use `const` constructor.
+- Make all fields `final`.
+- Default to nullable fields unless the user specifies otherwise.
+- Use snake_case for JSON keys (matching typical API conventions).
+- Use camelCase for Dart field names.
+- Do NOT modify unrelated code.
+''';
+
+const addPaginationCommandTemplate = r'''
+---
+name: add-pagination
+description: Wire up paginated API calls in an existing feature using a PaginationModel stored in cubit state with PaginatedListView or PaginatedGridView.
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, TodoWrite
+argument-hint: "<feature-path> e.g. lib/features/products"
+---
+
+# Add Pagination
+
+You are a pagination wiring agent. Your job is to add paginated API calls to an existing feature, using a PaginationModel stored in cubit state and the project's PaginatedListView/PaginatedGridView core widgets.
+
+## Arguments
+
+$ARGUMENTS: The feature directory path (e.g., lib/features/products)
+
+If no argument is provided, ask the user which feature to add pagination to.
+
+## Key Files
+
+- **Feature cubit**: `<feature>/presentation/cubit/cubit.dart`
+- **Feature state**: `<feature>/presentation/cubit/state.dart`
+- **Feature repository interface**: `<feature>/domain/repository/<feature>_repository.dart`
+- **Feature repository impl**: `<feature>/data/repository/<feature>_repository_impl.dart`
+- **Endpoints**: `lib/core/endpoints/endpoints.dart`
+- **Core widgets**: `lib/core/widgets/` (PaginatedListView, PaginatedGridView)
+
+## Process
+
+### Step 1: Create PaginationModel
+1. Check if a shared `PaginationModel` already exists in `lib/core/models/common/` or similar.
+2. If not, create one in the feature's `data/models/` directory:
+
+```dart
+import 'package:equatable/equatable.dart';
+
+class PaginationModel<T> extends Equatable {
+  const PaginationModel({
+    this.items = const [],
+    this.currentPage = 1,
+    this.totalPages = 1,
+    this.perPage = 20,
+  });
+
+  final List<T> items;
+  final int currentPage;
+  final int totalPages;
+  final int perPage;
+
+  bool get hasMore => currentPage < totalPages;
+
+  PaginationModel<T> copyWith({
+    List<T>? items,
+    int? currentPage,
+    int? totalPages,
+    int? perPage,
+  }) {
+    return PaginationModel<T>(
+      items: items ?? this.items,
+      currentPage: currentPage ?? this.currentPage,
+      totalPages: totalPages ?? this.totalPages,
+      perPage: perPage ?? this.perPage,
+    );
+  }
+
+  @override
+  List<Object?> get props => [items, currentPage, totalPages, perPage];
+}
+```
+
+### Step 2: Update State
+1. Add a `DataState<PaginationModel<ItemModel>>` field to the feature state:
+```dart
+final DataState paginatedItemsState;
+final PaginationModel<ItemModel>? paginatedItems;
+```
+2. Update `copyWith` and `props` accordingly.
+
+### Step 3: Add Endpoint
+1. Add the paginated endpoint to `lib/core/endpoints/endpoints.dart`.
+
+### Step 4: Update Repository
+1. Add method to the abstract repository:
+```dart
+Future<RepositoryResponse<PaginationModel<ItemModel>>> getItems({
+  required int page,
+  int perPage = 20,
+});
+```
+2. Implement in repository impl, parsing the paginated API response (typically has `data`, `current_page`, `last_page` or similar fields).
+
+### Step 5: Add Cubit Methods
+Add three methods to the cubit:
+
+```dart
+Future<void> fetchItems() async {
+  emit(state.copyWith(paginatedItemsState: DataState.loading));
+  final response = await _repository.getItems(page: 1);
+  if (response.isSuccess) {
+    emit(state.copyWith(
+      paginatedItemsState: DataState.loaded,
+      paginatedItems: response.data,
+    ));
+  } else {
+    emit(state.copyWith(paginatedItemsState: DataState.failure));
+  }
+}
+
+Future<void> loadNextPage() async {
+  final current = state.paginatedItems;
+  if (current == null || !current.hasMore) return;
+  emit(state.copyWith(paginatedItemsState: DataState.pageLoading));
+  final response = await _repository.getItems(page: current.currentPage + 1);
+  if (response.isSuccess && response.data != null) {
+    emit(state.copyWith(
+      paginatedItemsState: DataState.loaded,
+      paginatedItems: current.copyWith(
+        items: [...current.items, ...response.data!.items],
+        currentPage: response.data!.currentPage,
+        totalPages: response.data!.totalPages,
+      ),
+    ));
+  } else {
+    emit(state.copyWith(paginatedItemsState: DataState.loaded));
+  }
+}
+
+Future<void> refresh() async {
+  await fetchItems();
+}
+```
+
+### Step 6: Wire Screen to PaginatedListView
+1. Read existing core widgets (PaginatedListView/PaginatedGridView) to match the exact API.
+2. Update the screen to use the paginated widget:
+
+```dart
+BlocBuilder<ItemsCubit, ItemsState>(
+  builder: (context, state) {
+    return PaginatedListView<ItemModel>(
+      items: state.paginatedItems?.items ?? [],
+      dataState: state.paginatedItemsState,
+      onLoadMore: () => context.read<ItemsCubit>().loadNextPage(),
+      onRefresh: () => context.read<ItemsCubit>().refresh(),
+      itemBuilder: (context, item) => ItemCard(item: item),
+    );
+  },
+)
+```
+
+### Step 7: Verify
+1. Run `flutter analyze --no-pub` to check for errors.
+2. Fix any issues.
+
+## Rules
+
+- ALWAYS use a `PaginationModel` stored in cubit state. Do NOT use separate page/hasMore/items fields.
+- Use `DataState.pageLoading` for load-more operations (not `DataState.loading`).
+- Append items on loadNextPage, do NOT replace them.
+- Use the existing PaginatedListView/PaginatedGridView from core widgets.
+- Follow existing code patterns exactly.
+- Do NOT modify unrelated code.
+''';
+
+const addFormCommandTemplate = r'''
+---
+name: add-form
+description: Generate a validated form screen with CustomTextField widgets, FieldValidators, and cubit submission logic.
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, TodoWrite
+argument-hint: "<feature-path> e.g. lib/features/profile/edit"
+---
+
+# Add Form Screen
+
+You are a form generation agent. Your job is to create or update a screen with a validated form, wiring it to the feature's cubit for submission.
+
+## Arguments
+
+$ARGUMENTS: The feature directory path (e.g., lib/features/profile/edit)
+
+If no argument is provided, ask the user which feature to add a form to.
+
+Then ask the user what form fields they need. For each field, collect:
+- Field label/name
+- Field type (text, email, password, phone, number, date, dropdown)
+- Validation rules (required, minLength, maxLength, email format, etc.)
+
+## Key Files
+
+- **FieldValidators**: `lib/core/field_validators.dart`
+- **CustomTextField**: `lib/core/widgets/` (find the exact text field widget)
+- **CustomButton**: `lib/core/widgets/` (find the exact button widget)
+- **ToastHelper**: `lib/utils/helpers/toast_helper.dart` or similar
+- **Feature cubit**: `<feature>/presentation/cubit/cubit.dart`
+- **Feature state**: `<feature>/presentation/cubit/state.dart`
+
+## Process
+
+### Step 1: Read Existing Patterns
+1. Read `lib/core/field_validators.dart` to see available validators.
+2. Read core widgets directory to find CustomTextField, CustomButton, and their APIs.
+3. Read existing form screens in the project for pattern reference.
+
+### Step 2: Create Form Screen
+1. Create or update the screen file in `<feature>/presentation/views/`.
+2. Use this structure:
+
+```dart
+class EditProfileScreen extends StatefulWidget {
+  const EditProfileScreen({super.key});
+
+  @override
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
+}
+
+class _EditProfileScreenState extends State<EditProfileScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBar(title: context.l10n.editProfile),
+      body: BlocConsumer<ProfileCubit, ProfileState>(
+        listenWhen: (prev, curr) => prev.submitState != curr.submitState,
+        listener: (context, state) {
+          if (state.submitState == DataState.loaded) {
+            ToastHelper.showSuccess(context, context.l10n.profileUpdated);
+            context.pop();
+          } else if (state.submitState == DataState.failure) {
+            ToastHelper.showError(context, context.l10n.somethingWentWrong);
+          }
+        },
+        builder: (context, state) {
+          return Form(
+            key: _formKey,
+            child: ListView(
+              padding: EdgeInsetsDirectional.all(16),
+              children: [
+                CustomTextField(
+                  controller: _nameController,
+                  label: context.l10n.name,
+                  validator: FieldValidators.required,
+                ),
+                SizedBox(height: 16),
+                CustomTextField(
+                  controller: _emailController,
+                  label: context.l10n.email,
+                  validator: FieldValidators.email,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                SizedBox(height: 24),
+                CustomButton(
+                  text: context.l10n.save,
+                  isLoading: state.submitState == DataState.loading,
+                  onPressed: _submit,
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _submit() {
+    if (_formKey.currentState?.validate() ?? false) {
+      context.read<ProfileCubit>().updateProfile(
+        name: _nameController.text,
+        email: _emailController.text,
+      );
+    }
+  }
+}
+```
+
+### Step 3: Update Cubit State
+1. Add `submitState` field (DataState) to the feature state if not present.
+2. Update `copyWith` and `props`.
+
+### Step 4: Add Cubit Submit Method
+```dart
+Future<void> updateProfile({
+  required String name,
+  required String email,
+}) async {
+  emit(state.copyWith(submitState: DataState.loading));
+  final response = await _repository.updateProfile(
+    name: name,
+    email: email,
+  );
+  if (response.isSuccess) {
+    emit(state.copyWith(submitState: DataState.loaded));
+  } else {
+    emit(state.copyWith(submitState: DataState.failure));
+  }
+}
+```
+
+### Step 5: Verify
+1. Run `flutter analyze --no-pub` to check for errors.
+2. Fix any issues.
+
+## Rules
+
+- Always use `GlobalKey<FormState>` for form validation.
+- Always dispose TextEditingControllers in `dispose()`.
+- Use `BlocConsumer` when you need both listener (for side effects) and builder (for UI).
+- Use `FieldValidators` from the project — do NOT write custom validation inline.
+- Use `EdgeInsetsDirectional` instead of `EdgeInsets` for RTL support.
+- Use `context.l10n.keyName` for all user-facing strings.
+- Use `ToastHelper` for success/error feedback.
+- Follow existing code patterns exactly.
+- Do NOT modify unrelated code.
+''';
+
+const addDiCommandTemplate = r'''
+---
+name: add-di
+description: Register a new service or repository in GetIt dependency injection via the Injector wrapper.
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, TodoWrite
+argument-hint: "<service-name> e.g. PaymentService"
+---
+
+# Add Dependency Injection Registration
+
+You are a dependency injection agent. Your job is to create and register a new service or repository in the project's GetIt-based DI system.
+
+## Arguments
+
+$ARGUMENTS: `<service-name>` (e.g., PaymentService)
+
+If no argument is provided, ask the user what service or repository they want to register.
+
+Then ask: Is this a **service** (standalone, lives in core/services/) or a **repository** (feature-based, lives in feature directory)?
+
+## Key Files
+
+- **Injector wrapper**: `lib/core/di/injector.dart`
+- **App modules**: `lib/core/di/modules/app_modules.dart`
+- **ApiService**: `lib/core/api_service/api_service.dart`
+- **AppPreferences**: `lib/core/app_preferences/app_preferences.dart`
+
+## Process
+
+### For a Service (standalone):
+
+#### Step 1: Create Abstract Interface
+1. Create `lib/core/services/<service_name_snake>/<service_name_snake>.dart`:
+```dart
+abstract class PaymentService {
+  Future<PaymentResult> processPayment(PaymentRequest request);
+  Future<void> cancelPayment(String paymentId);
+}
+```
+
+#### Step 2: Create Implementation
+1. Create `lib/core/services/<service_name_snake>/<service_name_snake>_impl.dart`:
+```dart
+class PaymentServiceImpl implements PaymentService {
+  PaymentServiceImpl(this._apiService);
+
+  final ApiService _apiService;
+
+  @override
+  Future<PaymentResult> processPayment(PaymentRequest request) async {
+    // Implementation
+  }
+
+  @override
+  Future<void> cancelPayment(String paymentId) async {
+    // Implementation
+  }
+}
+```
+
+#### Step 3: Register in App Modules
+1. Read `lib/core/di/modules/app_modules.dart`.
+2. Add the registration:
+```dart
+injector.registerLazySingleton<PaymentService>(
+  () => PaymentServiceImpl(injector<ApiService>()),
+);
+```
+
+### For a Repository (feature-based):
+
+#### Step 1: Create or Locate Repository Interface
+1. Check if `<feature>/domain/repository/<feature>_repository.dart` exists.
+2. If not, create the abstract repository class.
+
+#### Step 2: Create or Locate Repository Implementation
+1. Check if `<feature>/data/repository/<feature>_repository_impl.dart` exists.
+2. If not, create the implementation class.
+
+#### Step 3: Register in App Modules
+1. Read `lib/core/di/modules/app_modules.dart`.
+2. Add the registration:
+```dart
+injector.registerLazySingleton<ProfileRepository>(
+  () => ProfileRepositoryImpl(
+    injector<ApiService>(),
+    injector<AppPreferences>(),
+  ),
+);
+```
+
+### Step 4: Verify
+1. Run `flutter analyze --no-pub` to check for errors.
+2. Fix any issues.
+
+## Rules
+
+- Always register using `injector.registerLazySingleton<AbstractType>(() => ConcreteType())`.
+- The `injector` is a wrapper around GetIt — use it, not `GetIt.I` directly.
+- Dependencies are resolved via `injector<DependencyType>()`.
+- Abstract interfaces go in `domain/` (for features) or standalone abstract classes (for services).
+- Implementations go in `data/` (for features) or `_impl` suffixed files (for services).
+- Follow existing registration patterns in `app_modules.dart`.
+- Do NOT modify unrelated code.
+''';
+
+const addHiveModelCommandTemplate = r'''
+---
+name: add-hive-model
+description: Generate a Hive TypeAdapter model for local persistence with proper TypeId assignment and adapter registration.
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, TodoWrite
+argument-hint: "<feature-path> <model-name> e.g. lib/features/profile UserCache"
+---
+
+# Add Hive Model
+
+You are a Hive model generation agent. Your job is to create a Hive-persisted model with proper TypeAdapter annotations and register it in the app's bootstrap.
+
+## Arguments
+
+$ARGUMENTS: `<feature-path> <model-name>` (e.g., lib/features/profile UserCache)
+
+If arguments are missing, ask the user for the feature path, model name, and fields.
+
+## Key Files
+
+- **Existing Hive models**: Search for `@HiveType` annotations across the project
+- **Bootstrap/main**: `lib/bootstrap.dart` or `lib/main.dart` (where Hive adapters are registered)
+- **pubspec.yaml**: `pubspec.yaml`
+
+## Process
+
+### Step 1: Find Next Available TypeId
+1. Search the entire project for `@HiveType(typeId:` to find all existing TypeIds.
+2. Determine the next available TypeId (max existing + 1).
+
+### Step 2: Create Hive Model
+1. Create the model file at `<feature-path>/data/models/<model_name_snake>.dart`:
+
+```dart
+import 'package:hive_ce/hive_ce.dart';
+import 'package:equatable/equatable.dart';
+
+part '<model_name_snake>.g.dart';
+
+@HiveType(typeId: X)
+class UserCache extends Equatable {
+  const UserCache({
+    this.id,
+    this.name,
+    this.email,
+    this.cachedAt,
+  });
+
+  @HiveField(0)
+  final int? id;
+
+  @HiveField(1)
+  final String? name;
+
+  @HiveField(2)
+  final String? email;
+
+  @HiveField(3)
+  final DateTime? cachedAt;
+
+  UserCache copyWith({
+    int? id,
+    String? name,
+    String? email,
+    DateTime? cachedAt,
+  }) {
+    return UserCache(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      cachedAt: cachedAt ?? this.cachedAt,
+    );
+  }
+
+  @override
+  List<Object?> get props => [id, name, email, cachedAt];
+}
+```
+
+### Step 3: Register Adapter
+1. Find where Hive adapters are registered (usually `bootstrap.dart` or early in `main()`).
+2. Add: `Hive.registerAdapter(UserCacheAdapter());`
+3. The adapter class name is always `<ModelName>Adapter` — generated by build_runner.
+
+### Step 4: Check Dependencies
+1. Read `pubspec.yaml`.
+2. Ensure `hive_ce` is in dependencies.
+3. Ensure `hive_ce_generator` and `build_runner` are in dev_dependencies.
+4. If missing, add them.
+
+### Step 5: Instruct User
+1. Tell the user to run: `dart run build_runner build --delete-conflicting-outputs`
+2. This generates the `.g.dart` file with the TypeAdapter implementation.
+
+### Step 6: Verify
+1. Run `flutter analyze --no-pub` to check for errors (note: `.g.dart` won't exist until build_runner runs, so ignore that specific error).
+
+## Rules
+
+- TypeId must be UNIQUE across the entire project. Always scan first.
+- HiveField indices start at 0 and increment sequentially.
+- NEVER reuse a TypeId or HiveField index — this causes data corruption.
+- Always include the `part` directive for code generation.
+- Use `hive_ce` (community edition), not the original `hive` package.
+- Follow existing Hive model patterns in the project.
+- Do NOT modify unrelated code.
+''';
+
+const addTestCommandTemplate = r'''
+---
+name: add-test
+description: Generate unit tests for a feature's cubit and repository using mocktail and bloc_test.
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, TodoWrite
+argument-hint: "<feature-path> e.g. lib/features/profile"
+---
+
+# Add Tests
+
+You are a test generation agent. Your job is to create comprehensive unit tests for a feature's cubit and repository layers.
+
+## Arguments
+
+$ARGUMENTS: The feature directory path (e.g., lib/features/profile)
+
+If no argument is provided, ask the user which feature to test.
+
+## Key Packages
+
+- **mocktail**: For creating mocks (not mockito)
+- **bloc_test**: For testing cubits with `blocTest`
+- **flutter_test**: Standard Flutter testing
+
+## Process
+
+### Step 1: Read Feature Code
+1. Read the cubit, state, repository interface, and repository implementation files.
+2. Identify all public methods, state fields, and dependencies.
+
+### Step 2: Create Test Directory Structure
+```
+test/features/<feature>/
+├── presentation/cubit/
+│   └── <feature>_cubit_test.dart
+└── data/repository/
+    └── <feature>_repository_impl_test.dart
+```
+
+### Step 3: Generate Cubit Tests
+Create `test/features/<feature>/presentation/cubit/<feature>_cubit_test.dart`:
+
+```dart
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+// Import cubit, state, repository, models
+
+class MockProfileRepository extends Mock implements ProfileRepository {}
+
+void main() {
+  late ProfileCubit cubit;
+  late MockProfileRepository mockRepository;
+
+  setUp(() {
+    mockRepository = MockProfileRepository();
+    cubit = ProfileCubit(mockRepository);
+  });
+
+  tearDown(() {
+    cubit.close();
+  });
+
+  group('ProfileCubit', () {
+    test('initial state is correct', () {
+      expect(cubit.state, const ProfileState());
+    });
+
+    blocTest<ProfileCubit, ProfileState>(
+      'emits [loading, loaded] when fetchProfile succeeds',
+      build: () {
+        when(() => mockRepository.getProfile())
+            .thenAnswer((_) async => RepositoryResponse.success(mockProfile));
+        return cubit;
+      },
+      act: (cubit) => cubit.fetchProfile(),
+      expect: () => [
+        const ProfileState(profileState: DataState.loading),
+        ProfileState(
+          profileState: DataState.loaded,
+          profile: mockProfile,
+        ),
+      ],
+    );
+
+    blocTest<ProfileCubit, ProfileState>(
+      'emits [loading, failure] when fetchProfile fails',
+      build: () {
+        when(() => mockRepository.getProfile())
+            .thenAnswer((_) async => RepositoryResponse.failure('Error'));
+        return cubit;
+      },
+      act: (cubit) => cubit.fetchProfile(),
+      expect: () => [
+        const ProfileState(profileState: DataState.loading),
+        const ProfileState(profileState: DataState.failure),
+      ],
+    );
+  });
+}
+```
+
+### Step 4: Generate Repository Tests
+Create `test/features/<feature>/data/repository/<feature>_repository_impl_test.dart`:
+
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+// Import repository impl, api service, models
+
+class MockApiService extends Mock implements ApiService {}
+class MockAppPreferences extends Mock implements AppPreferences {}
+
+void main() {
+  late ProfileRepositoryImpl repository;
+  late MockApiService mockApiService;
+  late MockAppPreferences mockAppPreferences;
+
+  setUp(() {
+    mockApiService = MockApiService();
+    mockAppPreferences = MockAppPreferences();
+    repository = ProfileRepositoryImpl(mockApiService, mockAppPreferences);
+  });
+
+  group('ProfileRepositoryImpl', () {
+    group('getProfile', () {
+      test('returns success when API call succeeds', () async {
+        when(() => mockApiService.get(any()))
+            .thenAnswer((_) async => Response(
+              data: {'id': 1, 'name': 'Test'},
+              statusCode: 200,
+              requestOptions: RequestOptions(path: ''),
+            ));
+
+        final result = await repository.getProfile();
+
+        expect(result.isSuccess, true);
+        expect(result.data, isNotNull);
+      });
+
+      test('returns failure when API call throws', () async {
+        when(() => mockApiService.get(any()))
+            .thenThrow(DioException(
+              requestOptions: RequestOptions(path: ''),
+              type: DioExceptionType.connectionError,
+            ));
+
+        final result = await repository.getProfile();
+
+        expect(result.isSuccess, false);
+      });
+    });
+  });
+}
+```
+
+### Step 5: Check Dependencies
+1. Read `pubspec.yaml`.
+2. Ensure these are in `dev_dependencies`:
+   - `mocktail`
+   - `bloc_test`
+3. If missing, add them.
+
+### Step 6: Run Tests
+1. Run `flutter test test/features/<feature>/` to verify all tests pass.
+2. Fix any failures.
+
+## Rules
+
+- Use `mocktail` (not mockito) for mocking.
+- Use `blocTest` for all cubit tests — do NOT use manual emit testing.
+- Test loading, success, AND failure paths for every async operation.
+- Create mock data constants at the top of test files for reuse.
+- Always `close()` the cubit in `tearDown`.
+- Follow the existing test patterns in the project if any tests already exist.
+- Do NOT modify source code — only create test files.
+''';
+
+const addBottomNavCommandTemplate = r'''
+---
+name: add-bottom-nav
+description: Wire up bottom navigation with tabs for existing features using GoRouter ShellRoute and a navigation widget.
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, TodoWrite
+argument-hint: "[role] e.g. customer (optional)"
+---
+
+# Add Bottom Navigation
+
+You are a navigation wiring agent. Your job is to set up bottom navigation with tabs using GoRouter's ShellRoute and the project's navigation patterns.
+
+## Arguments
+
+$ARGUMENTS: `[role]` (optional, e.g., customer, admin — used for role-based navigation)
+
+If no argument is provided, proceed without a role prefix.
+
+## Key Files
+
+- **GoRouter config**: `lib/go_router/router.dart`
+- **Routes**: `lib/go_router/routes.dart`
+- **Route exports**: `lib/go_router/exports.dart`
+- **Features directory**: `lib/features/`
+- **App page**: `lib/app/view/app_page.dart` (MultiBlocProvider)
+
+## Process
+
+### Step 1: Discover Available Features
+1. List the features in `lib/features/` directory.
+2. Ask the user which features should be tabs in the bottom navigation.
+3. For each tab, ask for: icon, label.
+
+### Step 2: Create Navigation Widget
+1. Create a shell/navigation screen (e.g., `lib/features/navigation/presentation/views/navigation_screen.dart`):
+
+```dart
+class NavigationScreen extends StatelessWidget {
+  const NavigationScreen({
+    super.key,
+    required this.child,
+  });
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: child,
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _calculateSelectedIndex(context),
+        onDestinationSelected: (index) => _onItemTapped(index, context),
+        destinations: [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: context.l10n.home,
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: context.l10n.profile,
+          ),
+        ],
+      ),
+    );
+  }
+
+  int _calculateSelectedIndex(BuildContext context) {
+    final location = GoRouterState.of(context).uri.path;
+    if (location.startsWith('/home')) return 0;
+    if (location.startsWith('/profile')) return 1;
+    return 0;
+  }
+
+  void _onItemTapped(int index, BuildContext context) {
+    switch (index) {
+      case 0:
+        context.go(AppRoutes.home);
+      case 1:
+        context.go(AppRoutes.profile);
+    }
+  }
+}
+```
+
+### Step 3: Configure GoRouter with ShellRoute
+1. Read the existing router configuration.
+2. Wrap the tab routes in a `ShellRoute`:
+
+```dart
+ShellRoute(
+  builder: (context, state, child) => NavigationScreen(child: child),
+  routes: [
+    GoRoute(
+      path: '/home',
+      name: AppRoutes.home,
+      builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: '/profile',
+      name: AppRoutes.profile,
+      builder: (context, state) => const ProfileScreen(),
+    ),
+  ],
+),
+```
+
+### Step 4: Add Route Constants
+1. Update `lib/go_router/routes.dart` with route path constants for each tab.
+2. Update `lib/go_router/exports.dart` with necessary imports.
+
+### Step 5: Handle Tab State Persistence
+- GoRouter's ShellRoute preserves the state of each tab branch by default.
+- If the project uses `StatefulShellRoute`, use `StatefulShellRoute.indexedStack` for keeping tab states alive:
+
+```dart
+StatefulShellRoute.indexedStack(
+  builder: (context, state, navigationShell) =>
+      NavigationScreen(navigationShell: navigationShell),
+  branches: [
+    StatefulShellBranch(routes: [/* home routes */]),
+    StatefulShellBranch(routes: [/* profile routes */]),
+  ],
+)
+```
+
+### Step 6: Verify
+1. Run `flutter analyze --no-pub` to check for errors.
+2. Fix any issues.
+
+## Rules
+
+- Use GoRouter's `ShellRoute` or `StatefulShellRoute` — do NOT use a custom tab controller.
+- Use `NavigationBar` (Material 3) or `BottomNavigationBar` depending on what the project already uses.
+- Use `context.l10n` for all tab labels.
+- Use `EdgeInsetsDirectional` for RTL support.
+- Follow existing routing patterns in the project.
+- Register any new cubits needed in `app_page.dart`'s MultiBlocProvider.
+- Do NOT modify unrelated code.
+''';
+
+const addInterceptorCommandTemplate = r'''
+---
+name: add-interceptor
+description: Add a custom Dio interceptor to the API service for cross-cutting concerns like caching, retry, or connectivity checks.
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, TodoWrite
+argument-hint: "<interceptor-name> e.g. CacheInterceptor"
+---
+
+# Add Dio Interceptor
+
+You are an API interceptor agent. Your job is to create a custom Dio interceptor and register it in the project's API service.
+
+## Arguments
+
+$ARGUMENTS: `<interceptor-name>` (e.g., CacheInterceptor, RetryInterceptor, ConnectivityInterceptor)
+
+If no argument is provided, ask the user what type of interceptor they need. Common types:
+- **Cache**: Cache GET responses for a configurable duration
+- **Retry**: Retry failed requests with exponential backoff
+- **Connectivity**: Check network connectivity before making requests
+- **Rate Limit**: Throttle requests to avoid API rate limits
+- **Logging**: Enhanced request/response logging
+
+## Key Files
+
+- **ApiService**: `lib/core/api_service/api_service.dart`
+- **Existing interceptors**: `lib/core/api_service/` (look for AuthInterceptor, LoggingInterceptor, etc.)
+
+## Process
+
+### Step 1: Read Existing Interceptors
+1. Read `lib/core/api_service/api_service.dart` to understand how interceptors are registered.
+2. Read any existing interceptors to follow the established pattern.
+
+### Step 2: Create Interceptor
+1. Create `lib/core/api_service/<interceptor_name_snake>.dart`:
+
+```dart
+import 'package:dio/dio.dart';
+
+class CacheInterceptor extends Interceptor {
+  CacheInterceptor();
+
+  final Map<String, _CacheEntry> _cache = {};
+  final Duration cacheDuration;
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    // Pre-request logic (e.g., check cache, add headers)
+    handler.next(options);
+  }
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    // Post-response logic (e.g., store in cache)
+    handler.next(response);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    // Error handling logic (e.g., retry, serve stale cache)
+    handler.next(err);
+  }
+}
+```
+
+### Step 3: Register in ApiService
+1. Read the ApiService constructor to find where interceptors are added.
+2. Add the new interceptor to the chain:
+```dart
+_dio.interceptors.addAll([
+  AuthInterceptor(appPreferences),
+  CacheInterceptor(),          // Add new interceptor
+  LoggingInterceptor(),
+]);
+```
+3. Order matters: Auth first, then custom interceptors, then logging last.
+
+### Step 4: Handle Dependencies
+- If the interceptor needs `AppPreferences`, `ApiService`, or other dependencies, inject them via constructor.
+- Update the ApiService constructor if new dependencies are needed.
+- Update DI registration in `app_modules.dart` if needed.
+
+### Step 5: Verify
+1. Run `flutter analyze --no-pub` to check for errors.
+2. Fix any issues.
+
+## Common Interceptor Patterns
+
+### Retry Interceptor
+```dart
+@override
+void onError(DioException err, ErrorInterceptorHandler handler) async {
+  if (_shouldRetry(err) && retryCount < maxRetries) {
+    await Future.delayed(Duration(seconds: pow(2, retryCount).toInt()));
+    try {
+      final response = await _dio.fetch(err.requestOptions);
+      handler.resolve(response);
+      return;
+    } catch (_) {}
+  }
+  handler.next(err);
+}
+```
+
+### Connectivity Interceptor
+```dart
+@override
+void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  final hasConnection = await _connectivityService.hasInternet;
+  if (!hasConnection) {
+    handler.reject(DioException(
+      requestOptions: options,
+      type: DioExceptionType.connectionError,
+      error: 'No internet connection',
+    ));
+    return;
+  }
+  handler.next(options);
+}
+```
+
+## Rules
+
+- Always extend `Interceptor` from Dio.
+- Use `handler.next()` to pass to the next interceptor in the chain.
+- Use `handler.resolve()` to short-circuit with a response (e.g., cached response).
+- Use `handler.reject()` to short-circuit with an error.
+- Interceptor order matters: Auth → Custom → Logging.
+- Follow the existing interceptor patterns in the project.
+- Do NOT modify unrelated code.
+''';
+
+const implementScreenCommandTemplate = r'''
+---
+name: implement-screen
+description: Build a screen from a description or Figma reference following the project's architecture and existing core widgets.
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, TodoWrite
+argument-hint: "<feature-path> e.g. lib/features/profile"
+---
+
+# Implement Screen
+
+You are a screen implementation agent. Your job is to build a complete screen using the project's existing core widgets, theme system, and architecture patterns.
+
+## Arguments
+
+$ARGUMENTS: The feature directory path (e.g., lib/features/profile)
+
+If no argument is provided, ask the user which feature's screen to implement.
+
+Then ask: Do you have a **description** of the screen, or a **Figma URL** to reference?
+
+## Key Files
+
+- **Core widgets**: `lib/core/widgets/` (CustomAppBar, CustomButton, CustomTextField, PaginatedListView, PaginatedGridView, etc.)
+- **AppColors**: `lib/constants/app_colors.dart`
+- **Text styles**: Extensions on BuildContext — `context.h1`, `context.h2`, `context.t1`, `context.t2`, `context.b1`, `context.b2`, `context.l1`, `context.l2` (heading, title, body, label sizes)
+- **AssetPaths**: `lib/constants/asset_paths.dart`
+- **Feature cubit**: `<feature>/presentation/cubit/cubit.dart`
+- **Feature state**: `<feature>/presentation/cubit/state.dart`
+
+## Process
+
+### Step 1: Understand Requirements
+1. Read the user's description or Figma reference.
+2. If a Figma URL is provided, use the Figma tools to extract the design context.
+
+### Step 2: Read Available Core Widgets
+1. Read `lib/core/widgets/` directory to understand available reusable widgets.
+2. Read each relevant widget to understand its API (constructor parameters).
+3. Read `lib/constants/app_colors.dart` for color constants.
+4. Read text style extensions to know available typography.
+5. Read `lib/constants/asset_paths.dart` for available assets.
+
+### Step 3: Read Feature Context
+1. Read the feature's cubit and state files to understand available data.
+2. Read existing screens in the feature for patterns.
+
+### Step 4: Build the Screen
+1. Create or update the screen file in `<feature>/presentation/views/`.
+2. Follow this structure:
+
+```dart
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBar(title: context.l10n.profile),
+      body: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, state) {
+          if (state.profileState == DataState.loading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (state.profileState == DataState.failure) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(context.l10n.somethingWentWrong, style: context.b1),
+                  SizedBox(height: 16),
+                  CustomButton(
+                    text: context.l10n.retry,
+                    onPressed: () => context.read<ProfileCubit>().fetchProfile(),
+                  ),
+                ],
+              ),
+            );
+          }
+          return _buildContent(context, state);
+        },
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context, ProfileState state) {
+    return ListView(
+      padding: EdgeInsetsDirectional.all(16),
+      children: [
+        // Build UI using core widgets, AppColors, text styles
+      ],
+    );
+  }
+}
+```
+
+### Step 5: Handle All States
+- **Loading**: Show `CircularProgressIndicator` or skeleton/shimmer.
+- **Failure**: Show error message with retry button.
+- **Empty**: Show empty state illustration with message.
+- **Loaded**: Show the actual content.
+
+### Step 6: Verify
+1. Run `flutter analyze --no-pub` to check for errors.
+2. Fix any issues.
+
+## Widget Usage Patterns
+
+### Text Styles
+```dart
+Text('Heading', style: context.h1)
+Text('Title', style: context.t1)
+Text('Body text', style: context.b1)
+Text('Label', style: context.l1)
+// Use .copyWith() for modifications:
+Text('Custom', style: context.b1.copyWith(color: AppColors.primary))
+```
+
+### Colors
+```dart
+Container(color: AppColors.primary)
+Container(color: AppColors.background)
+```
+
+### Assets
+```dart
+Image.asset(AssetPaths.logo)
+SvgPicture.asset(AssetPaths.emptyState)
+```
+
+### Spacing (RTL-safe)
+```dart
+Padding(padding: EdgeInsetsDirectional.only(start: 16, end: 16))
+Padding(padding: EdgeInsetsDirectional.all(16))
+// NEVER use EdgeInsets.left/right — always use EdgeInsetsDirectional.start/end
+```
+
+## Rules
+
+- ALWAYS use existing core widgets before building custom ones.
+- ALWAYS use `context.l10n.keyName` for user-facing strings.
+- ALWAYS use `EdgeInsetsDirectional` instead of `EdgeInsets` for RTL support.
+- ALWAYS use `context.h1/t1/b1/l1` text styles — do NOT use raw TextStyle.
+- ALWAYS use `AppColors` — do NOT use hardcoded Color values.
+- ALWAYS handle loading, error, and empty states.
+- Use `BlocBuilder` for UI rendering, `BlocConsumer` when side effects are also needed.
+- Keep the screen widget clean — extract complex sub-widgets into separate widget files in `<feature>/presentation/widgets/`.
+- Do NOT modify unrelated code.
+''';
+
+const addFirebaseConfigCommandTemplate = r'''
+---
+name: add-firebase-config
+description: Configure Firebase for all flavors (development, staging, production) using flutterfire configure with the correct bundle IDs.
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, TodoWrite
+argument-hint: ""
+---
+
+# Add Firebase Configuration
+
+You are a Firebase configuration agent. Your job is to set up Firebase for all three app flavors using `flutterfire configure`.
+
+## Arguments
+
+This command is interactive — no arguments needed.
+
+## Process
+
+### Step 1: Gather Information
+1. **ASK the user for their Firebase project ID** (e.g., `my-app-12345`). Do NOT proceed without it.
+2. Read `pubspec.yaml` to get the project name.
+3. Read `android/app/build.gradle.kts` (or `build.gradle`) to detect the `applicationId` / org name / namespace.
+4. Read `ios/Runner.xcodeproj/project.pbxproj` or flavor configs to detect iOS bundle ID pattern.
+
+### Step 2: Determine Bundle IDs
+Based on the detected org name (e.g., `com.example.myapp`), the three flavors are:
+- **Development**: `com.example.myapp.dev` (Android), `com.example.myapp.dev` (iOS)
+- **Staging**: `com.example.myapp.stg` (Android), `com.example.myapp.stg` (iOS)
+- **Production**: `com.example.myapp` (Android), `com.example.myapp` (iOS)
+
+### Step 3: Run flutterfire configure (3 times)
+Run each command. If `flutterfire` is not installed, instruct the user to run `dart pub global activate flutterfire_cli` first.
+
+#### Development flavor:
+```bash
+flutterfire configure \
+  --project=<firebase-project-id> \
+  --out=lib/firebase_options_dev.dart \
+  --ios-bundle-id=<org>.dev \
+  --android-app-id=<org>.dev \
+  --yes
+```
+
+#### Staging flavor:
+```bash
+flutterfire configure \
+  --project=<firebase-project-id> \
+  --out=lib/firebase_options_stg.dart \
+  --ios-bundle-id=<org>.stg \
+  --android-app-id=<org>.stg \
+  --yes
+```
+
+#### Production flavor:
+```bash
+flutterfire configure \
+  --project=<firebase-project-id> \
+  --out=lib/firebase_options_prod.dart \
+  --ios-bundle-id=<org> \
+  --android-app-id=<org> \
+  --yes
+```
+
+### Step 4: Update Entry Points
+1. Find the main entry files (typically `lib/main_development.dart`, `lib/main_staging.dart`, `lib/main_production.dart` or similar).
+2. In each entry point, import the corresponding firebase_options file:
+```dart
+// In main_development.dart:
+import 'firebase_options_dev.dart';
+
+// In main_staging.dart:
+import 'firebase_options_stg.dart';
+
+// In main_production.dart:
+import 'firebase_options_prod.dart';
+```
+3. Ensure `Firebase.initializeApp` uses the correct options:
+```dart
+await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
+```
+
+### Step 5: Check Dependencies
+1. Read `pubspec.yaml`.
+2. Ensure `firebase_core` is in dependencies.
+3. If missing, add it.
+
+### Step 6: Verify
+1. Run `flutter analyze --no-pub` to check for errors.
+2. Fix any issues.
+
+## Rules
+
+- ALWAYS ask for the Firebase project ID first — do NOT guess or make one up.
+- The three flavors are: development (.dev), staging (.stg), production (no suffix).
+- Use `--yes` flag to skip interactive prompts in flutterfire configure.
+- Each flavor gets its own `firebase_options_*.dart` output file.
+- Do NOT modify unrelated code.
+- If flutterfire CLI is not available, instruct the user to install it first.
 ''';

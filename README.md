@@ -55,7 +55,7 @@ Starting a new Flutter project means hours of boilerplate — setting up archite
 | Platforms | Android & iOS pre-configured |
 | Firebase | Multi-environment directory structure |
 | Localization | ARB files with `context.l10n` + static `Localization` service |
-| AI Config | CLAUDE.md + .cursorrules + [Codeable Claude Plugin](https://github.com/gocodeable/codeable-claude-plugin) (auto-installed) |
+| AI Config | CLAUDE.md + .cursorrules + [Codeable Flutter CLI Claude Plugin](https://github.com/gocodeable/codeable-flutter-cli-claude-plugin) (auto-installed) |
 
 ---
 
@@ -80,7 +80,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.17
+dart pub global activate codeable_cli 1.0.18
 ```
 
 ### Or run without activating
@@ -344,6 +344,56 @@ Updates the application/bundle identifier in:
 
 ---
 
+### `doctor` — Check project health
+
+```bash
+codeable_cli doctor
+```
+
+Runs health checks on your Codeable project:
+- **Cubit registration** — verifies all cubits in `features/` are registered in `app_page.dart`
+- **Route wiring** — verifies all screens have routes in `go_router/`
+- **Import consistency** — checks all imports in `go_router/exports.dart` resolve to existing files
+- **Localization consistency** — validates all ARB files have the same set of keys
+
+---
+
+### `remove-feature` — Remove a feature
+
+```bash
+codeable_cli remove-feature --name profile [--role customer]
+```
+
+| Option | Description |
+|--------|-------------|
+| `-n, --name` | Feature name to remove (snake_case) |
+| `-r, --role` | Optional role prefix (e.g., customer, admin) |
+
+Safely removes a feature and all its wiring:
+- Removes cubit from `app_page.dart`'s MultiBlocProvider
+- Removes route from `go_router/router.dart`, `routes.dart`, `exports.dart`
+- Deletes the feature directory
+- Asks for confirmation before any destructive action
+
+---
+
+### `add-locale` — Add a new language
+
+```bash
+codeable_cli add-locale --locale fr
+```
+
+| Option | Description |
+|--------|-------------|
+| `-l, --locale` | Locale code (e.g., `fr`, `de`, `ar`, `pt_BR`) |
+
+Adds a new locale to your project:
+- Creates `lib/l10n/arb/app_<locale>.arb` with TODO placeholders from the English reference
+- Preserves all `@key` metadata entries
+- Runs `flutter gen-l10n` to regenerate localization classes
+
+---
+
 ## Generated Architecture
 
 ### Clean Architecture
@@ -545,16 +595,16 @@ Generated projects include configuration files for AI coding assistants:
 
 - **CLAUDE.md** — Project structure, patterns, and conventions for [Claude Code](https://claude.ai/claude-code)
 - **.cursorrules** — Architecture rules and coding guidelines for [Cursor](https://cursor.com)
-- **`.claude/settings.json`** — Auto-installs the [Codeable Claude Plugin](https://github.com/gocodeable/codeable-claude-plugin)
+- **`.claude/settings.json`** — Auto-installs the [Codeable Flutter CLI Claude Plugin](https://github.com/gocodeable/codeable-flutter-cli-claude-plugin)
 
-### Codeable Claude Plugin (auto-installed)
+### Codeable Flutter CLI Claude Plugin (auto-installed)
 
 The plugin is automatically configured in every generated project. When you open the project with Claude Code, you get:
 
 | Component | Count | Highlights |
 |-----------|-------|------------|
 | **Skills** | 13 | Architecture, BLoC, Dio, GoRouter, Hive, Firebase, testing, security patterns |
-| **Commands** | 34 | `/feature`, `/add-api`, `/localize`, `/add-auth-flow`, `/add-pagination`, `/generate-tests`, `/release-build`, and more |
+| **Commands** | 38 | `/feature`, `/add-api`, `/localize`, `/add-auth-flow`, `/add-pagination`, `/generate-tests`, `/add-firebase-config`, and more |
 | **Agents** | 9 | Code reviewer, test writer, security auditor, performance analyzer, API migrator |
 | **Hooks** | 2 | Auto-lint on edit, analysis summary on stop |
 
