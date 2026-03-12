@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 280">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0e0926"/>
+      <stop offset="40%" style="stop-color:#160e3e"/>
+      <stop offset="100%" style="stop-color:#03081a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#b7ff00"/>
+      <stop offset="100%" style="stop-color:#6bff5e"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#352e5c;stop-opacity:0.5"/>
+      <stop offset="100%" style="stop-color:#0e0926;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="logoglw" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#e6e6e6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="280" rx="16" fill="url(#bg)"/>
+
+  <!-- Subtle top glow -->
+  <ellipse cx="300" cy="0" rx="450" ry="140" fill="url(#glow)"/>
+
+  <!-- Accent line at top -->
+  <rect x="0" y="0" width="900" height="3" rx="1.5" fill="url(#accent)"/>
+
+  <!-- Logo -->
+  <g transform="translate(140, 55) scale(0.35)">
+    <polygon fill="url(#logoglw)" points="128 162.24 251.95 38.36 290.24 0 213.59 0 162.25 0 0 162.24 160.79 323.04 224.79 259.03 128 162.24"/>
+    <polygon fill="url(#logoglw)" points="343.11 1.51 279.1 65.52 375.83 162.24 251.95 286.19 213.59 324.49 290.25 324.49 341.59 324.49 503.9 162.24 343.11 1.51"/>
+    <rect fill="url(#logoglw)" x="202.66" y="113.27" width="97.95" height="97.95" transform="translate(-41.02 225.45) rotate(-45)"/>
+  </g>
+
+  <!-- Title text -->
+  <text x="370" y="115" fill="#ffffff" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="38" font-weight="700" letter-spacing="-0.5">Codeable Flutter CLI</text>
+
+  <!-- Subtitle -->
+  <text x="370" y="148" fill="#8b82b0" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="16" font-weight="400">Production-Ready Flutter Project Scaffolding</text>
+
+  <!-- Feature pills -->
+  <g transform="translate(370, 170)">
+    <rect x="0" y="0" width="100" height="28" rx="6" fill="#241d4a" stroke="#b7ff00" stroke-width="1"/>
+    <text x="50" y="18" text-anchor="middle" fill="#b7ff00" font-family="system-ui, sans-serif" font-size="11" font-weight="600">Clean Arch</text>
+
+    <rect x="110" y="0" width="80" height="28" rx="6" fill="#241d4a" stroke="#8b82b0" stroke-width="1"/>
+    <text x="150" y="18" text-anchor="middle" fill="#8b82b0" font-family="system-ui, sans-serif" font-size="11" font-weight="600">BLoC</text>
+
+    <rect x="200" y="0" width="60" height="28" rx="6" fill="#241d4a" stroke="#b7ff00" stroke-width="1"/>
+    <text x="230" y="18" text-anchor="middle" fill="#b7ff00" font-family="system-ui, sans-serif" font-size="11" font-weight="600">Dio</text>
+
+    <rect x="270" y="0" width="60" height="28" rx="6" fill="#241d4a" stroke="#8b82b0" stroke-width="1"/>
+    <text x="300" y="18" text-anchor="middle" fill="#8b82b0" font-family="system-ui, sans-serif" font-size="11" font-weight="600">Hive</text>
+
+    <rect x="340" y="0" width="85" height="28" rx="6" fill="#241d4a" stroke="#b7ff00" stroke-width="1"/>
+    <text x="382" y="18" text-anchor="middle" fill="#b7ff00" font-family="system-ui, sans-serif" font-size="11" font-weight="600">GoRouter</text>
+
+    <rect x="435" y="0" width="85" height="28" rx="6" fill="#241d4a" stroke="#8b82b0" stroke-width="1"/>
+    <text x="477" y="18" text-anchor="middle" fill="#8b82b0" font-family="system-ui, sans-serif" font-size="11" font-weight="600">Firebase</text>
+  </g>
+
+  <!-- Divider -->
+  <line x1="370" y1="215" x2="850" y2="215" stroke="#352e5c" stroke-width="1"/>
+
+  <!-- Bottom tagline -->
+  <text x="370" y="245" fill="#6b6190" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="400">Scaffold complete Flutter projects with architecture, flavors, and 30+ widgets in seconds</text>
+</svg>

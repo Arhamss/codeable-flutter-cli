@@ -1,4 +1,8 @@
 <p align="center">
+  <img src="assets/banner.svg" alt="Codeable Flutter CLI" width="900" />
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/FLUTTER-CLI-b7ff00?style=for-the-badge&labelColor=0e0926" alt="Flutter CLI" />
   <img src="https://img.shields.io/badge/DART-352e5c?style=for-the-badge&labelColor=0e0926&logo=dart&logoColor=b7ff00" alt="Dart" />
   <img src="https://img.shields.io/badge/FLUTTER-352e5c?style=for-the-badge&labelColor=0e0926&logo=flutter&logoColor=b7ff00" alt="Flutter" />
