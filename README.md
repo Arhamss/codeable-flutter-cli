@@ -29,6 +29,8 @@ Starting a new Flutter project means hours of boilerplate — setting up archite
 | Architecture | Clean Architecture (feature-first) |
 | State Management | BLoC/Cubit with DataState |
 | Networking | Dio with auth, logging, Chucker interceptors |
+| WebSocket | Auto-reconnect, auth handshake, room management via `SocketService` |
+| Logging | Pretty-printed color-coded console logger with emoji level indicators |
 | Storage | Hive-based local storage |
 | Navigation | GoRouter with named routes |
 | UI Components | 30+ production-ready widgets |
@@ -79,7 +81,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.21
+dart pub global activate codeable_cli 1.0.23
 ```
 
 ### Or run without activating
@@ -210,6 +212,7 @@ my_app/
 │   │   ├── models/                 # API response & auth models
 │   │   ├── notifications/          # Firebase & local notifications
 │   │   ├── permissions/            # Permission manager
+│   │   ├── socket_service/         # WebSocket manager (auto-reconnect, auth, rooms)
 │   │   └── field_validators.dart   # Form validation (email, phone, etc.)
 │   ├── features/
 │   │   └── onboarding/             # Sample feature (login screen)
@@ -484,6 +487,34 @@ Pre-configured Dio client with:
 - **Chucker interceptor** — in-app network inspector (development only)
 - **60s timeout** with centralized error handling via `AppApiException`
 
+### WebSocket
+
+Pre-configured `SocketService` in `lib/core/socket_service/` with:
+- **Auto-reconnect** — 3-second backoff on connection loss
+- **Token auth** — sends auth token automatically on connect
+- **Room management** — join/leave rooms with event-based messaging
+- **Broadcast stream** — `socketService.messages` exposes parsed JSON events
+- **Per-flavor URL** — configured via `ApiEnvironment.socketUrl`
+
+```dart
+final socket = Injector.resolve<SocketService>();
+await socket.connect('room-id');
+socket.messages.listen((msg) => print(msg));
+```
+
+### Logging
+
+Pretty-printed `AppLogger` with:
+- Emoji level indicators (TRACE, DEBUG, INFO, WARN, ERROR, FATAL)
+- ANSI color codes and timestamps (`HH:MM:SS.MMM`)
+- Tree-style stack traces (max 6 frames)
+- Automatic filtering: debug in dev, silent in release
+
+```dart
+AppLogger.info('User logged in');
+AppLogger.error('Failed to fetch', error, stackTrace);
+```
+
 ### Dependency Injection
 
 GetIt-based via `Injector` wrapper:
@@ -622,7 +653,7 @@ The plugin is automatically configured in every generated project. When you open
 
 | Component | Count | Highlights |
 |-----------|-------|------------|
-| **Skills** | 13 | Architecture, BLoC, Dio, GoRouter, Hive, Firebase, testing, security patterns |
+| **Skills** | 14 | Architecture, BLoC, Dio, WebSocket, GoRouter, Hive, Firebase, testing, security patterns |
 | **Commands** | 38 | `/feature`, `/add-api`, `/localize`, `/add-auth-flow`, `/add-pagination`, `/generate-tests`, `/add-firebase-config`, and more |
 | **Agents** | 9 | Code reviewer, test writer, security auditor, performance analyzer, API migrator |
 | **Hooks** | 2 | Auto-lint on edit, analysis summary on stop |

@@ -1,5 +1,41 @@
 # Changelog
 
+## 1.0.23
+
+### Error Handling
+- Network errors (no WiFi, DNS failure, timeout) now show user-friendly messages instead of raw Dio/SocketException text
+- `ApiService._handleDioError()` maps `DioExceptionType` to clean messages (connection timeout, no internet, cancelled)
+- Backend error messages pass through unchanged — only system-level errors are sanitized
+- Repository pattern enforced: only catch `AppApiException`, no generic `catch (e)` blocks
+- Cubits no longer have try-catch — error handling belongs exclusively in the repository layer
+
+### Resilient List Parsing
+- List parsing in `fromJson` now uses safe pattern: `whereType<Map<String, dynamic>>()` + per-item try/catch
+- If 1 item in a list of 100 has bad data, the other 99 parse successfully — no more full-list crashes
+- Updated `ResponseDataParser`, AI config templates, and all model generation instructions
+
+### Claude Plugin
+- Updated error-handling and dio-patterns skills with new patterns
+- Updated add-api, add-model, add-pagination, and add-cache commands with safe list parsing
+
+## 1.0.22
+
+### WebSocket Support
+- Added `SocketService` with auto-reconnect, token-based auth, room join/leave, and typed broadcast streams (`lib/core/socket_service/`)
+- Added `SocketStatus` enum (`disconnected`, `connecting`, `connected`, `reconnecting`, `error`)
+- `SocketService` auto-registered as singleton in DI via `AppModule._setupSocketService()`
+- Added `socketUrl` field to `ApiEnvironment` — per-flavor WebSocket URLs configured out of the box
+- Added `web_socket_channel: ^3.0.3` to generated pubspec dependencies
+
+### Logger Upgrade
+- Replaced basic `PrettyPrinter` with custom `_AppLogPrinter` — emoji level indicators, ANSI color codes, timestamps, and tree-style stack traces
+- Log levels: TRACE, DEBUG, INFO, WARN, ERROR, FATAL with distinct colors
+- Automatic filtering: `DevelopmentFilter` in debug, `ProductionFilter` in release
+
+### AI Config
+- CLAUDE.md and .cursorrules now document WebSocket and logging patterns
+- Added `websocket-patterns` skill to [Codeable Claude Plugin](https://github.com/gocodeable/codeable-flutter-cli-claude-plugin)
+
 ## 1.0.21
 
 ### Branding

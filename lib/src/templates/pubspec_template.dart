@@ -21,6 +21,7 @@ dependencies:
   # Networking
   dio: ^5.9.1
   http: ^1.6.0
+  web_socket_channel: ^3.0.3
 
   # Local Storage
   hive_ce: ^2.19.3

@@ -117,6 +117,22 @@ features/<feature_name>/
 - `FieldValidators` class with static methods
 - Common validators: `emailValidator`, `passwordValidator`, `phoneValidator`, `nameValidator`
 
+### WebSocket (lib/core/socket_service/)
+- `SocketService` — centralized WebSocket connection manager with auto-reconnect
+- `SocketStatus` enum: `disconnected`, `connecting`, `connected`, `reconnecting`, `error`
+- Registered as singleton in DI via `AppModule._setupSocketService()`
+- Uses `web_socket_channel` package; URL configured per-flavor in `ApiEnvironment.socketUrl`
+- Auth token sent automatically on connect; supports room join/leave events
+- Exposes `Stream<Map<String, dynamic>> messages` broadcast stream for consumers
+- Connect: `Injector.resolve<SocketService>().connect('roomId')`
+- Disconnect on logout: call `.reset()` to tear down and clear room state
+
+### Logging (lib/utils/helpers/logger_helper.dart)
+- `AppLogger` — pretty-printed, color-coded console logger with emoji level indicators
+- Levels: `info`, `debug`, `warning`, `error`, `verbose`
+- Custom `_AppLogPrinter` with ANSI colors, timestamps, tree-style stack traces
+- Automatically filtered: `DevelopmentFilter` in debug, `ProductionFilter` in release
+
 ## Core Widgets (lib/utils/widgets/core_widgets/)
 Reusable components available through `exports.dart`:
 - `CustomAppBar` - App bar with back button, title, actions
@@ -236,6 +252,12 @@ Prefer using existing core widgets from `lib/utils/widgets/core_widgets/`:
 ### DI Registration
 - Register new singletons/factories in `lib/core/di/modules/app_modules.dart`
 - Use `Injector.resolve<Type>()` to resolve
+
+### WebSocket
+- `SocketService` in `lib/core/socket_service/` — auto-reconnect, auth, room management
+- Resolve via `Injector.resolve<SocketService>()`
+- Socket URL per-flavor in `ApiEnvironment.socketUrl`
+- Use `AppLogger` for all socket-related logging
 
 ## Code Style
 - Follow `very_good_analysis` lint rules
@@ -745,7 +767,7 @@ class ProfileModel extends Equatable {
 
 ### Step 3: Handle Nested Models
 - If a field references another model, import it properly.
-- For `List<T>` fields in fromJson, use: `(json['items'] as List<dynamic>?)?.map((e) => ItemModel.fromJson(e as Map<String, dynamic>)).toList()`
+- For `List<T>` fields in fromJson, use safe parsing that skips malformed items: `(json['items'] as List<dynamic>?)?.whereType<Map<String, dynamic>>().map((e) { try { return ItemModel.fromJson(e); } catch (_) { return null; } }).whereType<ItemModel>().toList() ?? []`
 - For DateTime fields: `json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null`
 - For DateTime toJson: `'created_at': createdAt?.toIso8601String()`
 

@@ -39,27 +39,32 @@ import 'package:{{project_name}}/config/flavor_config.dart';
 enum ApiEnvironment {
   production(
     baseUrl: 'https://api.example.com/api',
+    socketUrl: 'wss://api.example.com/ws',
     apiVersion: 'v1',
     serverClientId: 'YOUR_SERVER_CLIENT_ID',
   ),
   staging(
     baseUrl: 'https://staging-api.example.com/api',
+    socketUrl: 'wss://staging-api.example.com/ws',
     apiVersion: 'v1',
     serverClientId: 'YOUR_SERVER_CLIENT_ID',
   ),
   development(
     baseUrl: 'https://dev-api.example.com/api',
+    socketUrl: 'wss://dev-api.example.com/ws',
     apiVersion: 'v1',
     serverClientId: 'YOUR_SERVER_CLIENT_ID',
   );
 
   const ApiEnvironment({
     required this.baseUrl,
+    required this.socketUrl,
     required this.apiVersion,
     required this.serverClientId,
   });
 
   final String baseUrl;
+  final String socketUrl;
   final String apiVersion;
   final String serverClientId;
 

@@ -140,6 +140,7 @@ class ProjectGenerator {
       'lib/core/di/modules',
       'lib/core/endpoints',
       'lib/core/enums',
+      'lib/core/socket_service',
       'lib/core/locale/cubit',
       'lib/core/models/api_response',
       'lib/core/models/auth',
@@ -307,6 +308,13 @@ class ProjectGenerator {
         permissionMessagesTemplate,
         vars,
       ),
+
+      // Core - Socket Service
+      'lib/core/socket_service/socket_service.dart': render(
+        socketServiceTemplate,
+        vars,
+      ),
+      'lib/core/socket_service/socket_status.dart': socketStatusTemplate,
 
       // Core - Notifications
       'lib/core/notifications/firebase_notifications.dart': render(

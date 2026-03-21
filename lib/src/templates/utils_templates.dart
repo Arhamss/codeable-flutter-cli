@@ -224,40 +224,92 @@ class RepositoryResponse<T> {
 }
 ''';
 
-const loggerHelperTemplate = '''
+const loggerHelperTemplate = r"""
+import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 
+class _AppLogPrinter extends LogPrinter {
+  static const _levelConfig = {
+    Level.trace: ('🔍', 'TRACE', '\x1B[37m'),   // gray
+    Level.debug: ('🐛', 'DEBUG', '\x1B[36m'),   // cyan
+    Level.info: ('💡', 'INFO ', '\x1B[32m'),     // green
+    Level.warning: ('⚠️', 'WARN ', '\x1B[33m'), // yellow
+    Level.error: ('❌', 'ERROR', '\x1B[31m'),    // red
+    Level.fatal: ('🔥', 'FATAL', '\x1B[35m'),   // magenta
+  };
+
+  static const _reset = '\x1B[0m';
+  static const _dim = '\x1B[2m';
+  static const _bold = '\x1B[1m';
+
+  String _timestamp() {
+    final now = DateTime.now();
+    final h = now.hour.toString().padLeft(2, '0');
+    final m = now.minute.toString().padLeft(2, '0');
+    final s = now.second.toString().padLeft(2, '0');
+    final ms = now.millisecond.toString().padLeft(3, '0');
+    return '$h:$m:$s.$ms';
+  }
+
+  @override
+  List<String> log(LogEvent event) {
+    final config = _levelConfig[event.level];
+    if (config == null) return [];
+
+    final (icon, label, color) = config;
+    final time = _timestamp();
+    final lines = <String>[];
+
+    // Main log line: icon [LABEL] timestamp | message
+    lines.add(
+      '$color$icon $_bold[$label]$_reset $_dim$time$_reset $color│$_reset ${event.message}',
+    );
+
+    // Error details indented under the main line
+    if (event.error != null) {
+      lines.add('$color  ╰─ ${event.error}$_reset');
+    }
+
+    // Stack trace — compact, max 6 frames
+    if (event.stackTrace != null) {
+      final frames = event.stackTrace
+          .toString()
+          .split('\n')
+          .where((l) => l.trim().isNotEmpty)
+          .take(6)
+          .toList();
+
+      for (var i = 0; i < frames.length; i++) {
+        final connector = i == frames.length - 1 ? '╰─' : '├─';
+        lines.add('$_dim  $connector ${frames[i].trim()}$_reset');
+      }
+    }
+
+    return lines;
+  }
+}
+
 class AppLogger {
+  AppLogger._();
+
   static final Logger _logger = Logger(
-    printer: PrettyPrinter(
-      lineLength: 5000,
-      colors: false,
-      methodCount: 0,
-      errorMethodCount: 20,
-    ),
+    printer: _AppLogPrinter(),
+    filter: kReleaseMode ? ProductionFilter() : DevelopmentFilter(),
   );
 
-  static void info(String message) {
-    _logger.i(message);
-  }
+  static void info(String message) => _logger.i(message);
 
   static void error(String message, [dynamic error, StackTrace? stackTrace]) {
     _logger.e(message, error: error, stackTrace: stackTrace);
   }
 
-  static void debug(String message) {
-    _logger.d(message);
-  }
+  static void debug(String message) => _logger.d(message);
 
-  static void warning(String message) {
-    _logger.w(message);
-  }
+  static void warning(String message) => _logger.w(message);
 
-  static void verbose(String message) {
-    _logger.t(message);
-  }
+  static void verbose(String message) => _logger.t(message);
 }
-''';
+""";
 
 const toastHelperTemplate = '''
 import 'package:toastification/toastification.dart';
@@ -653,7 +705,15 @@ class ApiResponseParser {
       final responseData = data['data'];
       if (responseData is List) {
         return responseData
-            .map((e) => fromJson(e as Map<String, dynamic>))
+            .whereType<Map<String, dynamic>>()
+            .map((e) {
+              try {
+                return fromJson(e);
+              } catch (_) {
+                return null;
+              }
+            })
+            .whereType<T>()
             .toList();
       }
     }
