@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.0.25
+
+### Centralized `execute()` Error Handling
+- Added `execute()` helper function to `RepositoryResponse` template for unified error handling in repositories
+- Repository implementation templates now use `execute()` pattern — no manual try-catch needed
+- Callbacks return `T` directly; `execute()` wraps the result in `RepositoryResponse<T>`
+- `execute()` catches `AppApiException` for expected errors and logs unexpected errors via `AppLogger`
+
+### ApiService Logging
+- Replaced `debugPrint` with `AppLogger.error` in `ApiService._handleRequest` and `_handleDioError`
+- Removed `flutter/material.dart` import from ApiService (was only needed for `debugPrint`)
+- Added `logger_helper.dart` import to ApiService template
+
+### AI Config
+- Updated CLAUDE.md and .cursorrules templates with `execute()` pattern documentation
+
 ## 1.0.23
 
 ### Error Handling

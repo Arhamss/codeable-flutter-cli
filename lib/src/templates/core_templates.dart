@@ -1,8 +1,8 @@
 const apiServiceTemplate = '''
 import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:{{project_name}}/config/flavor_config.dart';
+import 'package:{{project_name}}/utils/helpers/logger_helper.dart';
 import 'package:{{project_name}}/core/api_service/app_api_exception.dart';
 import 'package:{{project_name}}/core/api_service/authentication_interceptor.dart';
 import 'package:{{project_name}}/core/api_service/log_interceptor.dart';
@@ -89,8 +89,8 @@ class ApiService {
       return await request();
     } on DioException catch (e) {
       throw _handleDioError(e);
-    } catch (e) {
-      debugPrint('Unhandled error: \$e');
+    } catch (e, s) {
+      AppLogger.error('Unhandled API error', e, s);
       throw AppApiException('Unexpected error occurred');
     }
   }
@@ -141,7 +141,7 @@ class ApiService {
       }
     }
 
-    debugPrint('API Error: \$errorMessage');
+    AppLogger.error('API Error: \$errorMessage');
     throw AppApiException(errorMessage, statusCode: statusCode);
   }
 }

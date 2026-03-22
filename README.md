@@ -81,7 +81,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.23
+dart pub global activate codeable_cli 1.0.25
 ```
 
 ### Or run without activating
@@ -486,6 +486,23 @@ Pre-configured Dio client with:
 - **Log interceptor** — request/response logging for development
 - **Chucker interceptor** — in-app network inspector (development only)
 - **60s timeout** with centralized error handling via `AppApiException`
+- **Error logging** via `AppLogger.error` (not `debugPrint`)
+
+### Repository Error Handling
+
+All repository methods use the `execute()` helper from `repository_response.dart` for centralized error handling:
+
+```dart
+Future<RepositoryResponse<ProfileModel>> getProfile() => execute(() async {
+  final response = await _apiService.get('profile');
+  return ProfileModel.fromJson(response.data['data']);
+});
+```
+
+- Callbacks return `T` directly — `execute()` wraps the result in `RepositoryResponse<T>`
+- `AppApiException` is caught automatically and mapped to `RepositoryResponse(isSuccess: false)`
+- Unexpected errors are logged via `AppLogger` with stack trace
+- No manual try-catch needed in repository methods or cubits
 
 ### WebSocket
 

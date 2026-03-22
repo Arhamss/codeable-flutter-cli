@@ -211,6 +211,9 @@ class APIState<T> extends Equatable {
 ''';
 
 const repositoryResponseTemplate = '''
+import 'package:{{project_name}}/core/api_service/app_api_exception.dart';
+import 'package:{{project_name}}/utils/helpers/logger_helper.dart';
+
 class RepositoryResponse<T> {
   RepositoryResponse({
     required this.isSuccess,
@@ -221,6 +224,23 @@ class RepositoryResponse<T> {
   final bool isSuccess;
   final T? data;
   final String? message;
+}
+
+Future<RepositoryResponse<T>> execute<T>(
+  Future<T> Function() action,
+) async {
+  try {
+    final data = await action();
+    return RepositoryResponse(isSuccess: true, data: data);
+  } on AppApiException catch (e) {
+    return RepositoryResponse(isSuccess: false, message: e.message);
+  } catch (e, s) {
+    AppLogger.error('Unexpected error', e, s);
+    return RepositoryResponse(
+      isSuccess: false,
+      message: 'Something went wrong',
+    );
+  }
 }
 ''';
 

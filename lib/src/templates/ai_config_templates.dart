@@ -178,11 +178,12 @@ Reusable components available through `exports.dart`:
 - Extract complex listener logic into named methods
 
 ### Repository Error Handling
-- Catch **only** `on AppApiException catch (e, s)` — no generic `catch (e)`
-- Use `e.message` directly — no `extractApiErrorMessage`, no `e.toString()`
-- Always include stack trace: `AppLogger.error('descriptive message', e, s)`
-- No `response.statusCode == 200` checks — ApiService throws on non-2xx
+- Use `execute()` from `repository_response.dart` for all repository methods — no manual try-catch
+- Callbacks passed to `execute()` return `T` directly, not `RepositoryResponse<T>`
+- Void operations use `execute<void>(() async { ... })` — no return needed inside the callback
+- Business-level failures throw `AppApiException` inside the callback
 - No try-catch in cubits — error handling belongs in repositories
+- No `response.statusCode == 200` checks — ApiService throws on non-2xx
 
 ### Models
 - **One model per file** — never put multiple model classes in a single file
@@ -357,8 +358,10 @@ Prefer using existing core widgets from `lib/utils/widgets/core_widgets/`:
 - **View files should not exceed ~1000 lines** — refactor if they do
 - **Always use `buildWhen`/`listenWhen`** on BlocBuilder/BlocListener
 - **If `listenWhen` checks 5+ variables, split the listener** — use separate focused listeners
-- **Catch only `on AppApiException catch (e, s)`** in repositories — no generic catch
-- **Include stack trace** in error logging: `AppLogger.error('message', e, s)`
+- **Use `execute()` from `repository_response.dart`** for all repository methods — no manual try-catch
+- **Callbacks return `T` directly** — `execute()` wraps the result in `RepositoryResponse<T>`
+- **Void operations**: `execute<void>(() async { ... })` — no return needed inside callback
+- **Business-level failures** throw `AppApiException` inside the callback
 - **No try-catch in cubits** — error handling belongs in repositories
 - **Use `Future.wait`** for independent async calls
 - **One model per file** — never put multiple model classes in a single file

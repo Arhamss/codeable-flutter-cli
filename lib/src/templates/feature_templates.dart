@@ -15,19 +15,14 @@ abstract class {{FeatureName}}Repository {
 
 const featureRepositoryImplTemplate = '''
 import 'package:{{project_name}}/core/api_service/api_service.dart';
-import 'package:{{project_name}}/core/app_preferences/app_preferences.dart';
-import 'package:{{project_name}}/core/di/injector.dart';
 import 'package:{{project_name}}/features/{{feature_path}}/domain/repository/{{feature_name}}_repository.dart';
+import 'package:{{project_name}}/utils/helpers/repository_response.dart';
 
 class {{FeatureName}}RepositoryImpl implements {{FeatureName}}Repository {
-  {{FeatureName}}RepositoryImpl({ApiService? apiService, AppPreferences? cache})
-    : _apiService = apiService ?? Injector.resolve<ApiService>(),
-      _cache = cache ?? Injector.resolve<AppPreferences>();
+  {{FeatureName}}RepositoryImpl({ApiService? apiService})
+    : _apiService = apiService ?? ApiService();
 
   final ApiService _apiService;
-  final AppPreferences _cache;
-
-  // TODO: Implement repository methods
 }
 ''';
 
@@ -144,21 +139,14 @@ abstract class OnboardingRepository {
 
 const onboardingRepositoryImplTemplate = '''
 import 'package:{{project_name}}/core/api_service/api_service.dart';
-import 'package:{{project_name}}/core/app_preferences/app_preferences.dart';
-import 'package:{{project_name}}/core/di/injector.dart';
 import 'package:{{project_name}}/features/onboarding/domain/repository/onboarding_repository.dart';
+import 'package:{{project_name}}/utils/helpers/repository_response.dart';
 
 class OnboardingRepositoryImpl implements OnboardingRepository {
-  OnboardingRepositoryImpl({
-    ApiService? apiService,
-    AppPreferences? cache,
-  })  : _apiService = apiService ?? Injector.resolve<ApiService>(),
-        _cache = cache ?? Injector.resolve<AppPreferences>();
+  OnboardingRepositoryImpl({ApiService? apiService})
+    : _apiService = apiService ?? ApiService();
 
   final ApiService _apiService;
-  final AppPreferences _cache;
-
-  // TODO: Implement repository methods
 }
 ''';
 
