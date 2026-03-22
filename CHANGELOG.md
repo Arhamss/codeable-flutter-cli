@@ -16,6 +16,15 @@
 ### AI Config
 - Updated CLAUDE.md and .cursorrules templates with `execute()` pattern documentation
 
+### New Utility Helpers
+- Added `haptic_helper.dart` — semantic haptic feedback (success, error, tap, toggle, destructive)
+- Added `url_helper.dart` — launch maps with coordinates (iOS/Android), launch websites
+- Added `responsive_helper.dart` — device type detection, responsive values, font/padding/spacing scaling, context extensions
+- Added `image_conversion_helper.dart` — convert XFile images to base64 data URIs
+- Added `phone_number_parser.dart` — parse international phone numbers into country code + national number
+- Added `extract_file_from_url_helper.dart` — extract filename from URL
+- Added `price_formatter.dart` — format price (strips .00, keeps decimals otherwise)
+
 ## 1.0.23
 
 ### Error Handling

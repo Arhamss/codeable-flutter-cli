@@ -680,6 +680,311 @@ class LayoutHelper {
 }
 ''';
 
+const hapticHelperTemplate = '''
+import 'package:flutter/services.dart';
+
+class AppHaptics {
+  static void success() => HapticFeedback.mediumImpact();
+
+  static void error() => HapticFeedback.heavyImpact();
+
+  static void tap() => HapticFeedback.lightImpact();
+
+  static void toggle() => HapticFeedback.selectionClick();
+
+  static void destructive() => HapticFeedback.heavyImpact();
+}
+''';
+
+const urlHelperTemplate = r"""
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+class UrlHelper {
+  static Future<void> launchMapsWithCoordinates({
+    required double latitude,
+    required double longitude,
+    String? label,
+  }) async {
+    try {
+      final encodedLabel = label != null ? Uri.encodeComponent(label) : '';
+      Uri uri;
+
+      if (Platform.isIOS) {
+        uri = Uri.parse(
+          'maps://?daddr=$latitude,$longitude${label != null ? '&q=$encodedLabel' : ''}',
+        );
+      } else {
+        uri = Uri.parse(
+          'geo:$latitude,$longitude?q=$latitude,$longitude${label != null ? '($encodedLabel)' : ''}',
+        );
+      }
+
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        final webUri = Uri.parse(
+          'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude',
+        );
+        if (await canLaunchUrl(webUri)) {
+          await launchUrl(webUri, mode: LaunchMode.externalApplication);
+        } else {
+          debugPrint('Could not launch maps');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error launching maps: $e');
+    }
+  }
+
+  static Future<void> launchWebsite(String urlString) async {
+    try {
+      if (!urlString.startsWith('http://') &&
+          !urlString.startsWith('https://')) {
+        urlString = 'https://$urlString';
+      }
+
+      final uri = Uri.parse(urlString);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        debugPrint('Could not launch $urlString');
+      }
+    } catch (e) {
+      debugPrint('Error launching URL: $e');
+    }
+  }
+}
+""";
+
+const responsiveHelperTemplate = r"""
+import 'package:flutter/material.dart';
+
+class ResponsiveHelper {
+  ResponsiveHelper._();
+
+  static const double smallMobileBreakpoint = 380;
+  static const double mobileBreakpoint = 600;
+
+  static double screenWidth(BuildContext context) {
+    return MediaQuery.of(context).size.width;
+  }
+
+  static double screenHeight(BuildContext context) {
+    return MediaQuery.of(context).size.height;
+  }
+
+  static bool isSmallMobile(BuildContext context) {
+    return screenWidth(context) < smallMobileBreakpoint;
+  }
+
+  static bool isMobile(BuildContext context) {
+    return screenWidth(context) < mobileBreakpoint;
+  }
+
+  static bool isTablet(BuildContext context) {
+    return screenWidth(context) >= mobileBreakpoint;
+  }
+
+  static bool isLandscape(BuildContext context) {
+    return MediaQuery.of(context).orientation == Orientation.landscape;
+  }
+
+  static bool isPortrait(BuildContext context) {
+    return MediaQuery.of(context).orientation == Orientation.portrait;
+  }
+
+  static DeviceType getDeviceType(BuildContext context) {
+    if (isSmallMobile(context)) return DeviceType.smallMobile;
+    if (isMobile(context)) return DeviceType.mobile;
+    return DeviceType.tablet;
+  }
+
+  static T responsive<T>(
+    BuildContext context, {
+    required T mobile,
+    T? tablet,
+    T? smallMobile,
+  }) {
+    if (isTablet(context)) return tablet ?? mobile;
+    if (isSmallMobile(context)) return smallMobile ?? mobile;
+    return mobile;
+  }
+
+  static double fontSize(
+    BuildContext context, {
+    required double mobile,
+    double? tablet,
+    double? smallMobile,
+  }) {
+    return responsive<double>(
+      context,
+      mobile: mobile,
+      tablet: tablet ?? mobile * 1.1,
+      smallMobile: smallMobile ?? mobile * 0.9,
+    );
+  }
+
+  static EdgeInsets padding(
+    BuildContext context, {
+    required EdgeInsets mobile,
+    EdgeInsets? tablet,
+    EdgeInsets? smallMobile,
+  }) {
+    return responsive<EdgeInsets>(
+      context,
+      mobile: mobile,
+      tablet: tablet ?? mobile * 1.2,
+      smallMobile: smallMobile ?? mobile * 0.8,
+    );
+  }
+
+  static double widthPercent(BuildContext context, double percent) {
+    return screenWidth(context) * (percent / 100);
+  }
+
+  static double heightPercent(BuildContext context, double percent) {
+    return screenHeight(context) * (percent / 100);
+  }
+
+  static double responsiveSize(BuildContext context, double baseSize) {
+    final shortestSide = MediaQuery.of(context).size.shortestSide;
+    final scaleFactor = shortestSide / 375;
+    return baseSize * scaleFactor;
+  }
+
+  static int getGridColumnCount(
+    BuildContext context, {
+    int mobile = 2,
+    int tablet = 3,
+    int smallMobile = 1,
+  }) {
+    return responsive<int>(
+      context,
+      mobile: mobile,
+      tablet: tablet,
+      smallMobile: smallMobile,
+    );
+  }
+}
+
+enum DeviceType { smallMobile, mobile, tablet }
+
+extension ResponsiveExtension on BuildContext {
+  bool get isSmallMobile => ResponsiveHelper.isSmallMobile(this);
+  bool get isMobile => ResponsiveHelper.isMobile(this);
+  bool get isTablet => ResponsiveHelper.isTablet(this);
+  DeviceType get deviceType => ResponsiveHelper.getDeviceType(this);
+  double get screenWidth => ResponsiveHelper.screenWidth(this);
+  double get screenHeight => ResponsiveHelper.screenHeight(this);
+  bool get isLandscape => ResponsiveHelper.isLandscape(this);
+  bool get isPortrait => ResponsiveHelper.isPortrait(this);
+}
+""";
+
+const imageConversionHelperTemplate = r"""
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:image_picker/image_picker.dart';
+
+class ImageConversionHelper {
+  const ImageConversionHelper._();
+
+  static Future<List<String>> convertToBase64(List<XFile> images) async {
+    final result = <String>[];
+    for (final image in images) {
+      final bytes = await File(image.path).readAsBytes();
+      final base64 = base64Encode(bytes);
+      final ext = image.path.toLowerCase().split('.').last;
+      final mimeType = ext == 'png' ? 'image/png' : 'image/jpeg';
+      result.add('data:$mimeType;base64,$base64');
+    }
+    return result;
+  }
+}
+""";
+
+const phoneNumberParserTemplate = '''
+class PhoneNumberParser {
+  static Map<String, String> parsePhoneNumber(String phoneNumber) {
+    try {
+      final cleanNumber = phoneNumber.replaceAll(RegExp(r'[^\\d+]'), '');
+
+      if (cleanNumber.startsWith('+')) {
+        for (var i = 2; i <= 5; i++) {
+          if (i <= cleanNumber.length) {
+            final potentialCountryCode = cleanNumber.substring(1, i);
+            final remainingNumber = cleanNumber.substring(i);
+
+            if (_isValidCountryCode(potentialCountryCode) &&
+                remainingNumber.isNotEmpty) {
+              return {
+                'countryCode': potentialCountryCode,
+                'nationalNumber': remainingNumber,
+              };
+            }
+          }
+        }
+      }
+
+      if (cleanNumber.length >= 10) {
+        return {
+          'countryCode': '1',
+          'nationalNumber': cleanNumber,
+        };
+      }
+
+      return {
+        'countryCode': '',
+        'nationalNumber': cleanNumber,
+      };
+    } catch (e) {
+      return {
+        'countryCode': '',
+        'nationalNumber': phoneNumber,
+      };
+    }
+  }
+
+  static bool _isValidCountryCode(String code) {
+    const validCodes = [
+      '1', '7', '20', '27', '30', '31', '32', '33', '34', '36', '39',
+      '40', '41', '43', '44', '45', '46', '47', '48', '49', '51', '52',
+      '53', '54', '55', '56', '57', '58', '60', '61', '62', '63', '64',
+      '65', '66', '81', '82', '84', '86', '90', '91', '92', '93', '94',
+      '95', '98', '212', '213', '216', '218', '234', '351', '353', '358',
+      '370', '371', '372', '380', '420', '421', '852', '853', '855',
+      '856', '880', '886', '960', '961', '962', '963', '964', '965',
+      '966', '967', '968', '971', '972', '973', '974', '975', '976',
+      '977', '992', '993', '994', '995', '996', '998',
+    ];
+    return validCodes.contains(code);
+  }
+}
+''';
+
+const extractFileFromUrlHelperTemplate = '''
+String getFileNameFromUrl(String? url) {
+  if (url == null || url.isEmpty) return '';
+  try {
+    return Uri.parse(url).pathSegments.last;
+  } catch (_) {
+    return url.split('/').last;
+  }
+}
+''';
+
+const priceFormatterTemplate = '''
+String formatPrice(double price) {
+  if (price == price.toInt()) {
+    return price.toInt().toString();
+  }
+  return price.toStringAsFixed(2);
+}
+''';
+
 // ==================== RESPONSE MODELS ====================
 
 const responseDataModelTemplate = '''

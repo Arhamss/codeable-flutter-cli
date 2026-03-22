@@ -393,6 +393,31 @@ class ProjectGenerator {
         layoutHelperTemplate,
         vars,
       ),
+      'lib/utils/helpers/haptic_helper.dart': render(
+        hapticHelperTemplate,
+        vars,
+      ),
+      'lib/utils/helpers/url_helper.dart': render(urlHelperTemplate, vars),
+      'lib/utils/helpers/responsive_helper.dart': render(
+        responsiveHelperTemplate,
+        vars,
+      ),
+      'lib/utils/helpers/image_conversion_helper.dart': render(
+        imageConversionHelperTemplate,
+        vars,
+      ),
+      'lib/utils/helpers/phone_number_parser.dart': render(
+        phoneNumberParserTemplate,
+        vars,
+      ),
+      'lib/utils/helpers/extract_file_from_url_helper.dart': render(
+        extractFileFromUrlHelperTemplate,
+        vars,
+      ),
+      'lib/utils/helpers/price_formatter.dart': render(
+        priceFormatterTemplate,
+        vars,
+      ),
 
       // Utils - Response model
       'lib/utils/response_data_model/response_data_model.dart': render(
