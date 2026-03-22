@@ -148,6 +148,62 @@ Reusable components available through `exports.dart`:
 - `CustomBottomSheet` - Bottom sheet wrapper
 - `PaginatedListView` / `PaginatedGridView` - Paginated scrollable lists
 
+## Coding Standards & Quality Rules
+
+### Code Cleanliness
+- **Delete unused code** — Remove unused imports, variables, methods, classes, widgets, models, and files. No dead code in the codebase.
+- **No commented-out code** — If code is removed, delete it entirely. Git history preserves it if needed. No commented-out files either.
+- **No useless comments** — Don't restate what the code does. No doc comments on self-explanatory methods. No `// Section` separators. Only comment where the "why" isn't obvious.
+- **Resolve all analyzer hints** — Do not suppress with `// ignore:` unless absolutely necessary. Fix the underlying issue. Run `dart analyze` and ensure zero issues.
+
+### View Rules
+- Views should be **very clean** — no business logic, no data transformations
+- **No `_buildXyz()` methods** — extract into separate `StatelessWidget` files in `widgets/`
+- **No `setState()`** — use Cubit state management exclusively
+- Dispose all controllers (`TextEditingController`, `ScrollController`, `FocusNode`, etc.) in `dispose()`
+- Cache cubit references in local variables when using multiple cubits
+
+### Widget Rules
+- Each extracted widget in its **own `.dart` file** as a `StatelessWidget`
+- Widget files go in `feature/presentation/widgets/`
+- No business logic in widgets — only UI rendering
+
+### BlocBuilder / BlocListener
+- **Always use `buildWhen`** on `BlocBuilder` to limit rebuilds
+- **Always use `listenWhen`** on `BlocListener` to limit side effects
+- Extract complex listener logic into named methods
+
+### Repository Error Handling
+- Catch **only** `on AppApiException catch (e, s)` — no generic `catch (e)`
+- Use `e.message` directly — no `extractApiErrorMessage`, no `e.toString()`
+- Always include stack trace: `AppLogger.error('descriptive message', e, s)`
+- No `response.statusCode == 200` checks — ApiService throws on non-2xx
+- No try-catch in cubits — error handling belongs in repositories
+
+### Models
+- Resilient parsing — `as Type? ?? defaultValue`, never crash on missing fields
+- List parsing must skip malformed items (map + whereType pattern)
+- No manual Hive adapters — use code generation with `build_runner`
+
+### Parallelization
+- Use `Future.wait` for independent async calls — never await sequentially
+
+### Custom Components
+- Use project dialog widget for all dialogs — never raw `AlertDialog`
+- Use project button widget — never raw `ElevatedButton` or `TextButton`
+- Use `ToastHelper` for messages, `AppLogger` for logging (no `print`/`debugPrint`)
+- Use `DateFormat` from `intl` + `DateTimeHelper` — never manual date string manipulation
+
+### Feature Extraction
+A concern gets its own feature folder when:
+- It has its own cubit/state and repository
+- It has its own screens/views
+- It would bloat the parent feature's cubit with unrelated state
+
+### Git Commits
+- **No `Co-Authored-By: Claude` or any AI co-author lines** in commit messages
+- Use conventional commit prefixes: `feat:`, `fix:`, `chore:`, `refactor:`, etc.
+
 ## Build Flavors
 - **development** (`main_development.dart`) - DevicePreview enabled
 - **production** (`main_production.dart`) - Production config
@@ -265,6 +321,23 @@ Prefer using existing core widgets from `lib/utils/widgets/core_widgets/`:
 - Use trailing commas for better formatting
 - Keep widgets small and composable
 - Extract reusable widgets to the feature's widgets folder
+
+## Coding Standards & Quality Rules
+- **No dead code** — delete unused imports, variables, methods, classes, widgets, models, files
+- **No commented-out code** — delete removed code entirely, git preserves history
+- **No useless comments** — no doc comments on self-explanatory methods, no section separators
+- **Resolve all analyzer hints** — never suppress with `// ignore:`, fix the issue
+- **No `setState()`** — use Cubit state management exclusively
+- **No `_buildXyz()` methods** — extract into separate StatelessWidget files
+- **Always use `buildWhen`/`listenWhen`** on BlocBuilder/BlocListener
+- **Catch only `on AppApiException catch (e, s)`** in repositories — no generic catch
+- **Include stack trace** in error logging: `AppLogger.error('message', e, s)`
+- **No try-catch in cubits** — error handling belongs in repositories
+- **Use `Future.wait`** for independent async calls
+- **Models parse resiliently** — `as Type? ?? default`, skip malformed list items
+- **No manual Hive adapters** — use code generation
+- **Use project custom components** — project dialog, button, appbar, ToastHelper
+- **No `Co-Authored-By` AI lines** in git commit messages
 
 ## File Structure for New Features
 When creating a new feature, create all required directories and files:
