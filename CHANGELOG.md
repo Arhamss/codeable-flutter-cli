@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.27
+
+### New Core Widgets
+- Added `FormBuilder` widget — drives button disabled state reactively from `TextEditingController` list using `ListenableBuilder` + `Listenable.merge` (no setState, no cubit needed for form validity)
+- Default validation: all fields non-empty. Custom validation via optional `validator` callback
+- Added `CustomOtpField` widget — single hidden TextField approach for zero keyboard flicker, auto-paste support, blinking cursor, configurable length/size/colors/haptics
+- Added `form_builder.dart` and `otp_input_field.dart` to core widgets export barrel
+
+### CustomTextField Fixes
+- Removed hidden `errorStyle` (`TextStyle(height: 0, fontSize: 0)`) that suppressed Flutter's native validation error messages
+- Removed custom `ValueListenableBuilder` error display below the field
+- Validation now uses Flutter's native `Form` + `TextFormField` system — error messages appear automatically when `_formKey.currentState!.validate()` is called
+
 ## 1.0.26
 
 ### Envied-Based Secret Management

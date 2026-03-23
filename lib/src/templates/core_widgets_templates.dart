@@ -1975,6 +1975,7 @@ export 'empty_state_widget.dart';
 export 'icon_button.dart';
 export 'image_picker.dart';
 export 'loading_widget.dart';
+export 'otp_input_field.dart';
 export 'outline_button.dart';
 export 'paginated_list_view.dart';
 export 'progress_dashes.dart';
@@ -1992,6 +1993,7 @@ export 'text_button.dart';
 export 'text_field.dart';
 export 'time_picker.dart';
 export 'section_title.dart';
+export 'form_builder.dart';
 ''';
 
 const String iconButtonTemplate = '''
@@ -5118,7 +5120,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   ),
                   errorBorder: _createErrorBorder(),
                   focusedErrorBorder: _createErrorBorder(),
-                  errorStyle: const TextStyle(height: 0, fontSize: 0),
+                  errorStyle: context.caption.copyWith(
+                    color: AppColors.error,
+                  ),
                   prefixIcon: _buildPrefixIcon(),
                   suffixIcon: _buildSuffixIcon() != null
                       ? GestureDetector(
@@ -5132,39 +5136,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
               );
             },
           ),
-          // Always reserve fixed space for error when field has validator so layout never shifts
-          if (widget.validator != null)
-            ValueListenableBuilder<TextEditingValue>(
-              valueListenable: widget.controller,
-              builder: (context, value, child) {
-                final validationError = widget.showValidation
-                    ? widget.validator!(value.text)
-                    : null;
-                final hasError = validationError != null && validationError.isNotEmpty;
-                const errorAreaHeight = 24.0;
-                // Allow enough height for 2 lines so long messages (e.g. postal code) don't clip
-                const errorAreaHeightWithError = 40.0;
-                return SizedBox(
-                  height: hasError ? errorAreaHeightWithError : errorAreaHeight,
-                  child: hasError
-                      ? Padding(
-                          padding: const EdgeInsetsDirectional.only(top: 6, start: 12, end: 12),
-                          child: Text(
-                            validationError,
-                            style: context.b3.copyWith(
-                              color: AppColors.error,
-                              fontSize: 13,
-                              height: 1.4,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.visible,
-                            softWrap: true,
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                );
-              },
-            ),
         ],
       ),
     );
@@ -5623,6 +5594,214 @@ class DateTimeHelper {
     }
 
     return age;
+  }
+}
+''';
+
+const String otpInputFieldTemplate = '''
+import 'package:{{project_name}}/exports.dart';
+
+class CustomOtpField extends StatefulWidget {
+  const CustomOtpField({
+    required this.controller,
+    super.key,
+    this.length = 6,
+    this.autofocus = true,
+    this.onCompleted,
+    this.fieldWidth = 48,
+    this.fieldHeight = 54,
+    this.borderRadius = 12,
+    this.fillColor,
+    this.focusedBorderColor,
+    this.errorBorderColor,
+    this.textStyle,
+    this.enableHaptics = false,
+  });
+
+  final TextEditingController controller;
+  final int length;
+  final bool autofocus;
+  final ValueChanged<String>? onCompleted;
+  final double fieldWidth;
+  final double fieldHeight;
+  final double borderRadius;
+  final Color? fillColor;
+  final Color? focusedBorderColor;
+  final Color? errorBorderColor;
+  final TextStyle? textStyle;
+  final bool enableHaptics;
+
+  @override
+  State<CustomOtpField> createState() => _CustomOtpFieldState();
+}
+
+class _CustomOtpFieldState extends State<CustomOtpField> {
+  late final TextEditingController _hiddenController;
+  final _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _hiddenController = TextEditingController();
+    _hiddenController.addListener(_onTextChanged);
+
+    if (widget.autofocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _focusNode.requestFocus();
+      });
+    }
+  }
+
+  void _onTextChanged() {
+    final text = _hiddenController.text;
+    widget.controller.text = text;
+    setState(() {});
+
+    if (widget.enableHaptics && text.isNotEmpty) {
+      HapticFeedback.lightImpact();
+    }
+
+    if (text.length == widget.length) {
+      widget.onCompleted?.call(text);
+    }
+  }
+
+  @override
+  void dispose() {
+    _hiddenController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final fill = widget.fillColor ?? AppColors.white;
+    final focusBorder = widget.focusedBorderColor ?? AppColors.primaryMain;
+    final radius = BorderRadius.circular(widget.borderRadius);
+    final style = widget.textStyle ?? context.p1Bold;
+    final text = _hiddenController.text;
+    final hasFocus = _focusNode.hasFocus;
+
+    return GestureDetector(
+      onTap: () => _focusNode.requestFocus(),
+      child: Stack(
+        children: [
+          Opacity(
+            opacity: 0,
+            child: SizedBox(
+              height: 0,
+              child: TextField(
+                controller: _hiddenController,
+                focusNode: _focusNode,
+                keyboardType: TextInputType.number,
+                maxLength: widget.length,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: const InputDecoration(counterText: ''),
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(widget.length, (index) {
+              final hasDigit = index < text.length;
+              final isActiveField = hasFocus && index == text.length;
+
+              final borderColor = isActiveField
+                  ? focusBorder
+                  : hasDigit
+                      ? AppColors.blackPrimary
+                      : AppColors.textFieldBorder;
+
+              return Container(
+                width: widget.fieldWidth,
+                height: widget.fieldHeight,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: fill,
+                  borderRadius: radius,
+                  border: Border.all(
+                    color: borderColor,
+                    width: hasDigit ? 0.5 : 1,
+                  ),
+                ),
+                child: hasDigit
+                    ? Text(text[index], style: style)
+                    : isActiveField
+                        ? _BlinkingCursor(color: focusBorder)
+                        : const SizedBox.shrink(),
+              );
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BlinkingCursor extends StatefulWidget {
+  const _BlinkingCursor({required this.color});
+
+  final Color color;
+
+  @override
+  State<_BlinkingCursor> createState() => _BlinkingCursorState();
+}
+
+class _BlinkingCursorState extends State<_BlinkingCursor>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _controller,
+      child: Container(width: 1.5, height: 20, color: widget.color),
+    );
+  }
+}
+''';
+
+const String formBuilderTemplate = '''
+import 'package:{{project_name}}/exports.dart';
+
+class FormBuilder extends StatelessWidget {
+  const FormBuilder({
+    required this.controllers,
+    required this.builder,
+    super.key,
+    this.validator,
+  });
+
+  final List<TextEditingController> controllers;
+  final Widget Function(BuildContext context, bool isValid) builder;
+  final bool Function(List<TextEditingController> controllers)? validator;
+
+  bool _isValid() {
+    if (validator != null) return validator!(controllers);
+    return controllers.every((c) => c.text.trim().isNotEmpty);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: Listenable.merge(controllers),
+      builder: (context, _) => builder(context, _isValid()),
+    );
   }
 }
 ''';

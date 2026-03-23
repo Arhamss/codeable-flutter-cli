@@ -575,6 +575,14 @@ class ProjectGenerator {
         vars,
       ),
       'lib/utils/widgets/core_widgets/tile.dart': render(tileTemplate, vars),
+      'lib/utils/widgets/core_widgets/form_builder.dart': render(
+        formBuilderTemplate,
+        vars,
+      ),
+      'lib/utils/widgets/core_widgets/otp_input_field.dart': render(
+        otpInputFieldTemplate,
+        vars,
+      ),
       'lib/utils/widgets/core_widgets/time_picker.dart': render(
         timePickerTemplate,
         vars,
