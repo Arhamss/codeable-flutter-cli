@@ -222,7 +222,10 @@ class ProjectGenerator {
 
       // Config
       'lib/config/flavor_config.dart': render(flavorConfigTemplate, vars),
-      'lib/config/api_environment.dart': render(apiEnvironmentTemplate, vars),
+      'lib/config/env/env_dev.dart': render(envDevTemplate, vars),
+      'lib/config/env/env_stg.dart': render(envStgTemplate, vars),
+      'lib/config/env/env_prod.dart': render(envProdTemplate, vars),
+      'lib/config/env/app_env.dart': render(appEnvTemplate, vars),
       'lib/config/remote_config.dart': render(remoteConfigTemplate, vars),
 
       // Constants
@@ -720,6 +723,30 @@ class ProjectGenerator {
     // Step 10: Create firebase config directory structure
     for (final flavor in ['development', 'staging', 'production']) {
       Directory('$projectPath/firebase/$flavor').createSync(recursive: true);
+    }
+
+    // Step 10b: Create env directory with per-flavor .env files
+    Directory('$projectPath/env').createSync(recursive: true);
+    for (final envName in [
+      '.env.development',
+      '.env.staging',
+      '.env.production',
+    ]) {
+      File('$projectPath/env/$envName')
+          .writeAsStringSync(render(dotEnvTemplate, vars));
+    }
+
+    // Add /env/ to .gitignore
+    final gitignorePath = '$projectPath/.gitignore';
+    final gitignoreFile = File(gitignorePath);
+    var gitignoreContent = '';
+    if (gitignoreFile.existsSync()) {
+      gitignoreContent = gitignoreFile.readAsStringSync();
+    }
+    if (!gitignoreContent.contains('/env/')) {
+      gitignoreFile.writeAsStringSync(
+        '$gitignoreContent\n# Environment files\n/env/\n',
+      );
     }
 
     // Step 11: Copy bundled assets (splash, app icons, SVGs)

@@ -121,7 +121,7 @@ features/<feature_name>/
 - `SocketService` — centralized WebSocket connection manager with auto-reconnect
 - `SocketStatus` enum: `disconnected`, `connecting`, `connected`, `reconnecting`, `error`
 - Registered as singleton in DI via `AppModule._setupSocketService()`
-- Uses `web_socket_channel` package; URL configured per-flavor in `ApiEnvironment.socketUrl`
+- Uses `web_socket_channel` package; URL configured per-flavor in `AppEnv.socketUrl`
 - Auth token sent automatically on connect; supports room join/leave events
 - Exposes `Stream<Map<String, dynamic>> messages` broadcast stream for consumers
 - Connect: `Injector.resolve<SocketService>().connect('roomId')`
@@ -336,7 +336,7 @@ Prefer using existing core widgets from `lib/utils/widgets/core_widgets/`:
 ### WebSocket
 - `SocketService` in `lib/core/socket_service/` — auto-reconnect, auth, room management
 - Resolve via `Injector.resolve<SocketService>()`
-- Socket URL per-flavor in `ApiEnvironment.socketUrl`
+- Socket URL per-flavor in `AppEnv.socketUrl`
 - Use `AppLogger` for all socket-related logging
 
 ## Code Style

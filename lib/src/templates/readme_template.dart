@@ -97,6 +97,10 @@ cd ios && pod install && cd ..
 ├── .run/                        ← Android Studio run configs (Dev/Staging/Prod)
 ├── android/                     ← Android platform project
 ├── ios/                         ← iOS platform project
+├── env/                         ← Per-flavor .env files (gitignored)
+│   ├── .env.development
+│   ├── .env.staging
+│   └── .env.production
 ├── firebase/                    ← Firebase config files per flavor
 │   ├── development/             ← GoogleService-Info.plist & google-services.json
 │   ├── staging/
@@ -119,7 +123,11 @@ cd ios && pod install && cd ..
 │   │       └── splash.dart      ← Splash / auth check screen
 │   ├── config/
 │   │   ├── flavor_config.dart   ← Flavor enum & singleton
-│   │   ├── api_environment.dart ← Per-flavor API base URLs
+│   │   ├── env/                 ← Envied-based environment config
+│   │   │   ├── env_dev.dart     ← Development env variables
+│   │   │   ├── env_stg.dart     ← Staging env variables
+│   │   │   ├── env_prod.dart    ← Production env variables
+│   │   │   └── app_env.dart     ← Flavor-based env resolver
 │   │   └── remote_config.dart   ← Firebase Remote Config wrapper
 │   ├── constants/
 │   │   ├── app_colors.dart      ← Color palette
@@ -170,21 +178,44 @@ The app supports **three build flavors**, each with its own entry point and conf
 | `production`  | `lib/main_production.dart` | App Store / Play Store     |
 
 Each flavor configures:
-- **API base URL** via `ApiEnvironment`
+- **API keys & URLs** via `envied`-based environment files
 - **Firebase project** via flavor-specific config files
 - **App name suffix** for easy identification on devices
 
 ### Environment Configuration
 
-Update your API URLs in [`lib/config/api_environment.dart`](lib/config/api_environment.dart):
+Environment variables are managed with the [`envied`](https://pub.dev/packages/envied) package for compile-time injection with obfuscation support.
 
-```dart
-enum ApiEnvironment {
-  development(baseUrl: 'https://dev-api.example.com'),
-  staging(baseUrl: 'https://staging-api.example.com'),
-  production(baseUrl: 'https://api.example.com');
-}
+**1. `.env` files** — located in a gitignored `env/` folder at the project root:
+
 ```
+env/
+├── .env.development
+├── .env.staging
+└── .env.production
+```
+
+Each file contains key-value pairs:
+```
+BASE_URL=https://api.example.com/
+API_VERSION=v1
+MAPBOX_API_KEY=pk_test_xxx
+STRIPE_PUBLISHABLE_KEY=pk_test_xxx
+GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com
+SOCKET_URL=wss://api.example.com/ws
+```
+
+**2. Env Dart files** — in `lib/config/env/`:
+- `env_dev.dart`, `env_stg.dart`, `env_prod.dart` — `@Envied` annotated classes
+- `app_env.dart` — resolver that picks the right env class based on the current flavor
+
+**3. Adding a new key:**
+1. Add the variable to all three `.env.*` files
+2. Add an `@EnviedField` entry in each `env_*.dart` file (use `obfuscate: true` for secrets)
+3. Add a getter in `app_env.dart` that switches on flavor
+4. Run `dart run build_runner build --delete-conflicting-outputs`
+
+**4. Release builds** should use `--obfuscate --split-debug-info=build/symbols` for additional protection.
 
 ---
 

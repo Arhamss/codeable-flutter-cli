@@ -75,6 +75,9 @@ dependencies:
   crypto: ^3.0.7
   purchases_flutter: ^9.12.2
 
+  # Environment
+  envied: ^1.1.1
+
   # Debug
   chucker_flutter: ^1.9.1
   device_preview: ^1.3.1
@@ -88,6 +91,7 @@ dev_dependencies:
   hive_ce_generator: ^1.11.1
   very_good_analysis: ^10.2.0
   build_runner: ^2.11.1
+  envied_generator: ^1.1.1
 
 flutter:
   uses-material-design: true

@@ -509,14 +509,14 @@ abstract class AppModule {
 ''';
 
 const endpointsTemplate = '''
-import 'package:{{project_name}}/config/api_environment.dart';
+import 'package:{{project_name}}/config/env/app_env.dart';
 
 class Endpoints {
   Endpoints._();
 
-  static String get baseUrl => ApiEnvironment.current.baseUrl;
+  static String get baseUrl => AppEnv.baseUrl;
 
-  static String get apiVersion => ApiEnvironment.current.apiVersion;
+  static String get apiVersion => AppEnv.apiVersion;
 
   /// Authentication
   static const refresh = 'auth/refresh';
@@ -1611,7 +1611,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:{{project_name}}/config/api_environment.dart';
+import 'package:{{project_name}}/config/env/app_env.dart';
 import 'package:{{project_name}}/core/app_preferences/app_preferences.dart';
 import 'package:{{project_name}}/core/socket_service/socket_status.dart';
 import 'package:{{project_name}}/utils/helpers/logger_helper.dart';
@@ -1674,7 +1674,7 @@ class SocketService {
     _status = SocketStatus.connecting;
 
     try {
-      final wsUrl = Uri.parse(ApiEnvironment.current.socketUrl);
+      final wsUrl = Uri.parse(AppEnv.socketUrl);
 
       _channel = WebSocketChannel.connect(wsUrl);
       await _channel!.ready;

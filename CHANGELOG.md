@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.0.26
+
+### Envied-Based Secret Management
+- Replaced `ApiEnvironment` enum with `envied`-based `AppEnv` pattern
+- Per-flavor `.env` files in gitignored `env/` folder (`env/.env.development`, `env/.env.staging`, `env/.env.production`)
+- Per-flavor env dart files in `lib/config/env/` with `@Envied` annotations and XOR obfuscation for API keys
+- `AppEnv` resolver class picks the correct env based on current flavor
+- Added `envied` to dependencies and `envied_generator` to dev_dependencies
+
+### Build Security & Obfuscation
+- Added `Makefile` with `--obfuscate --split-debug-info=build/debug-info` for all release build targets
+- Android release builds now use `shrinkResources true` and `proguard-android-optimize.txt`
+- Consistent build commands: `make apk-prod`, `make bundle-prod`, `make ipa-prod`
+
+### Template Updates
+- `Endpoints` and `SocketService` templates now use `AppEnv` instead of `ApiEnvironment`
+- Updated README template with envied setup documentation
+- Updated AI config templates (CLAUDE.md, .cursorrules) with new env pattern
+
 ## 1.0.25
 
 ### Centralized `execute()` Error Handling
