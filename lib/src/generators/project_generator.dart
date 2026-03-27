@@ -756,10 +756,22 @@ class ProjectGenerator {
       gitignoreContent = gitignoreFile.readAsStringSync();
     }
     if (!gitignoreContent.contains('/env/')) {
-      gitignoreFile.writeAsStringSync(
-        '$gitignoreContent\n# Environment files\n/env/\n',
-      );
+      gitignoreContent += '\n# Environment files\n/env/\n';
     }
+
+    // Ensure .idea/runConfigurations/ is NOT ignored
+    // (Flutter's default .gitignore includes .idea/)
+    if (!gitignoreContent.contains('!.idea/runConfigurations/')) {
+      // Must un-ignore .idea/ first, then re-ignore its contents,
+      // then whitelist only runConfigurations/
+      gitignoreContent +=
+          '\n# Keep IDE run configurations (overrides .idea/ ignore)\n'
+          '!.idea/\n'
+          '.idea/*\n'
+          '!.idea/runConfigurations/\n';
+    }
+
+    gitignoreFile.writeAsStringSync(gitignoreContent);
 
     // Step 11: Copy bundled assets (splash, app icons, SVGs)
     await _copyBundledAssets(projectPath);
