@@ -223,7 +223,7 @@ my_app/
 │       ├── helpers/                # Toast, layout, decorations, logger, etc.
 │       ├── response_data_model/    # Response parsing utilities
 │       └── widgets/core_widgets/   # 30+ reusable UI components
-├── .idea/runConfigurations/         # Android Studio run configurations (Dev/Staging/Prod)
+├── .idea/runConfigurations/         # Android Studio run configurations (Dev/Staging/Prod, git-tracked)
 ├── assets/                         # images, vectors, animation, fonts
 ├── env/                            # Per-flavor .env files (gitignored, .gitkeep tracked)
 ├── firebase/                       # Per-flavor Firebase config directories (.gitkeep tracked)

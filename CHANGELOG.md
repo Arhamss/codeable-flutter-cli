@@ -17,6 +17,7 @@
 ### Project Structure Improvements
 - Added `.gitkeep` to `firebase/{development,staging,production}/` directories so they're tracked by git
 - `/env/` folder is gitignored — `.env.development`, `.env.staging`, `.env.production` files are created locally but not committed
+- `.idea/runConfigurations/` is whitelisted in `.gitignore` so development, staging, and production run configs are committed and available on clone
 
 ## 1.0.27
 
