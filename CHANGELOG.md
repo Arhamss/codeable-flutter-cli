@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.0.28
+
+### IDE & Build Configuration
+- Fixed `.idea/runConfigurations` — removed leading newline from XML templates that prevented Android Studio/IntelliJ from parsing run configurations for development, staging, and production flavors
+- Added `Makefile` to generated projects with `--obfuscate --split-debug-info=build/debug-info` flags on all release builds (APK, App Bundle, IPA for all flavors)
+- Makefile includes `make help`, run/build/clean/lint/format/test targets, and code generation commands (`gen-l10n`, `gen-splash`, `gen-icons`)
+
+### New CLI Command: `bottom-sheet`
+- Added `codeable_cli bottom-sheet <name> --feature <path> --type <type>` command
+- Generates a bottom sheet widget inside an existing feature's `presentation/widgets/` directory
+- Four types: `action` (list of actions), `confirmation` (confirm/cancel), `form` (with inputs), `custom` (empty template)
+- Auto-discovers features via interactive picker when `--feature` is not provided
+- Uses the project's `CustomBottomSheet` core widget
+
+### Project Structure Improvements
+- Added `.gitkeep` to `firebase/{development,staging,production}/` directories so they're tracked by git
+- Changed `env/` gitignore from ignoring the whole folder (`/env/`) to ignoring only env files (`env/.env.*`), with a `.gitkeep` to preserve the folder structure on clone
+
 ## 1.0.27
 
 ### New Core Widgets

@@ -39,6 +39,7 @@ class CodeableCliCommandRunner extends CompletionCommandRunner<int> {
       );
 
     // Add sub commands
+    addCommand(BottomSheetCommand(logger: _logger));
     addCommand(CreateCommand(logger: _logger));
     addCommand(FeatureCommand(logger: _logger));
     addCommand(RenameCommand(logger: _logger));

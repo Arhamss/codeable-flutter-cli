@@ -15,6 +15,7 @@ import 'package:codeable_cli/src/templates/core_widgets_templates.dart';
 import 'package:codeable_cli/src/templates/feature_templates.dart';
 import 'package:codeable_cli/src/templates/ios_templates.dart';
 import 'package:codeable_cli/src/templates/l10n_templates.dart';
+import 'package:codeable_cli/src/templates/makefile_template.dart';
 import 'package:codeable_cli/src/templates/navigation_templates.dart';
 import 'package:codeable_cli/src/templates/pubspec_template.dart';
 import 'package:codeable_cli/src/templates/ai_config_templates.dart';
@@ -630,6 +631,9 @@ class ProjectGenerator {
       '.cursorrules': render(cursorRulesTemplate, vars),
       '.claude/settings.json': claudeSettingsTemplate,
 
+      // Makefile
+      'Makefile': makefileTemplate,
+
       // Android Studio run configurations
       '.idea/runConfigurations/development.xml':
           runConfigDevelopmentTemplate,
@@ -731,6 +735,7 @@ class ProjectGenerator {
     // Step 10: Create firebase config directory structure
     for (final flavor in ['development', 'staging', 'production']) {
       Directory('$projectPath/firebase/$flavor').createSync(recursive: true);
+      File('$projectPath/firebase/$flavor/.gitkeep').writeAsStringSync('');
     }
 
     // Step 10b: Create env directory with per-flavor .env files
@@ -743,17 +748,19 @@ class ProjectGenerator {
       File('$projectPath/env/$envName')
           .writeAsStringSync(render(dotEnvTemplate, vars));
     }
+    // Add .gitkeep so the env/ folder is tracked by git
+    File('$projectPath/env/.gitkeep').writeAsStringSync('');
 
-    // Add /env/ to .gitignore
+    // Add env files to .gitignore (keep folder via .gitkeep)
     final gitignorePath = '$projectPath/.gitignore';
     final gitignoreFile = File(gitignorePath);
     var gitignoreContent = '';
     if (gitignoreFile.existsSync()) {
       gitignoreContent = gitignoreFile.readAsStringSync();
     }
-    if (!gitignoreContent.contains('/env/')) {
+    if (!gitignoreContent.contains('env/.env')) {
       gitignoreFile.writeAsStringSync(
-        '$gitignoreContent\n# Environment files\n/env/\n',
+        '$gitignoreContent\n# Environment files\nenv/.env.*\n',
       );
     }
 

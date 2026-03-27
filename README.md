@@ -223,11 +223,13 @@ my_app/
 │       ├── helpers/                # Toast, layout, decorations, logger, etc.
 │       ├── response_data_model/    # Response parsing utilities
 │       └── widgets/core_widgets/   # 30+ reusable UI components
-├── .run/                           # Android Studio run configurations (Dev/Staging/Prod)
+├── .idea/runConfigurations/         # Android Studio run configurations (Dev/Staging/Prod)
 ├── assets/                         # images, vectors, animation, fonts
-├── firebase/                       # Per-flavor Firebase config directories
+├── env/                            # Per-flavor .env files (gitignored, .gitkeep tracked)
+├── firebase/                       # Per-flavor Firebase config directories (.gitkeep tracked)
 ├── android/                        # Configured with flavors, signing, ProGuard
 ├── ios/                            # Configured with Podfile, Info.plist, entitlements
+├── Makefile                        # Build commands with obfuscation flags
 ├── CLAUDE.md                       # AI assistant context (Claude Code)
 ├── .cursorrules                    # AI assistant context (Cursor)
 └── README.md                       # Project documentation
@@ -393,6 +395,35 @@ Adds a new locale to your project:
 - Creates `lib/l10n/arb/app_<locale>.arb` with TODO placeholders from the English reference
 - Preserves all `@key` metadata entries
 - Runs `flutter gen-l10n` to regenerate localization classes
+
+---
+
+### `bottom-sheet` — Generate a bottom sheet widget
+
+Must be run from inside an existing Codeable project.
+
+```bash
+codeable_cli bottom-sheet <sheet_name> --feature <feature_path> [--type action|confirmation|form|custom]
+```
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `-f, --feature` | Feature path relative to `lib/features/` (e.g., `customer/orders`) | Prompted interactively |
+| `-t, --type` | Sheet type: `action`, `confirmation`, `form`, `custom` | `action` |
+
+**Example:**
+
+```bash
+codeable_cli bottom-sheet order_actions --feature customer/orders --type action
+```
+
+Creates `lib/features/customer/orders/presentation/widgets/customer_orders_order_actions_sheet.dart` with a static `show()` method that uses the project's `CustomBottomSheet` core widget.
+
+**Sheet types:**
+- **action** — List of tappable actions (edit, delete, etc.)
+- **confirmation** — Confirm/cancel with optional destructive styling
+- **form** — Form inputs with validation and submit callback
+- **custom** — Empty template for custom content
 
 ---
 
@@ -604,6 +635,22 @@ Three flavors are configured out of the box with separate entry points:
 ```bash
 flutter run --flavor development -t lib/main_development.dart
 flutter run --flavor production -t lib/main_production.dart
+```
+
+### Makefile
+
+Every generated project includes a `Makefile` with all common commands and `--obfuscate --split-debug-info` flags on release builds:
+
+```bash
+make run-dev          # Run development flavor
+make run-stg          # Run staging flavor
+make run-prod         # Run production flavor
+make apk-prod         # Build APK (production, obfuscated)
+make bundle-prod      # Build App Bundle (production, obfuscated)
+make ipa-prod         # Build IPA (production, obfuscated)
+make clean            # Clean and re-fetch dependencies
+make build-runner     # Run build_runner code generation
+make help             # Show all available targets
 ```
 
 ### What's configured per flavor
