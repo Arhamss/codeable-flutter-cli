@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.28
+## 1.0.29
 
 ### IDE & Build Configuration
 - Fixed `.idea/runConfigurations` — removed leading newline from XML templates that prevented Android Studio/IntelliJ from parsing run configurations for development, staging, and production flavors
@@ -16,7 +16,7 @@
 
 ### Project Structure Improvements
 - Added `.gitkeep` to `firebase/{development,staging,production}/` directories so they're tracked by git
-- Changed `env/` gitignore from ignoring the whole folder (`/env/`) to ignoring only env files (`env/.env.*`), with a `.gitkeep` to preserve the folder structure on clone
+- `/env/` folder is gitignored — `.env.development`, `.env.staging`, `.env.production` files are created locally but not committed
 
 ## 1.0.27
 
