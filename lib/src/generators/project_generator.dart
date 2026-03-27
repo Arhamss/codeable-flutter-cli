@@ -748,19 +748,16 @@ class ProjectGenerator {
       File('$projectPath/env/$envName')
           .writeAsStringSync(render(dotEnvTemplate, vars));
     }
-    // Add .gitkeep so the env/ folder is tracked by git
-    File('$projectPath/env/.gitkeep').writeAsStringSync('');
-
-    // Add env files to .gitignore (keep folder via .gitkeep)
+    // Add /env/ to .gitignore
     final gitignorePath = '$projectPath/.gitignore';
     final gitignoreFile = File(gitignorePath);
     var gitignoreContent = '';
     if (gitignoreFile.existsSync()) {
       gitignoreContent = gitignoreFile.readAsStringSync();
     }
-    if (!gitignoreContent.contains('env/.env')) {
+    if (!gitignoreContent.contains('/env/')) {
       gitignoreFile.writeAsStringSync(
-        '$gitignoreContent\n# Environment files\nenv/.env.*\n',
+        '$gitignoreContent\n# Environment files\n/env/\n',
       );
     }
 
