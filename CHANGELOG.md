@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.30
+
+### Bug Fixes
+- `change-id`: iOS bundle identifier update now preserves flavor suffixes (`.dev`, `.stg`, etc.) across Debug/Release/Profile configurations instead of collapsing every flavor to the same new id. The command detects the current base bundle id (shortest Runner entry) and rebases it on the new id while keeping the per-flavor suffix and the `.RunnerTests` suffix intact.
+
 ## 1.0.29
 
 ### IDE & Build Configuration

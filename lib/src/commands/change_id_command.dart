@@ -133,6 +133,11 @@ class ChangeIdCommand extends Command<int> {
   }
 
   /// Updates `PRODUCT_BUNDLE_IDENTIFIER` in iOS project.pbxproj.
+  ///
+  /// Preserves flavor suffixes (e.g. `.dev`, `.stg`) and the `.RunnerTests`
+  /// suffix. The "base" bundle id is detected as the shortest existing Runner
+  /// bundle id (excluding RunnerTests); any suffix beyond that base is kept
+  /// and appended to [newId].
   bool _updateIosBundleId(String newId) {
     final progress = _logger.progress('Updating iOS bundle identifier');
     final file = File('ios/Runner.xcodeproj/project.pbxproj');
@@ -143,10 +148,9 @@ class ChangeIdCommand extends Command<int> {
 
     var content = file.readAsStringSync();
 
-    // Match Runner's PRODUCT_BUNDLE_IDENTIFIER (not RunnerTests)
-    // Replace only lines that don't end with .RunnerTests
+    // Capture the current bundle id value so we can detect suffixes.
     final bundleIdRegex = RegExp(
-      r'PRODUCT_BUNDLE_IDENTIFIER\s*=\s*[^;]+;',
+      r'PRODUCT_BUNDLE_IDENTIFIER\s*=\s*([^;\s]+)\s*;',
     );
 
     final matches = bundleIdRegex.allMatches(content).toList();
@@ -155,13 +159,33 @@ class ChangeIdCommand extends Command<int> {
       return false;
     }
 
-    // Replace each match: if it contained .RunnerTests, keep that suffix
+    // Determine the current base bundle id: shortest Runner id (ignoring
+    // RunnerTests entries). Everything beyond this base is a flavor suffix
+    // we want to preserve (e.g. ".dev", ".stg").
+    String? currentBase;
+    for (final m in matches) {
+      final value = m.group(1)!;
+      if (value.contains('RunnerTests')) continue;
+      if (currentBase == null || value.length < currentBase.length) {
+        currentBase = value;
+      }
+    }
+
     content = content.replaceAllMapped(bundleIdRegex, (match) {
-      final original = match.group(0)!;
-      if (original.contains('RunnerTests')) {
+      final value = match.group(1)!;
+
+      // RunnerTests target — preserve the ".RunnerTests" suffix, rebase the
+      // rest on the new id.
+      if (value.contains('RunnerTests')) {
         return 'PRODUCT_BUNDLE_IDENTIFIER = $newId.RunnerTests;';
       }
-      return 'PRODUCT_BUNDLE_IDENTIFIER = $newId;';
+
+      // Preserve flavor suffix relative to the detected base.
+      var suffix = '';
+      if (currentBase != null && value.startsWith(currentBase)) {
+        suffix = value.substring(currentBase.length);
+      }
+      return 'PRODUCT_BUNDLE_IDENTIFIER = $newId$suffix;';
     });
 
     file.writeAsStringSync(content);
