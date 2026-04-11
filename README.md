@@ -81,7 +81,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.30
+dart pub global activate codeable_cli 1.0.32
 ```
 
 ### Or run without activating
@@ -693,6 +693,7 @@ All three icon sets start with the same default icons. To differentiate:
 - Per-flavor app icon sets in `Assets.xcassets` (AppIcon, AppIcon-dev, AppIcon-stg)
 - Podfile with iOS 15.6 minimum, permission handler pods
 - Info.plist with camera, photo library, location usage descriptions
+- UIScene lifecycle support (`FlutterImplicitEngineDelegate` + `FlutterSceneDelegate`) per Flutter 3.41+ requirements
 - Entitlements for push notifications and Sign in with Apple
 - Google Service copy script for per-flavor Firebase config
 

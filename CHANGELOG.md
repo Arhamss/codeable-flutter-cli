@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.32
+
+### iOS UIScene Lifecycle — Use Official Flutter APIs
+- **Breaking fix:** Replaced manual `FlutterEngine` creation in `AppDelegate.swift` with the official Flutter 3.41+ `FlutterImplicitEngineDelegate` protocol — the previous approach caused a black screen on startup because the engine wasn't connected to the Flutter view
+- `AppDelegate` now conforms to `FlutterImplicitEngineDelegate` and registers plugins via `didInitializeImplicitFlutterEngine(_:)` instead of manually in `didFinishLaunchingWithOptions`
+- `SceneDelegate` now subclasses `FlutterSceneDelegate` (a single empty subclass) instead of manually creating `FlutterViewController` and wiring the engine — Flutter handles this internally
+- Info.plist `UIApplicationSceneManifest` unchanged (already correct from 1.0.31)
+- Reference: https://docs.flutter.dev/release/breaking-changes/uiscenedelegate
+
 ## 1.0.31
 
 ### iOS UIScene Lifecycle Migration

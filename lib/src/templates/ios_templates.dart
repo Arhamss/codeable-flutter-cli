@@ -206,21 +206,20 @@ import UIKit
 import Flutter
 
 @main
-@objc class AppDelegate: FlutterAppDelegate {
-  lazy var flutterEngine = FlutterEngine(name: "main engine", project: nil)
-
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    flutterEngine.run()
-    GeneratedPluginRegistrant.register(with: flutterEngine)
-
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self
     }
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
   }
 
   override func userNotificationCenter(
@@ -234,29 +233,11 @@ import Flutter
 ''';
 
 const iosSceneDelegateTemplate = r'''
-import UIKit
 import Flutter
+import UIKit
 
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-  var window: UIWindow?
+class SceneDelegate: FlutterSceneDelegate {
 
-  func scene(
-    _ scene: UIScene,
-    willConnectTo session: UISceneSession,
-    options connectionOptions: UIScene.ConnectionOptions
-  ) {
-    guard let windowScene = scene as? UIWindowScene,
-          let appDelegate = UIApplication.shared.delegate as? AppDelegate
-    else { return }
-
-    window = UIWindow(windowScene: windowScene)
-    let flutterEngine = appDelegate.flutterEngine
-    let flutterViewController = FlutterViewController(
-      engine: flutterEngine, nibName: nil, bundle: nil
-    )
-    window?.rootViewController = flutterViewController
-    window?.makeKeyAndVisible()
-  }
 }
 ''';
 
