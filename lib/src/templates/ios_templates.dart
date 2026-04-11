@@ -201,6 +201,65 @@ const iosInfoPlistTemplate = r'''
 </plist>
 ''';
 
+const iosAppDelegateTemplate = r'''
+import UIKit
+import Flutter
+
+@main
+@objc class AppDelegate: FlutterAppDelegate {
+  lazy var flutterEngine = FlutterEngine(name: "main engine", project: nil)
+
+  override func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+  ) -> Bool {
+    flutterEngine.run()
+    GeneratedPluginRegistrant.register(with: flutterEngine)
+
+    if #available(iOS 10.0, *) {
+      UNUserNotificationCenter.current().delegate = self
+    }
+
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  override func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    willPresent notification: UNNotification,
+    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+  ) {
+    completionHandler([.banner, .sound, .badge])
+  }
+}
+''';
+
+const iosSceneDelegateTemplate = r'''
+import UIKit
+import Flutter
+
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+  var window: UIWindow?
+
+  func scene(
+    _ scene: UIScene,
+    willConnectTo session: UISceneSession,
+    options connectionOptions: UIScene.ConnectionOptions
+  ) {
+    guard let windowScene = scene as? UIWindowScene,
+          let appDelegate = UIApplication.shared.delegate as? AppDelegate
+    else { return }
+
+    window = UIWindow(windowScene: windowScene)
+    let flutterEngine = appDelegate.flutterEngine
+    let flutterViewController = FlutterViewController(
+      engine: flutterEngine, nibName: nil, bundle: nil
+    )
+    window?.rootViewController = flutterViewController
+    window?.makeKeyAndVisible()
+  }
+}
+''';
+
 const iosEntitlementsTemplate = r'''
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">

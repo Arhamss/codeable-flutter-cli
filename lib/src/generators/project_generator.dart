@@ -722,6 +722,16 @@ class ProjectGenerator {
     final infoPlistPath = '$projectPath/ios/Runner/Info.plist';
     File(infoPlistPath).writeAsStringSync(render(iosInfoPlistTemplate, vars));
 
+    // Write AppDelegate.swift with FlutterEngine for UIScene lifecycle
+    File(
+      '$projectPath/ios/Runner/AppDelegate.swift',
+    ).writeAsStringSync(iosAppDelegateTemplate);
+
+    // Write SceneDelegate.swift for UIScene lifecycle support
+    File(
+      '$projectPath/ios/Runner/SceneDelegate.swift',
+    ).writeAsStringSync(iosSceneDelegateTemplate);
+
     // Write entitlements for push notifications & Sign in with Apple
     File(
       '$projectPath/ios/Runner/Runner.entitlements',

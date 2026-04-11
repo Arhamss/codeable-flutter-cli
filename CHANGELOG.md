@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.31
+
+### iOS UIScene Lifecycle Migration
+- Added `AppDelegate.swift` template — creates a `FlutterEngine` eagerly and registers plugins, replacing the default Flutter-generated AppDelegate that uses the old `UIApplicationDelegate` lifecycle
+- Added `SceneDelegate.swift` template — implements `UIWindowSceneDelegate` to manage the app window via `UIWindowScene`, using the FlutterEngine from AppDelegate
+- Info.plist already included `UIApplicationSceneManifest` with SceneDelegate reference (added in a prior version) — now the corresponding Swift files are generated to match
+- This ensures all new projects are compatible with upcoming iOS versions that require UIScene lifecycle support (see https://flutter.dev/to/uiscene-migration)
+
 ## 1.0.30
 
 ### Bug Fixes
