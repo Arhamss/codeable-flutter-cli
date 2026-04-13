@@ -245,89 +245,184 @@ Future<RepositoryResponse<T>> execute<T>(
 ''';
 
 const loggerHelperTemplate = r"""
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
-import 'package:logger/logger.dart';
-
-class _AppLogPrinter extends LogPrinter {
-  static const _levelConfig = {
-    Level.trace: ('🔍', 'TRACE', '\x1B[37m'),   // gray
-    Level.debug: ('🐛', 'DEBUG', '\x1B[36m'),   // cyan
-    Level.info: ('💡', 'INFO ', '\x1B[32m'),     // green
-    Level.warning: ('⚠️', 'WARN ', '\x1B[33m'), // yellow
-    Level.error: ('❌', 'ERROR', '\x1B[31m'),    // red
-    Level.fatal: ('🔥', 'FATAL', '\x1B[35m'),   // magenta
-  };
-
-  static const _reset = '\x1B[0m';
-  static const _dim = '\x1B[2m';
-  static const _bold = '\x1B[1m';
-
-  String _timestamp() {
-    final now = DateTime.now();
-    final h = now.hour.toString().padLeft(2, '0');
-    final m = now.minute.toString().padLeft(2, '0');
-    final s = now.second.toString().padLeft(2, '0');
-    final ms = now.millisecond.toString().padLeft(3, '0');
-    return '$h:$m:$s.$ms';
-  }
-
-  @override
-  List<String> log(LogEvent event) {
-    final config = _levelConfig[event.level];
-    if (config == null) return [];
-
-    final (icon, label, color) = config;
-    final time = _timestamp();
-    final lines = <String>[];
-
-    // Main log line: icon [LABEL] timestamp | message
-    lines.add(
-      '$color$icon $_bold[$label]$_reset $_dim$time$_reset $color│$_reset ${event.message}',
-    );
-
-    // Error details indented under the main line
-    if (event.error != null) {
-      lines.add('$color  ╰─ ${event.error}$_reset');
-    }
-
-    // Stack trace — compact, max 6 frames
-    if (event.stackTrace != null) {
-      final frames = event.stackTrace
-          .toString()
-          .split('\n')
-          .where((l) => l.trim().isNotEmpty)
-          .take(6)
-          .toList();
-
-      for (var i = 0; i < frames.length; i++) {
-        final connector = i == frames.length - 1 ? '╰─' : '├─';
-        lines.add('$_dim  $connector ${frames[i].trim()}$_reset');
-      }
-    }
-
-    return lines;
-  }
-}
 
 class AppLogger {
   AppLogger._();
 
-  static final Logger _logger = Logger(
-    printer: _AppLogPrinter(),
-    filter: kReleaseMode ? ProductionFilter() : DevelopmentFilter(),
-  );
+  static const _w = 60;
+  static const _encoder = JsonEncoder.withIndent('  ');
 
-  static void info(String message) => _logger.i(message);
+  // ── General Logging ──────────────────────────────────
 
-  static void error(String message, [dynamic error, StackTrace? stackTrace]) {
-    _logger.e(message, error: error, stackTrace: stackTrace);
+  static void debug(String message) {
+    if (kDebugMode) debugPrint('  🔹 $message');
   }
 
-  static void debug(String message) => _logger.d(message);
+  static void info(String message) {
+    if (kDebugMode) debugPrint('  🔵 $message');
+  }
 
-  static void warning(String message) => _logger.w(message);
+  static void warning(String message) {
+    if (!kDebugMode) return;
+    final buf = StringBuffer()
+      ..writeln('  ┌${'─' * _w}')
+      ..writeln('  │ ⚠️ $message')
+      ..write('  └${'─' * _w}');
+    debugPrint(buf.toString());
+  }
 
-  static void verbose(String message) => _logger.t(message);
+  static void error(String message, [dynamic error, StackTrace? stackTrace]) {
+    if (!kDebugMode) return;
+    final buf = StringBuffer()
+      ..writeln('  ┌${'─' * _w}')
+      ..writeln('  │ ❌ $message');
+
+    if (error != null) {
+      buf.writeln('  │    $error');
+    }
+
+    if (stackTrace != null) {
+      buf.writeln('  ├${'─' * _w}');
+      final frames = stackTrace
+          .toString()
+          .split('\n')
+          .where(
+            (l) =>
+                l.trim().isNotEmpty &&
+                !l.contains('dart:') &&
+                !l.contains('package:flutter/') &&
+                !l.contains('package:bloc/') &&
+                !l.contains('package:dio/'),
+          )
+          .take(5);
+      for (final frame in frames) {
+        buf.writeln('  │ ${frame.trim()}');
+      }
+    }
+
+    buf.write('  └${'─' * _w}');
+    debugPrint(buf.toString());
+  }
+
+  static void verbose(String message) {
+    if (kDebugMode) debugPrint('  ⚪ $message');
+  }
+
+  // ── API Logging ──────────────────────────────────────
+
+  static void apiRequest({
+    required String method,
+    required Uri uri,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? queryParams,
+    dynamic body,
+  }) {
+    if (!kDebugMode) return;
+
+    final buf = StringBuffer()
+      ..writeln()
+      ..writeln('  ╔${'═' * _w}')
+      ..writeln('  ║ ➜ $method  ${uri.path}')
+      ..writeln('  ║   $uri');
+
+    if (headers != null && headers.isNotEmpty) {
+      buf.writeln('  ╟${'─' * _w}');
+      for (final e in headers.entries) {
+        final value = e.key.toLowerCase() == 'authorization'
+            ? '${e.value.toString().substring(0, 15)}...'
+            : e.value;
+        buf.writeln('  ║   ${e.key}: $value');
+      }
+    }
+
+    if (queryParams != null && queryParams.isNotEmpty) {
+      buf
+        ..writeln('  ╟${'─' * _w}')
+        ..writeln('  ║ Query:');
+      for (final e in queryParams.entries) {
+        buf.writeln('  ║   ${e.key}: ${e.value}');
+      }
+    }
+
+    if (body != null) {
+      buf.writeln('  ╟${'─' * _w}');
+      _writeBlock(buf, _prettyJson(body), '║');
+    }
+
+    buf.write('  ╚${'═' * _w}');
+    debugPrint(buf.toString());
+  }
+
+  static void apiResponse({
+    required String method,
+    required String path,
+    required int statusCode,
+    required int elapsedMs,
+    dynamic body,
+  }) {
+    if (!kDebugMode) return;
+
+    final buf = StringBuffer()
+      ..writeln()
+      ..writeln('  ┌${'─' * _w}')
+      ..writeln('  │ ✅ $statusCode  $method $path  ⏱ ${elapsedMs}ms');
+
+    if (body != null) {
+      buf.writeln('  ├${'─' * _w}');
+      _writeBlock(buf, _prettyJson(body), '│');
+    }
+
+    buf.write('  └${'─' * _w}');
+    debugPrint(buf.toString());
+  }
+
+  static void apiError({
+    required String method,
+    required String path,
+    required int statusCode,
+    required int elapsedMs,
+    dynamic body,
+    String? errorMessage,
+  }) {
+    if (!kDebugMode) return;
+
+    final buf = StringBuffer()
+      ..writeln()
+      ..writeln('  ┏${'━' * _w}')
+      ..writeln('  ┃ ❌ $statusCode  $method $path  ⏱ ${elapsedMs}ms');
+
+    if (errorMessage != null) {
+      buf.writeln('  ┃ $errorMessage');
+    }
+
+    if (body != null) {
+      buf.writeln('  ┣${'━' * _w}');
+      _writeBlock(buf, _prettyJson(body), '┃');
+    }
+
+    buf.write('  ┗${'━' * _w}');
+    debugPrint(buf.toString());
+  }
+
+  // ── Private Helpers ──────────────────────────────────
+
+  static String _prettyJson(dynamic data) {
+    try {
+      final object = data is String ? jsonDecode(data) : data;
+      return _encoder.convert(object);
+    } catch (_) {
+      return data.toString();
+    }
+  }
+
+  static void _writeBlock(StringBuffer buf, String text, String border) {
+    for (final line in text.split('\n')) {
+      buf.writeln('  $border   $line');
+    }
+  }
 }
 """;
 
@@ -1007,42 +1102,71 @@ import 'package:dio/dio.dart';
 class ApiResponseParser {
   ApiResponseParser._();
 
-  static T? parse<T>(
-    Response<dynamic> response,
-    T Function(Map<String, dynamic>) fromJson,
-  ) {
+  static Map<String, dynamic>? _extractData(Response<dynamic> response) {
     final data = response.data;
     if (data is Map<String, dynamic>) {
       final responseData = data['data'];
       if (responseData is Map<String, dynamic>) {
-        return fromJson(responseData);
+        return responseData;
       }
     }
     return null;
   }
 
+  static T? parse<T>(
+    Response<dynamic> response,
+    T Function(Map<String, dynamic>) fromJson, {
+    String? key,
+  }) {
+    final responseData = _extractData(response);
+    if (responseData == null) return null;
+
+    if (key != null) {
+      final nested = responseData[key];
+      if (nested is Map<String, dynamic>) return fromJson(nested);
+      return null;
+    }
+
+    return fromJson(responseData);
+  }
+
   static List<T> parseList<T>(
     Response<dynamic> response,
-    T Function(Map<String, dynamic>) fromJson,
-  ) {
-    final data = response.data;
-    if (data is Map<String, dynamic>) {
-      final responseData = data['data'];
-      if (responseData is List) {
-        return responseData
-            .whereType<Map<String, dynamic>>()
-            .map((e) {
-              try {
-                return fromJson(e);
-              } catch (_) {
-                return null;
-              }
-            })
-            .whereType<T>()
-            .toList();
+    T Function(Map<String, dynamic>) fromJson, {
+    String? key,
+  }) {
+    final responseData = _extractData(response);
+
+    List<dynamic>? list;
+
+    if (key != null) {
+      list = responseData?[key] as List<dynamic>?;
+    } else {
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        final raw = data['data'];
+        if (raw is List) list = raw;
       }
     }
-    return [];
+
+    if (list == null) return [];
+
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map((e) {
+          try {
+            return fromJson(e);
+          } catch (_) {
+            return null;
+          }
+        })
+        .whereType<T>()
+        .toList();
+  }
+
+  static T? parseValue<T>(Response<dynamic> response, String key) {
+    final responseData = _extractData(response);
+    return responseData?[key] as T?;
   }
 }
 ''';

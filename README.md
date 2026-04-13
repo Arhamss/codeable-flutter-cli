@@ -30,7 +30,7 @@ Starting a new Flutter project means hours of boilerplate — setting up archite
 | State Management | BLoC/Cubit with DataState |
 | Networking | Dio with auth, logging, Chucker interceptors |
 | WebSocket | Auto-reconnect, auth handshake, room management via `SocketService` |
-| Logging | Pretty-printed color-coded console logger with emoji level indicators |
+| Logging | Zero-dependency AppLogger with API request/response logging, elapsed time, and pretty JSON |
 | Storage | Hive-based local storage |
 | Navigation | GoRouter with named routes |
 | UI Components | 30+ production-ready widgets |
@@ -514,10 +514,10 @@ AppColors.success         // Success green
 
 Pre-configured Dio client with:
 - **Auth interceptor** — automatically attaches bearer token from local storage
-- **Log interceptor** — request/response logging for development
+- **Log interceptor** — rich request/response logging via `AppLogger` with elapsed time, pretty JSON, and masked auth headers
 - **Chucker interceptor** — in-app network inspector (development only)
 - **60s timeout** with centralized error handling via `AppApiException`
-- **Error logging** via `AppLogger.error` (not `debugPrint`)
+- **Error logging** via `AppLogger.error` with filtered stack traces
 
 ### Repository Error Handling
 
@@ -526,9 +526,11 @@ All repository methods use the `execute()` helper from `repository_response.dart
 ```dart
 Future<RepositoryResponse<ProfileModel>> getProfile() => execute(() async {
   final response = await _apiService.get('profile');
-  return ProfileModel.fromJson(response.data['data']);
+  return ApiResponseParser.parse(response, ProfileModel.fromJson)!;
 });
 ```
+
+`ApiResponseParser` provides `parse<T>()`, `parseList<T>()`, and `parseValue<T>()` with optional `key` parameter for nested data access.
 
 - Callbacks return `T` directly — `execute()` wraps the result in `RepositoryResponse<T>`
 - `AppApiException` is caught automatically and mapped to `RepositoryResponse(isSuccess: false)`
@@ -552,11 +554,11 @@ socket.messages.listen((msg) => print(msg));
 
 ### Logging
 
-Pretty-printed `AppLogger` with:
-- Emoji level indicators (TRACE, DEBUG, INFO, WARN, ERROR, FATAL)
-- ANSI color codes and timestamps (`HH:MM:SS.MMM`)
-- Tree-style stack traces (max 6 frames)
-- Automatic filtering: debug in dev, silent in release
+Zero-dependency `AppLogger` using `debugPrint` directly (no `logger` package):
+
+**General methods:** `debug()`, `info()`, `warning()`, `error()`, `verbose()` — with emoji indicators and box-drawing borders for warnings/errors. Stack traces are filtered (excludes framework frames, max 5).
+
+**API methods:** `apiRequest()`, `apiResponse()`, `apiError()` — with pretty-printed JSON, elapsed time (`⏱ 42ms`), masked authorization headers, and distinct box styles per severity. All gated behind `kDebugMode`.
 
 ```dart
 AppLogger.info('User logged in');

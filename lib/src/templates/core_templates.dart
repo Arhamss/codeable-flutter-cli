@@ -265,39 +265,76 @@ class AuthInterceptor extends Interceptor {
 const logInterceptorTemplate = '''
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:{{project_name}}/utils/helpers/logger_helper.dart';
 
 class LoggingInterceptor extends Interceptor {
+  final _timestamps = <int, int>{};
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (kDebugMode) {
-      print('[\\u27A1\\uFE0F] [\${options.method}] \${options.uri}');
-      print('Headers: \${options.headers}');
-      if (options.data != null) {
-        print('Body: \${options.data}');
-      }
+      _timestamps[options.hashCode] = DateTime.now().millisecondsSinceEpoch;
+
+      AppLogger.apiRequest(
+        method: options.method,
+        uri: options.uri,
+        headers: options.headers,
+        queryParams: options.queryParameters.isNotEmpty
+            ? options.queryParameters
+            : null,
+        body: options.data,
+      );
     }
-    return handler.next(options);
+    handler.next(options);
   }
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
     if (kDebugMode) {
-      print('[\\u2705] [\${response.statusCode}] \${response.requestOptions.uri}');
-      print('Response: \${response.data}');
+      AppLogger.apiResponse(
+        method: response.requestOptions.method,
+        path: response.requestOptions.uri.path,
+        statusCode: response.statusCode ?? 0,
+        elapsedMs: _elapsed(response.requestOptions.hashCode),
+        body: response.data,
+      );
     }
-    return handler.next(response);
+    handler.next(response);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (kDebugMode) {
-      print('[\\u274C] [Error] \${err.requestOptions.uri}');
-      print('Message: \${err.message}');
-      if (err.response != null) {
-        print('Response Data: \${err.response?.data}');
-      }
+      AppLogger.apiError(
+        method: err.requestOptions.method,
+        path: err.requestOptions.uri.path,
+        statusCode: err.response?.statusCode ?? 0,
+        elapsedMs: _elapsed(err.requestOptions.hashCode),
+        body: err.response?.data,
+        errorMessage: _extractMessage(err),
+      );
     }
-    return handler.next(err);
+    handler.next(err);
+  }
+
+  int _elapsed(int hash) {
+    final start = _timestamps.remove(hash);
+    if (start == null) return 0;
+    return DateTime.now().millisecondsSinceEpoch - start;
+  }
+
+  String? _extractMessage(DioException err) {
+    final data = err.response?.data;
+    if (data is Map) {
+      final error = data['error'];
+      if (error is Map) return error['message']?.toString();
+      return data['message']?.toString();
+    }
+    if (data == null && err.message != null) return err.message;
+    return null;
   }
 }
 ''';

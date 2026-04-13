@@ -1,5 +1,38 @@
 # Changelog
 
+## 1.0.33
+
+### Logging Overhaul — Zero-Dependency AppLogger
+- **Replaced** the `logger` package-based `AppLogger` with a zero-dependency implementation using `debugPrint` directly — no external packages needed
+- `AppLogger` now includes API-specific logging methods: `apiRequest()`, `apiResponse()`, `apiError()` with pretty-printed JSON, box-drawing borders, elapsed time display, and authorization header masking (first 15 chars only)
+- General logging uses `debugPrint` (not `print`) to avoid dropped lines on Android, with filtered stack traces (excludes `dart:`, `flutter/`, `bloc/`, `dio/` frames, max 5 frames)
+- Removed `logger: ^2.6.2` from generated project dependencies
+
+### Log Interceptor — Uses AppLogger API Methods
+- **Replaced** raw `print()` calls in `LoggingInterceptor` with `AppLogger.apiRequest/apiResponse/apiError` methods
+- Added request timestamp tracking via `_timestamps` map for elapsed time calculation on every response/error
+- Added smart error message extraction: checks `response.data.error.message`, then `response.data.message`, then `err.message`
+
+### API Response Parser — Enhanced with Key Access & Value Parsing
+- Added private `_extractData()` helper to DRY up data extraction from the `{"data": ...}` envelope
+- `parse()` and `parseList()` now accept an optional `key` parameter for accessing nested objects/lists within the data envelope (e.g. `response.data.data.profile`)
+- Added `parseValue<T>()` method for extracting single primitive values by key (e.g. `total_count`, `has_more`)
+
+### Dependency Updates
+- Removed `logger` package (replaced by zero-dependency AppLogger)
+- `flutter_local_notifications` ^20.1.0 → ^21.0.0 (major)
+- `camera` ^0.11.4 → ^0.12.0+1 (minor)
+- `firebase_core` ^4.4.0 → ^4.6.0
+- `firebase_messaging` ^16.1.1 → ^16.1.3
+- `firebase_remote_config` ^6.1.4 → ^6.3.0
+- `go_router` ^17.1.0 → ^17.2.0
+- `purchases_flutter` ^9.12.2 → ^9.16.1
+- `envied` / `envied_generator` ^1.1.1 → ^1.3.4
+- `toastification` ^3.0.3 → ^3.1.0
+- `flutter_svg` ^2.2.3 → ^2.2.4
+- `lottie` ^3.3.2 → ^3.3.3
+- `video_player` ^2.11.0 → ^2.11.1
+
 ## 1.0.32
 
 ### iOS UIScene Lifecycle — Use Official Flutter APIs

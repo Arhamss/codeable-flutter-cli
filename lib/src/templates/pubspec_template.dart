@@ -31,13 +31,13 @@ dependencies:
   get_it: ^9.2.1
 
   # Routing
-  go_router: ^17.1.0
+  go_router: ^17.2.0
 
   # Firebase
-  firebase_core: ^4.4.0
+  firebase_core: ^4.6.0
   firebase_auth: ^6.1.4
-  firebase_messaging: ^16.1.1
-  firebase_remote_config: ^6.1.4
+  firebase_messaging: ^16.1.3
+  firebase_remote_config: ^6.3.0
   cloud_firestore: ^6.1.2
   firebase_storage: ^13.0.6
 
@@ -49,34 +49,33 @@ dependencies:
   intl: any
 
   # UI
-  flutter_svg: ^2.2.3
+  flutter_svg: ^2.2.4
   cached_network_image: ^3.4.1
-  lottie: ^3.3.2
+  lottie: ^3.3.3
   shimmer: ^3.0.0
   smooth_page_indicator: ^2.0.1
   blur: ^4.0.2
   flutter_swipe_button: ^2.1.3
 
   # Media
-  camera: ^0.11.4
+  camera: ^0.12.0+1
   image_picker: ^1.2.1
-  video_player: ^2.11.0
+  video_player: ^2.11.1
 
   # Utilities
-  logger: ^2.6.2
-  toastification: ^3.0.3
+  toastification: ^3.1.0
   package_info_plus: ^9.0.0
   url_launcher: ^6.3.2
   flutter_phoenix: ^1.1.1
   permission_handler: ^12.0.1
   device_info_plus: ^12.3.0
-  flutter_local_notifications: ^20.1.0
+  flutter_local_notifications: ^21.0.0
   flutter_native_splash: ^2.4.7
   crypto: ^3.0.7
-  purchases_flutter: ^9.12.2
+  purchases_flutter: ^9.16.1
 
   # Environment
-  envied: ^1.1.1
+  envied: ^1.3.4
 
   # Debug
   chucker_flutter: ^1.9.1
@@ -91,7 +90,7 @@ dev_dependencies:
   hive_ce_generator: ^1.11.1
   very_good_analysis: ^10.2.0
   build_runner: ^2.11.1
-  envied_generator: ^1.1.1
+  envied_generator: ^1.3.4
 
 flutter:
   uses-material-design: true
