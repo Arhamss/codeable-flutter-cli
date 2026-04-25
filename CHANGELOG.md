@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.34
+
+### iOS Signing — Strip Host Machine's DEVELOPMENT_TEAM
+- **Fixed** `flutter create` baking the host machine's `DEVELOPMENT_TEAM` ID into every Runner build configuration of the generated `project.pbxproj`. Previously this leaked whichever Apple Developer Team was active on the machine that ran the CLI into all 9 flavor configs (Debug/Release/Profile × production/staging/development), pinning every developer who later opened the project to a team they didn't own
+- The flavor build-configuration generator now strips the `DEVELOPMENT_TEAM = ...;` line when it duplicates the original Runner blocks, so each flavor opens in Xcode with `Team: None` and developers can pick their own team via "Automatically manage signing"
+
 ## 1.0.33
 
 ### Logging Overhaul — Zero-Dependency AppLogger

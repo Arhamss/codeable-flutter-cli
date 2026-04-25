@@ -1147,6 +1147,16 @@ class ProjectGenerator {
               'ENABLE_BITCODE = NO;',
               'ENABLE_BITCODE = NO;\n\t\t\t\tFLAVOR_APP_NAME = "$appName";',
             );
+
+            // Strip DEVELOPMENT_TEAM that `flutter create` baked in from the
+            // host machine's Xcode preferences. Leaving it in pins every
+            // flavor's signing to whoever ran the CLI, blocking other devs
+            // from selecting their own team. Removing it makes Xcode show
+            // "Team: None" so each developer picks their own.
+            block = block.replaceFirst(
+              RegExp(r'\n\s*DEVELOPMENT_TEAM = [^;]+;'),
+              '',
+            );
           }
 
           newBlocks.writeln(block);
