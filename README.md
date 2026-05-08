@@ -841,6 +841,15 @@ See the [issues page](https://github.com/Arhamss/codeable-flutter-cli/issues) fo
 <br />
 <a href="https://www.linkedin.com/in/shahab-arif-b272721b7/">LinkedIn</a>
 </td>
+<td align="center">
+<a href="https://github.com/jinn-tea">
+<img src="https://github.com/jinn-tea.png" width="80" style="border-radius:50%;" alt="Abdullah Hamayun"/>
+<br />
+<b>Abdullah Hamayun</b>
+</a>
+<br />
+<a href="https://www.linkedin.com/in/abdullah-hamayun-8730a5262">LinkedIn</a>
+</td>
 </tr>
 </table>
 
