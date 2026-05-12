@@ -14,12 +14,12 @@ dependencies:
     sdk: flutter
 
   # State Management
-  bloc: ^9.2.0
+  bloc: ^9.2.1
   flutter_bloc: ^9.1.1
   equatable: ^2.0.8
 
   # Networking
-  dio: ^5.9.1
+  dio: ^5.9.2
   http: ^1.6.0
   web_socket_channel: ^3.0.3
 
@@ -31,48 +31,44 @@ dependencies:
   get_it: ^9.2.1
 
   # Routing
-  go_router: ^17.2.0
+  go_router: ^17.2.3
 
   # Firebase
-  firebase_core: ^4.6.0
-  firebase_auth: ^6.1.4
-  firebase_messaging: ^16.1.3
-  firebase_remote_config: ^6.3.0
-  cloud_firestore: ^6.1.2
-  firebase_storage: ^13.0.6
+  firebase_core: ^4.8.0
+  firebase_messaging: ^16.2.1
+  firebase_remote_config: ^6.5.0
 
   # Auth Providers
   google_sign_in: ^7.2.0
-  sign_in_with_apple: ^7.0.1
+  sign_in_with_apple: ^8.0.0
 
   # Localization
   intl: any
 
   # UI
-  flutter_svg: ^2.2.4
+  flutter_svg: ^2.3.0
   cached_network_image: ^3.4.1
-  lottie: ^3.3.3
   shimmer: ^3.0.0
   smooth_page_indicator: ^2.0.1
-  blur: ^4.0.2
-  flutter_swipe_button: ^2.1.3
 
   # Media
   camera: ^0.12.0+1
-  image_picker: ^1.2.1
+  image_picker: ^1.2.2
   video_player: ^2.11.1
 
   # Utilities
-  toastification: ^3.1.0
+  toastification: ^3.2.0
   package_info_plus: ^9.0.0
   url_launcher: ^6.3.2
   flutter_phoenix: ^1.1.1
   permission_handler: ^12.0.1
-  device_info_plus: ^12.3.0
+  device_info_plus: ^12.4.0
   flutter_local_notifications: ^21.0.0
   flutter_native_splash: ^2.4.7
   crypto: ^3.0.7
-  purchases_flutter: ^9.16.1
+
+  # In-App Purchases
+  purchases_flutter: ^10.0.2
 
   # Environment
   envied: ^1.3.4
@@ -89,8 +85,8 @@ dev_dependencies:
   intl_utils: ^2.8.14
   hive_ce_generator: ^1.11.1
   very_good_analysis: ^10.2.0
-  build_runner: ^2.11.1
-  envied_generator: ^1.3.4
+  build_runner: ^2.15.0
+  envied_generator: ^1.3.5
 
 flutter:
   uses-material-design: true

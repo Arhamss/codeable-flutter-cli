@@ -81,7 +81,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.34
+dart pub global activate codeable_cli 1.0.35
 ```
 
 ### Or run without activating
@@ -586,11 +586,9 @@ The generated project includes **30+ production-ready widgets** in `lib/utils/wi
 | Widget | Description |
 |--------|-------------|
 | `CustomAppBar` | App bar with back button, title, actions |
-| `CustomButton` | Primary filled button with loading state |
-| `CustomOutlineButton` | Outlined variant |
-| `CustomTextButton` | Text-only button |
+| `CustomButton` | Single button widget with `.primary`, `.secondary`, `.tertiary`, `.danger`, `.text` factories |
 | `CustomIconButton` | Icon button with optional badge |
-| `CustomTextField` | Text field with validation, prefix/suffix, formatters |
+| `CustomTextField` | Text field with `.email`, `.password`, `.number`, `.phone`, `.description`, `.search` factories, focus shadow, password toggle |
 | `CustomSearchField` | Search input with debounce |
 | `CustomDropdown` | Dropdown selector with cubit |
 | `SearchableDropdown` | Dropdown with search/filter |
@@ -605,7 +603,8 @@ The generated project includes **30+ production-ready widgets** in `lib/utils/wi
 | `CustomRetryWidget` | Error state with retry button |
 | `CustomStarRatingWidget` | Star rating display/input |
 | `CustomSocialAuthButton` | Google/Apple sign-in buttons |
-| `CachedNetworkImageWidget` | Cached network image with placeholder |
+| `CustomCachedImageWidget` | Cached network image with shimmer placeholder, asset fallback, custom `errorFallback` widget |
+| `UserAvatar` | Circular avatar with deterministic gradient (seeded by user ID), optional photo, and `isLoading` upload overlay |
 | `CustomDatePicker` | Date picker |
 | `CustomTimePicker` | Time picker |
 | `CustomCheckbox` | Checkbox with label |
@@ -688,6 +687,7 @@ All three icon sets start with the same default icons. To differentiate:
 - Auto-generated keystore at `android/app/<project_name>-keystore.jks`
 - Signing credentials in `android/key.properties`
 - Internet, camera, location, notification permissions in AndroidManifest.xml
+- `AppView` automatically wraps content in `SafeArea` on Android 15+ (SDK 35) so edge-to-edge default doesn't draw under the status/nav bars
 
 ### iOS (pre-configured)
 - Xcode schemes for each flavor (development, staging, production)

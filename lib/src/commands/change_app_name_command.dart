@@ -149,7 +149,7 @@ class ChangeAppNameCommand extends Command<int> {
     if (!l10nDir.existsSync()) return;
 
     final arbFiles = l10nDir
-        .listSync()
+        .listSync(recursive: true)
         .whereType<File>()
         .where((f) => f.path.endsWith('.arb'));
 

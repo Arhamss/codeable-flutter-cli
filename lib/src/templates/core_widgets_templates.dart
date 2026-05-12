@@ -103,7 +103,7 @@ PreferredSizeWidget customAppBar({
     title: titleWidget ??
         Text(
           title,
-          style: context.t1.copyWith(fontSize: 16),
+          style: context.h4Medium.copyWith(fontSize: 16),
         ),
     actions: actions,
   );
@@ -265,7 +265,7 @@ class CustomBottomSheet extends StatelessWidget {
               ],
               Text(
                 title,
-                style: context.t1,
+                style: context.h4Medium,
               ),
               if (body != null) ...[
                 Expanded(child: body!),
@@ -316,7 +316,7 @@ class CustomBottomSheet extends StatelessWidget {
                       child: Text(
                         subtitle!,
                         textAlign: TextAlign.center,
-                        style: context.b2,
+                        style: context.p2,
                         softWrap: true,
                       ),
                     ),
@@ -407,7 +407,7 @@ class CustomBulletPointItem extends StatelessWidget {
               text,
               style:
                   textStyle ??
-                  context.b2.copyWith(color: AppColors.blackPrimary),
+                  context.p2.copyWith(color: AppColors.blackPrimary),
             ),
           ),
         ],
@@ -421,7 +421,7 @@ const String buttonTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
 class CustomButton extends StatelessWidget {
-  CustomButton({
+  const CustomButton({
     required this.text,
     required this.onPressed,
     this.isLoading = false,
@@ -441,49 +441,49 @@ class CustomButton extends StatelessWidget {
     this.isExpanded = true,
     this.iconSpacing,
     this.disabled = false,
-    this.loadingColor = AppColors.white,
     this.borderColor,
     this.borderWidth = 1.0,
     this.textStyle,
     this.hasShadow = false,
-  }) : padding = padding ?? EdgeInsetsDirectional.symmetric(
-          vertical: 12,
-          horizontal: 24,
-        ),
-        outsidePadding = outsidePadding ?? EdgeInsetsDirectional.all(4);
+    this.alignPrefixStart = false,
+    this.centerContent = false,
+  })  : padding = padding ??
+            const EdgeInsetsDirectional.symmetric(vertical: 18, horizontal: 24),
+        outsidePadding = outsidePadding ?? EdgeInsetsDirectional.zero;
 
-  /// Primary button - Black background with white text
-  CustomButton.primary({
+  /// Default brand action — main CTA on a screen.
+  const CustomButton.primary({
     required this.text,
     required this.onPressed,
     this.isLoading = false,
     super.key,
     this.prefixIcon,
     this.suffixIcon,
-    EdgeInsets? outsidePadding,
+    EdgeInsetsGeometry? outsidePadding,
     this.isExpanded = true,
     this.iconSpacing,
     this.disabled = false,
     this.hasShadow = false,
+    this.alignPrefixStart = false,
+    this.centerContent = false,
+    this.padding = const EdgeInsetsDirectional.symmetric(
+      vertical: 18,
+      horizontal: 24,
+    ),
   })  : backgroundColor = AppColors.blackPrimary,
         textColor = AppColors.white,
         disabledTextColor = AppColors.buttonDisabledText,
         disabledBackgroundColor = AppColors.textTertiary,
         borderRadius = 100,
-        padding = EdgeInsetsDirectional.symmetric(
-          vertical: 16,
-          horizontal: 24,
-        ),
         fontWeight = FontWeight.w600,
         splashColor = Colors.black12,
         fontSize = 16,
-        loadingColor = AppColors.white,
-        borderColor = AppColors.blackPrimary,
+        borderColor = null,
         borderWidth = 1.0,
         textStyle = null,
-        outsidePadding = outsidePadding ?? EdgeInsetsDirectional.all(4);
+        outsidePadding = outsidePadding ?? EdgeInsetsDirectional.zero;
 
-  /// Secondary button - White background with black text and border
+  /// Alternate filled action when primary doesn't fit the surface.
   const CustomButton.secondary({
     required this.text,
     required this.onPressed,
@@ -491,13 +491,47 @@ class CustomButton extends StatelessWidget {
     super.key,
     this.prefixIcon,
     this.suffixIcon,
-    this.outsidePadding = const EdgeInsetsDirectional.all(4),
+    EdgeInsetsGeometry? outsidePadding,
     this.isExpanded = true,
     this.iconSpacing,
     this.disabled = false,
     this.hasShadow = false,
+    this.alignPrefixStart = false,
+    this.centerContent = false,
     this.padding = const EdgeInsetsDirectional.symmetric(
-      vertical: 16,
+      vertical: 18,
+      horizontal: 24,
+    ),
+  })  : backgroundColor = AppColors.secondaryMain,
+        textColor = AppColors.white,
+        disabledTextColor = AppColors.buttonDisabledText,
+        disabledBackgroundColor = AppColors.textTertiary,
+        borderRadius = 100,
+        fontWeight = FontWeight.w600,
+        splashColor = Colors.black12,
+        fontSize = 16,
+        borderColor = null,
+        borderWidth = 1.0,
+        textStyle = null,
+        outsidePadding = outsidePadding ?? EdgeInsetsDirectional.zero;
+
+  /// Outlined action — secondary emphasis, often paired with a primary.
+  const CustomButton.tertiary({
+    required this.text,
+    required this.onPressed,
+    this.isLoading = false,
+    super.key,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.outsidePadding = EdgeInsetsDirectional.zero,
+    this.isExpanded = true,
+    this.iconSpacing,
+    this.disabled = false,
+    this.hasShadow = false,
+    this.alignPrefixStart = false,
+    this.centerContent = false,
+    this.padding = const EdgeInsetsDirectional.symmetric(
+      vertical: 18,
       horizontal: 24,
     ),
     this.borderWidth = 1.0,
@@ -510,11 +544,42 @@ class CustomButton extends StatelessWidget {
         borderRadius = 100,
         fontWeight = FontWeight.w600,
         fontSize = 16,
-        loadingColor = AppColors.blackPrimary,
         borderColor = AppColors.blackPrimary;
 
-  /// Tertiary button - Text-only button with no background or border
-  const CustomButton.tertiary({
+  /// Destructive actions — delete, leave, cancel subscription.
+  const CustomButton.danger({
+    required this.text,
+    required this.onPressed,
+    this.isLoading = false,
+    super.key,
+    this.prefixIcon,
+    this.suffixIcon,
+    EdgeInsetsGeometry? outsidePadding,
+    this.isExpanded = true,
+    this.iconSpacing,
+    this.disabled = false,
+    this.hasShadow = false,
+    this.alignPrefixStart = false,
+    this.centerContent = false,
+    this.padding = const EdgeInsetsDirectional.symmetric(
+      vertical: 18,
+      horizontal: 24,
+    ),
+  })  : backgroundColor = AppColors.error,
+        textColor = AppColors.white,
+        disabledTextColor = AppColors.buttonDisabledText,
+        disabledBackgroundColor = AppColors.textTertiary,
+        borderRadius = 100,
+        fontWeight = FontWeight.w600,
+        splashColor = Colors.black12,
+        fontSize = 16,
+        borderColor = null,
+        borderWidth = 1.0,
+        textStyle = null,
+        outsidePadding = outsidePadding ?? EdgeInsetsDirectional.zero;
+
+  /// Inline links and low-emphasis actions ("Forgot password?", "Skip").
+  const CustomButton.text({
     required this.text,
     required this.onPressed,
     this.isLoading = false,
@@ -526,7 +591,7 @@ class CustomButton extends StatelessWidget {
     this.iconSpacing,
     this.disabled = false,
     this.fontSize = 16,
-    this.fontWeight = FontWeight.w500,
+    this.fontWeight = FontWeight.w700,
   })  : backgroundColor = Colors.transparent,
         textColor = AppColors.blackPrimary,
         disabledTextColor = AppColors.textTertiary,
@@ -536,12 +601,13 @@ class CustomButton extends StatelessWidget {
           vertical: 12,
           horizontal: 16,
         ),
-        splashColor = Colors.black12,
-        loadingColor = AppColors.blackPrimary,
+        splashColor = Colors.transparent,
         borderColor = null,
         borderWidth = 0.0,
         textStyle = null,
-        hasShadow = false;
+        hasShadow = false,
+        alignPrefixStart = false,
+        centerContent = false;
 
   final String text;
   final VoidCallback? onPressed;
@@ -561,27 +627,29 @@ class CustomButton extends StatelessWidget {
   final bool disabled;
   final Color? disabledTextColor;
   final Color? disabledBackgroundColor;
-  final Color loadingColor;
   final Color? borderColor;
   final double borderWidth;
   final TextStyle? textStyle;
   final bool hasShadow;
+  final bool alignPrefixStart;
+  final bool centerContent;
 
   @override
   Widget build(BuildContext context) {
     final effectiveDisabledBackgroundColor =
-        disabledBackgroundColor ?? AppColors.blackPrimary;
+        disabledBackgroundColor ?? backgroundColor.withValues(alpha: 0.4);
     final effectiveDisabledTextColor =
-        disabledTextColor ?? AppColors.white.withValues(alpha: 0.5);
+        disabledTextColor ?? textColor.withValues(alpha: 0.4);
 
     final buttonContent = TextButton(
       onPressed: (isLoading || disabled) ? null : onPressed,
       style: TextButton.styleFrom(
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         minimumSize: Size.zero,
-        padding: EdgeInsets.zero,
-        backgroundColor:
-            disabled ? effectiveDisabledBackgroundColor : backgroundColor,
+        padding: EdgeInsetsDirectional.zero,
+        backgroundColor: disabled
+            ? effectiveDisabledBackgroundColor
+            : backgroundColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
           side: borderColor != null
@@ -600,33 +668,53 @@ class CustomButton extends StatelessWidget {
         padding: padding,
         child: isLoading
             ? SizedBox(
-                height: 23,
-                width: 23,
+                height: 20,
+                width: 20,
                 child: CustomLoadingWidget(color: textColor),
               )
             : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: centerContent
+                    ? MainAxisAlignment.center
+                    : MainAxisAlignment.start,
                 children: [
                   if (prefixIcon != null) ...[
                     prefixIcon!,
-                    SizedBox(width: iconSpacing ?? 8),
+                    if (!alignPrefixStart) SizedBox(width: iconSpacing ?? 8),
                   ],
-                  Flexible(
-                    child: Text(
-                      text,
-                      style: textStyle ??
-                          context.h2.copyWith(
-                            color: disabled
-                                ? effectiveDisabledTextColor
-                                : textColor,
-                            fontWeight: fontWeight,
-                            fontSize: fontSize,
-                          ),
-                      textAlign: TextAlign.center,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
+                  if (centerContent)
+                    Flexible(
+                      child: Text(
+                        text,
+                        style: textStyle ??
+                            context.h2.copyWith(
+                              color: disabled
+                                  ? effectiveDisabledTextColor
+                                  : textColor,
+                              fontWeight: fontWeight,
+                              fontSize: fontSize,
+                            ),
+                        textAlign: TextAlign.center,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    )
+                  else
+                    Expanded(
+                      child: Text(
+                        text,
+                        style: textStyle ??
+                            context.h2.copyWith(
+                              color: disabled
+                                  ? effectiveDisabledTextColor
+                                  : textColor,
+                              fontWeight: fontWeight,
+                              fontSize: fontSize,
+                            ),
+                        textAlign: TextAlign.center,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
                   if (suffixIcon != null) ...[
                     SizedBox(width: iconSpacing ?? 8),
                     suffixIcon!,
@@ -637,7 +725,7 @@ class CustomButton extends StatelessWidget {
     );
 
     final Widget buttonWidget = Padding(
-      padding: outsidePadding ?? EdgeInsets.zero,
+      padding: outsidePadding ?? EdgeInsetsDirectional.zero,
       child: isExpanded
           ? Row(children: [Expanded(child: buttonContent)])
           : buttonContent,
@@ -681,6 +769,7 @@ class CustomCachedImageWidget extends StatelessWidget {
     this.fit = BoxFit.cover,
     this.compactPlaceholder = false,
     this.placeholderAspectRatio,
+    this.errorFallback,
   });
 
   final String imageUrl;
@@ -689,12 +778,17 @@ class CustomCachedImageWidget extends StatelessWidget {
   final String placeHolder;
   final BorderRadiusGeometry? borderRadius;
   final BoxFit fit;
+
   /// When true, placeholder/shimmer is centered and constrained (e.g. for full-screen
   /// viewers) so the background stays visible instead of shimmer filling the screen.
   final bool compactPlaceholder;
+
   /// When set, placeholder height = width / value (e.g. 4/3 gives shorter placeholder).
   /// Only used when [compactPlaceholder] is false and [width] is non-null.
   final double? placeholderAspectRatio;
+
+  /// Custom widget to show on load error instead of the default placeholder.
+  final Widget? errorFallback;
 
   @override
   Widget build(BuildContext context) {
@@ -716,12 +810,17 @@ class CustomCachedImageWidget extends StatelessWidget {
                 width: width,
                 height: height,
                 color: AppColors.backgroundTertiary,
-                child: Icon(
-                  Icons.image_outlined,
-                  size: (width != null && height != null)
-                      ? (width! < height! ? width! * 0.5 : height! * 0.5)
-                      : 24,
-                  color: AppColors.textTertiary,
+                child: Center(
+                  child: SvgPicture.asset(
+                    AssetPaths.imageIcon,
+                    width: (width != null && height != null)
+                        ? (width! < height! ? width! * 0.5 : height! * 0.5)
+                        : 24,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.neutral700,
+                      BlendMode.srcIn,
+                    ),
+                  ),
                 ),
               );
             },
@@ -787,9 +886,168 @@ class CustomCachedImageWidget extends StatelessWidget {
                       ),
                     ),
         ),
-        errorWidget: (context, url, error) =>
-            Image.asset(placeHolder, width: width, height: height, fit: fit),
+        errorWidget: (context, url, error) => errorFallback ?? Image.asset(
+          placeHolder,
+          width: width,
+          height: height,
+          fit: fit,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              width: width,
+              height: height,
+              color: AppColors.backgroundTertiary,
+              child: Center(
+                child: SvgPicture.asset(
+                  AssetPaths.imageIcon,
+                  width: (width != null && height != null)
+                      ? (width! < height! ? width! * 0.5 : height! * 0.5)
+                      : 24,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.neutral700,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
       ),
+    );
+  }
+}
+''';
+
+const String userAvatarTemplate = '''
+import 'package:{{project_name}}/exports.dart';
+
+/// A circular user avatar with a gradient background.
+///
+/// When [seed] is provided (e.g. a member ID), a gradient is chosen
+/// deterministically from [AppColors.avatarGradients]. When omitted,
+/// the first gradient (brand primary) is used (for the current user's avatar).
+///
+/// Shows a cached network image if [imageUrl] is a valid absolute URL,
+/// otherwise falls back to displaying [initial] text.
+///
+/// ```dart
+/// UserAvatar(initial: 'A', size: 76)                          // own avatar (brand)
+/// UserAvatar(initial: 'AH', size: 44, seed: member.id)        // other user (random gradient)
+/// UserAvatar(initial: 'J', size: 32, seed: id, imageUrl: url) // with photo
+/// UserAvatar(initial: 'A', isLoading: true)                    // uploading state
+/// ```
+class UserAvatar extends StatelessWidget {
+  const UserAvatar({
+    required this.initial,
+    this.imageUrl,
+    this.size = 76,
+    this.seed,
+    this.onTap,
+    this.isLoading = false,
+    super.key,
+  });
+
+  final String initial;
+  final String? imageUrl;
+  final double size;
+
+  /// Deterministic seed for gradient selection (e.g. user/member ID).
+  /// When null, defaults to the brand primary gradient.
+  final String? seed;
+  final VoidCallback? onTap;
+
+  /// When true, shows a loading overlay and disables tap.
+  final bool isLoading;
+
+  static bool _isValidImageUrl(String? url) {
+    if (url == null || url.isEmpty) return false;
+    return url.startsWith('http://') || url.startsWith('https://');
+  }
+
+  List<Color> get _gradientColors {
+    if (seed == null) {
+      return AppColors.avatarGradients.first;
+    }
+    final index = seed.hashCode.abs() % AppColors.avatarGradients.length;
+    return AppColors.avatarGradients[index];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasImage = _isValidImageUrl(imageUrl);
+    final gradient = _gradientColors;
+
+    final avatar = Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: gradient,
+        ),
+      ),
+      alignment: Alignment.center,
+      child: hasImage
+          ? ClipOval(
+              child: CustomCachedImageWidget(
+                imageUrl: imageUrl!,
+                width: size,
+                height: size,
+                errorFallback: Text(
+                  initial,
+                  style: _textStyle(context),
+                ),
+              ),
+            )
+          : Text(
+              initial,
+              style: _textStyle(context),
+            ),
+    );
+
+    final content = isLoading
+        ? Stack(
+            children: [
+              avatar,
+              Container(
+                width: size,
+                height: size,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.black.withValues(alpha: 0.4),
+                ),
+                alignment: Alignment.center,
+                child: CustomLoadingWidget(
+                  size: size * 0.35,
+                  color: AppColors.white,
+                ),
+              ),
+            ],
+          )
+        : avatar;
+
+    if (onTap != null && !isLoading) {
+      return GestureDetector(onTap: onTap, child: content);
+    }
+
+    return content;
+  }
+
+  TextStyle _textStyle(BuildContext context) {
+    if (size >= 64) {
+      return context.h3Bold.copyWith(color: AppColors.white);
+    }
+    if (size >= 40) {
+      return context.p1Medium.copyWith(
+        color: AppColors.white,
+        fontWeight: FontWeight.w600,
+      );
+    }
+    return context.p2.copyWith(
+      color: AppColors.white,
+      fontWeight: FontWeight.w600,
+      fontSize: 12,
     );
   }
 }
@@ -885,7 +1143,7 @@ class CustomChip extends StatelessWidget {
         child: Text(
           text,
           style:
-              fontStyle ?? context.t3.copyWith(fontSize: 12, color: fontColor),
+              fontStyle ?? context.p1Medium.copyWith(fontSize: 12, color: fontColor),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
@@ -964,7 +1222,7 @@ class CustomConfirmationDialog extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
                 title,
-                style: context.t3.copyWith(
+                style: context.p1Medium.copyWith(
                   fontWeight: FontWeight.w600,
                   color: AppColors.blackPrimary,
                 ),
@@ -978,7 +1236,7 @@ class CustomConfirmationDialog extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
                 subtitle,
-                style: context.b2.copyWith(
+                style: context.p2.copyWith(
                   color: AppColors.blackPrimary,
                   height: 1.4,
                 ),
@@ -1113,11 +1371,11 @@ class CustomDatePicker extends StatelessWidget {
         dividerColor: AppColors.blackPrimary,
       ),
       textTheme: Theme.of(context).textTheme.copyWith(
-            labelLarge: context.b1,
-            headlineLarge: context.t3.copyWith(fontWeight: FontWeight.w600),
-            headlineSmall: context.b1,
-            bodyLarge: context.b2,
-            titleSmall: context.b1,
+            labelLarge: context.p1Medium,
+            headlineLarge: context.p1Medium.copyWith(fontWeight: FontWeight.w600),
+            headlineSmall: context.p1Medium,
+            bodyLarge: context.p2,
+            titleSmall: context.p1Medium,
           ),
     );
   }
@@ -1148,7 +1406,7 @@ class CustomDatePicker extends StatelessWidget {
       children: [
         Text(
           labelText,
-          style: context.b1.copyWith(color: AppColors.blackPrimary),
+          style: context.p1Medium.copyWith(color: AppColors.blackPrimary),
         ),
         const SizedBox(height: 8),
         GestureDetector(
@@ -1182,8 +1440,8 @@ class CustomDatePicker extends StatelessWidget {
                   child: Text(
                     displayText ?? (hintText ?? labelText),
                     style: displayText != null
-                        ? context.b2
-                        : context.b2.copyWith(color: AppColors.textSecondary),
+                        ? context.p2
+                        : context.p2.copyWith(color: AppColors.textSecondary),
                   ),
                 ),
                 if (iconPath != null) ...[
@@ -1201,7 +1459,7 @@ class CustomDatePicker extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             validator!(dateString)!,
-            style: context.b3.copyWith(
+            style: context.captionMedium.copyWith(
               color: AppColors.error,
               fontSize: 13,
             ),
@@ -1424,7 +1682,7 @@ class _CustomDropdownContentState extends State<_CustomDropdownContent> {
           children: [
             Text(
               widget.labelText,
-              style: context.b1.copyWith(color: AppColors.blackPrimary),
+              style: context.p1Medium.copyWith(color: AppColors.blackPrimary),
             ),
             const SizedBox(height: 8),
             GestureDetector(
@@ -1477,8 +1735,8 @@ class _CustomDropdownContentState extends State<_CustomDropdownContent> {
                                     ? widget.selectedValue!
                                     : (widget.hintText ?? widget.labelText),
                                 style: hasValue
-                                    ? context.b2
-                                    : context.b2.copyWith(
+                                    ? context.p2
+                                    : context.p2.copyWith(
                                         color: AppColors.textSecondary,
                                       ),
                               ),
@@ -1535,7 +1793,7 @@ class _CustomDropdownContentState extends State<_CustomDropdownContent> {
                                       Expanded(
                                         child: Text(
                                           option,
-                                          style: context.b2.copyWith(
+                                          style: context.p2.copyWith(
                                             color: AppColors.blackPrimary,
                                             fontWeight: isSelected
                                                 ? FontWeight.w600
@@ -1582,7 +1840,7 @@ class _CustomDropdownContentState extends State<_CustomDropdownContent> {
                         padding: const EdgeInsetsDirectional.only(top: 6, start: 12),
                         child: Text(
                           state.errorText!,
-                          style: context.b3.copyWith(
+                          style: context.captionMedium.copyWith(
                             color: AppColors.error,
                             fontSize: 13,
                             height: 1.4,
@@ -1752,10 +2010,10 @@ class _CustomSlidingTabState extends State<CustomSlidingTab> {
                       duration: widget.animationDuration,
                       style: isSelected
                           ? (widget.selectedTextStyle ??
-                                (widget.textStyle ?? context.b1).copyWith(
+                                (widget.textStyle ?? context.p1Medium).copyWith(
                                   color: AppColors.white,
                                 ))
-                          : (widget.textStyle ?? context.b1).copyWith(
+                          : (widget.textStyle ?? context.p1Medium).copyWith(
                               color: AppColors.blackPrimary,
                             ),
                       child: Text(
@@ -1921,7 +2179,7 @@ class CustomEmptyStateWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               subtitle!,
-              style: context.b2.copyWith(color: AppColors.blackPrimary),
+              style: context.p2.copyWith(color: AppColors.blackPrimary),
               textAlign: TextAlign.center,
             ),
           ],
@@ -1976,7 +2234,6 @@ export 'icon_button.dart';
 export 'image_picker.dart';
 export 'loading_widget.dart';
 export 'otp_input_field.dart';
-export 'outline_button.dart';
 export 'paginated_list_view.dart';
 export 'progress_dashes.dart';
 export 'retry_widget.dart';
@@ -1992,6 +2249,7 @@ export 'switch.dart';
 export 'text_button.dart';
 export 'text_field.dart';
 export 'time_picker.dart';
+export 'user_avatar.dart';
 export 'section_title.dart';
 export 'form_builder.dart';
 ''';
@@ -2143,119 +2401,6 @@ class CustomLoadingWidget extends StatelessWidget {
 }
 ''';
 
-
-const String outlineButtonTemplate = '''
-import 'package:{{project_name}}/exports.dart';
-
-class CustomOutlineButton extends StatelessWidget {
-  CustomOutlineButton({
-    required this.text,
-    required this.onPressed,
-    required this.isLoading,
-    super.key,
-    this.borderColor = AppColors.blackPrimary,
-    this.textColor = AppColors.blackPrimary,
-    this.disabledTextColor = AppColors.blackPrimary,
-    this.disabledBorderColor,
-    this.borderRadius = 100,
-    EdgeInsets? padding,
-    this.fontWeight = FontWeight.w800,
-    this.splashColor = Colors.black12,
-    this.fontSize = 18,
-    this.prefixIcon,
-    this.suffixIcon,
-    EdgeInsets? outsidePadding,
-    this.isExpanded = true,
-    this.iconSpacing,
-    this.disabled = false,
-    this.loadingColor,
-    this.borderWidth = 1.5,
-  }) : padding = padding ?? EdgeInsets.symmetric(
-          vertical: 12,
-          horizontal: 14,
-        ),
-        outsidePadding = outsidePadding ?? EdgeInsets.all(4);
-
-  final String text;
-  final VoidCallback? onPressed;
-  final bool isLoading;
-  final Color borderColor;
-  final Color textColor;
-  final double borderRadius;
-  final EdgeInsets padding;
-  final FontWeight fontWeight;
-  final Color splashColor;
-  final double fontSize;
-  final Widget? prefixIcon;
-  final Widget? suffixIcon;
-  final EdgeInsets? outsidePadding;
-  final bool isExpanded;
-  final double? iconSpacing;
-  final bool disabled;
-  final Color disabledTextColor;
-  final Color? disabledBorderColor;
-  final Color? loadingColor;
-  final double borderWidth;
-
-  @override
-  Widget build(BuildContext context) {
-    final effectiveBorderColor = disabled
-        ? (disabledBorderColor ?? borderColor.withValues(alpha: 0.5))
-        : borderColor;
-
-    final button = TextButton(
-      onPressed: (isLoading || disabled) ? null : onPressed,
-      style: TextButton.styleFrom(
-        minimumSize: Size.zero,
-        padding: EdgeInsetsDirectional.zero,
-        backgroundColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
-          side: BorderSide(color: effectiveBorderColor, width: borderWidth),
-        ),
-        splashFactory: InkRipple.splashFactory,
-        overlayColor: splashColor,
-      ),
-      child: Padding(
-        padding: padding,
-        child: isLoading
-            ? SizedBox(
-                height: 20,
-                width: 20,
-                child: CustomLoadingWidget(color: loadingColor ?? textColor),
-              )
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (prefixIcon != null) ...[
-                    prefixIcon!,
-                    SizedBox(width: iconSpacing ?? 8),
-                  ],
-                  Text(
-                    text,
-                    style: TextStyle(
-                      color: disabled ? disabledTextColor : textColor,
-                      fontWeight: fontWeight,
-                      fontSize: fontSize,
-                    ),
-                  ),
-                  if (suffixIcon != null) ...[
-                    SizedBox(width: iconSpacing ?? 8),
-                    suffixIcon!,
-                  ],
-                ],
-              ),
-      ),
-    );
-
-    return Padding(
-      padding: outsidePadding ?? EdgeInsetsDirectional.zero,
-      child: isExpanded ? Row(children: [Expanded(child: button)]) : button,
-    );
-  }
-}
-''';
 
 const String paginatedListViewTemplate = '''
 import 'package:{{project_name}}/exports.dart';
@@ -2833,7 +2978,7 @@ class CustomRetryWidget extends StatelessWidget {
         children: [
           Text(
             message ?? 'Something went wrong. Please try again.',
-            style: context.b2.copyWith(color: AppColors.error),
+            style: context.p2.copyWith(color: AppColors.error),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
@@ -2850,7 +2995,7 @@ class CustomRetryWidget extends StatelessWidget {
             ),
             child: Text(
               'Retry',
-              style: context.b2.copyWith(color: AppColors.white),
+              style: context.p2.copyWith(color: AppColors.white),
             ),
           ),
         ],
@@ -2934,7 +3079,7 @@ class _ReusableCalendarWidgetState extends State<ReusableCalendarWidget> {
                 ),
                 Text(
                   '\${_getMonthName(_currentMonth.month)} \${_currentMonth.year}',
-                  style: context.t3.copyWith(
+                  style: context.p1Medium.copyWith(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -2968,7 +3113,7 @@ class _ReusableCalendarWidgetState extends State<ReusableCalendarWidget> {
                       child: Text(
                         day,
                         textAlign: TextAlign.center,
-                        style: context.t3.copyWith(
+                        style: context.p1Medium.copyWith(
                           fontSize: 12,
                           color: AppColors.blackPrimary,
                         ),
@@ -3055,7 +3200,7 @@ class _ReusableCalendarWidgetState extends State<ReusableCalendarWidget> {
                 children: [
                   Text(
                     day.toString(),
-                    style: context.b2.copyWith(
+                    style: context.p2.copyWith(
                       fontSize: 12,
                       color: isDisabled
                           ? AppColors.blackPrimary.withValues(alpha: 0.3)
@@ -3178,14 +3323,14 @@ class CustomRichText extends StatelessWidget {
       text: TextSpan(
         text: textBefore,
         style: normalTextStyle ??
-            context.l3.copyWith(
+            context.overline.copyWith(
               color: AppColors.textSecondary,
             ),
         children: [
           TextSpan(
             text: noSpace ? richText : ' \$richText ',
             style: richTextStyle ??
-                context.l1.copyWith(
+                context.p2Bold.copyWith(
                   fontSize: 10,
                   color: richTextColor ?? AppColors.blackPrimary,
                   fontWeight: FontWeight.bold,
@@ -3196,7 +3341,7 @@ class CustomRichText extends StatelessWidget {
           TextSpan(
             text: textAfter,
             style: normalTextStyle ??
-                context.l3.copyWith(
+                context.overline.copyWith(
                   color: AppColors.textSecondary,
                 ),
           ),
@@ -3439,7 +3584,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
                   padding: const EdgeInsets.all(16),
                   child: Text(
                     'No cities found',
-                    style: context.b2.copyWith(
+                    style: context.p2.copyWith(
                       color: AppColors.textTertiary,
                     ),
                   ),
@@ -3470,7 +3615,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
                             Expanded(
                               child: Text(
                                 option,
-                                style: context.b2.copyWith(
+                                style: context.p2.copyWith(
                                   color: AppColors.blackPrimary,
                                   fontWeight: isSelected
                                       ? FontWeight.w600
@@ -3555,7 +3700,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
             children: [
               Text(
                 widget.labelText,
-                style: context.b1.copyWith(color: AppColors.blackPrimary),
+                style: context.p1Medium.copyWith(color: AppColors.blackPrimary),
               ),
               const SizedBox(height: 8),
               GestureDetector(
@@ -3606,14 +3751,14 @@ class SearchableDropdownState extends State<SearchableDropdown> {
                               enabled: widget.enabled,
                               decoration: InputDecoration(
                                 hintText: widget.hintText ?? widget.labelText,
-                                hintStyle: context.b2.copyWith(
+                                hintStyle: context.p2.copyWith(
                                   color: AppColors.textTertiary,
                                 ),
                                 border: InputBorder.none,
                                 contentPadding: EdgeInsets.zero,
                                 isDense: true,
                               ),
-                              style: context.b2.copyWith(
+                              style: context.p2.copyWith(
                                 color: AppColors.blackPrimary,
                               ),
                             ),
@@ -3650,7 +3795,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
                               padding: const EdgeInsetsDirectional.only(top: 6, start: 12),
                               child: Text(
                                 state.errorText!,
-                                style: context.b3.copyWith(
+                                style: context.captionMedium.copyWith(
                                   color: AppColors.error,
                                   fontSize: 13,
                                   height: 1.4,
@@ -3700,7 +3845,7 @@ class CustomSectionTitle extends StatelessWidget {
               EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             title,
-            style: context.t1.copyWith(
+            style: context.h4Medium.copyWith(
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
@@ -3782,7 +3927,7 @@ class _FeesSliderState extends State<FeesSlider> {
           children: [
             Text(
               'Fees',
-              style: context.t3.copyWith(
+              style: context.p1Medium.copyWith(
                 fontWeight: FontWeight.w800,
                 color: AppColors.blackPrimary,
                 fontSize: 16,
@@ -3791,7 +3936,7 @@ class _FeesSliderState extends State<FeesSlider> {
             const Spacer(),
             Text(
               'Amount: \\\$ \${_value.toInt()}',
-              style: context.t3.copyWith(
+              style: context.p1Medium.copyWith(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
                 color: AppColors.blackPrimary,
@@ -4200,7 +4345,7 @@ class _SlidingTabState extends State<SlidingTab> {
                     child: Text(
                       widget.labels[index],
                       textAlign: TextAlign.center,
-                      style: context.b3,
+                      style: context.captionMedium,
                     ),
                   ),
                 ),
@@ -4233,7 +4378,7 @@ class CustomSocialAuthButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomButton.secondary(
+    return CustomButton.tertiary(
       text: text,
       onPressed: isLoading ? null : onPressed,
       isLoading: isLoading,
@@ -4302,7 +4447,7 @@ class CustomStackedImages extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   '+\${images.length - maxImages}',
-                  style: context.l3.copyWith(
+                  style: context.overline.copyWith(
                     fontSize: size * 0.3,
                     color: AppColors.blackPrimary,
                     fontWeight: FontWeight.w600,
@@ -4397,7 +4542,7 @@ class CustomSwitch extends StatelessWidget {
           if (title != null)
             Text(
               title!,
-              style: context.t3.copyWith(color: AppColors.blackPrimary),
+              style: context.p1Medium.copyWith(color: AppColors.blackPrimary),
             ),
           Transform.scale(
             scale: 0.75,
@@ -4455,83 +4600,36 @@ const String textFieldTemplate = '''
 import 'package:{{project_name}}/core/field_validators.dart';
 import 'package:{{project_name}}/exports.dart';
 
-/// Types of text fields supported by the CustomTextField widget
+/// Determines type-specific rendering (search prefix/suffix, password toggle,
+/// keyboard action). Set automatically by named factories.
 enum CustomTextFieldType { email, password, description, number, text, search }
 
-/// Configuration for text field styling and behavior
-class TextFieldConfig {
-  const TextFieldConfig({
-    this.maxLines = 1,
-    this.maxLength = 100,
-    this.keyboardType = TextInputType.text,
-    this.obscureText = false,
-    this.borderRadius = 100.0,
-    this.contentPadding,
-    this.inputFormatters,
-  });
-
-  final int maxLines;
-  final int maxLength;
-  final TextInputType keyboardType;
-  final bool obscureText;
-  final double borderRadius;
-  final EdgeInsetsGeometry? contentPadding;
-  final List<TextInputFormatter>? inputFormatters;
-
-  /// Predefined configurations for different text field types
-  static const TextFieldConfig email = TextFieldConfig(
-    keyboardType: TextInputType.emailAddress,
-  );
-
-  static const TextFieldConfig password = TextFieldConfig(
-    keyboardType: TextInputType.visiblePassword,
-    obscureText: true,
-  );
-
-  static const TextFieldConfig description = TextFieldConfig(
-    maxLines: 5,
-    maxLength: 200,
-    borderRadius: 18,
-    contentPadding: EdgeInsetsDirectional.only(start: 16, top: 24),
-  );
-
-  static final TextFieldConfig number = TextFieldConfig(
-    keyboardType: TextInputType.number,
-    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-  );
-
-  static const TextFieldConfig text = TextFieldConfig();
-
-  static const TextFieldConfig search = TextFieldConfig(
-    keyboardType: TextInputType.text,
-  );
-}
-
-/// Configuration for text field icons
-class TextFieldIconConfig {
-  const TextFieldIconConfig({
-    this.prefixPath,
-    this.prefix,
-    this.suffixPath,
-    this.suffix,
-    this.suffixColor,
-  });
-
-  final String? prefixPath;
-  final Widget? prefix;
-  final String? suffixPath;
-  final Widget? suffix;
-  final Color? suffixColor;
-}
-
-/// A highly customizable text field widget with built-in support for common field types
+/// A customizable text field with built-in support for common field types.
+///
+/// **Named factories** for common variants:
+/// ```dart
+/// CustomTextField.email(controller: _ctrl, hintText: 'Email')
+/// CustomTextField.password(controller: _ctrl, hintText: 'Password')
+/// CustomTextField.number(controller: _ctrl, hintText: 'Max players')
+/// CustomTextField.phone(controller: _ctrl, hintText: 'Phone')
+/// CustomTextField.description(controller: _ctrl, hintText: 'Bio')
+/// CustomTextField.search(controller: _ctrl, onSearch: () => ...)
+/// ```
+///
+/// **Base constructor** for one-off configurations:
+/// ```dart
+/// CustomTextField(
+///   controller: _ctrl,
+///   hintText: 'Notes',
+///   config: TextFieldConfig(maxLines: 4, maxLength: 500),
+/// )
+/// ```
 class CustomTextField extends StatefulWidget {
   const CustomTextField({
     required this.controller,
     this.type = CustomTextFieldType.text,
     this.config,
-    this.iconConfig,
-    this.padding = EdgeInsets.zero,
+    this.padding = EdgeInsetsDirectional.zero,
     this.labelText,
     this.hintText,
     this.hintColor,
@@ -4543,82 +4641,27 @@ class CustomTextField extends StatefulWidget {
     this.enableRealTimeValidation = true,
     this.showValidation = false,
     this.focusNode,
-    this.suffixOnTap,
-    this.prefixOnTap,
-    this.onSearch,
-    this.showSuffixAlways = false,
-    this.filterCount,
-    this.showFilterIcon = true,
     this.prefix,
+    this.suffix,
+    this.suffixOnTap,
     this.backgroundColor,
     this.textStyle,
-    this.suffix,
+    this.textInputAction,
+    this.onSearch,
+    this.showFilterIcon = true,
+    this.showSuffixAlways = false,
+    this.filterCount,
+    this.prefixOnTap,
     super.key,
   });
 
-  /// Creates a number text field
-  factory CustomTextField.number({
-    required TextEditingController controller,
-    String? labelText,
-    String? hintText,
-    String? Function(String?)? validator,
-    EdgeInsetsGeometry padding = EdgeInsets.zero,
-    bool enabled = true,
-    bool showValidation = false,
-    FocusNode? focusNode,
-    TextFieldConfig? config,
-    Key? key,
-  }) {
-    return CustomTextField(
-      controller: controller,
-      type: CustomTextFieldType.number,
-      config: config ?? TextFieldConfig.number,
-      labelText: labelText,
-      hintText: hintText,
-      validator: validator ?? FieldValidators.numberValidator,
-      padding: padding,
-      enabled: enabled,
-      showValidation: showValidation,
-      focusNode: focusNode,
-      key: key,
-    );
-  }
-
-  /// Creates a normal text field
-  factory CustomTextField.normal({
-    required TextEditingController controller,
-    String? labelText,
-    String? hintText,
-    String? Function(String?)? validator,
-    EdgeInsetsGeometry padding = EdgeInsets.zero,
-    bool enabled = true,
-    bool enableRealTimeValidation = false,
-    bool showValidation = false,
-    FocusNode? focusNode,
-    Key? key,
-  }) {
-    return CustomTextField(
-      controller: controller,
-      config: TextFieldConfig.text,
-      labelText: labelText,
-      hintText: hintText,
-      validator: validator ?? FieldValidators.textValidator,
-      padding: padding,
-      enabled: enabled,
-      enableRealTimeValidation: enableRealTimeValidation,
-      showValidation: showValidation,
-      focusNode: focusNode,
-      key: key,
-    );
-  }
-
-  /// Creates an email text field
+  /// Email field with [TextFieldConfig.email] and [FieldValidators.emailValidator].
   factory CustomTextField.email({
     required TextEditingController controller,
     String? labelText,
     String? hintText,
     String? Function(String?)? validator,
-    EdgeInsetsGeometry padding = EdgeInsets.zero,
+    EdgeInsetsGeometry padding = EdgeInsetsDirectional.zero,
     bool enabled = true,
     bool enableRealTimeValidation = false,
     FocusNode? focusNode,
@@ -4627,6 +4670,7 @@ class CustomTextField extends StatefulWidget {
     Key? key,
   }) {
     return CustomTextField(
+      key: key,
       controller: controller,
       type: CustomTextFieldType.email,
       config: TextFieldConfig.email,
@@ -4639,22 +4683,23 @@ class CustomTextField extends StatefulWidget {
       focusNode: focusNode,
       suffix: suffix,
       backgroundColor: backgroundColor,
-      key: key,
     );
   }
 
-  /// Creates a password text field
+  /// Password field with [TextFieldConfig.password] and eye-toggle suffix.
   factory CustomTextField.password({
     required TextEditingController controller,
     String? labelText,
     String? hintText,
     String? Function(String?)? validator,
-    EdgeInsetsGeometry padding = EdgeInsets.zero,
+    EdgeInsetsGeometry padding = EdgeInsetsDirectional.zero,
     bool enabled = true,
     FocusNode? focusNode,
+    TextInputAction? textInputAction,
     Key? key,
   }) {
     return CustomTextField(
+      key: key,
       controller: controller,
       type: CustomTextFieldType.password,
       config: TextFieldConfig.password,
@@ -4664,44 +4709,47 @@ class CustomTextField extends StatefulWidget {
       padding: padding,
       enabled: enabled,
       focusNode: focusNode,
-      key: key,
+      textInputAction: textInputAction,
     );
   }
 
-  /// Creates a description text field
-  factory CustomTextField.description({
+  /// Numeric field with digits-only input and [FieldValidators.numberValidator].
+  factory CustomTextField.number({
     required TextEditingController controller,
     String? labelText,
     String? hintText,
     String? Function(String?)? validator,
-    EdgeInsetsGeometry padding = EdgeInsets.zero,
+    Widget? suffix,
+    EdgeInsetsGeometry padding = EdgeInsetsDirectional.zero,
     bool enabled = true,
     bool showValidation = false,
     FocusNode? focusNode,
+    TextFieldConfig? config,
     Key? key,
   }) {
     return CustomTextField(
+      key: key,
       controller: controller,
-      type: CustomTextFieldType.description,
-      config: TextFieldConfig.description,
+      type: CustomTextFieldType.number,
+      config: config ?? TextFieldConfig.number,
       labelText: labelText,
       hintText: hintText,
-      validator: validator ?? FieldValidators.textValidator,
+      validator: validator ?? FieldValidators.numberValidator,
+      suffix: suffix,
       padding: padding,
       enabled: enabled,
       showValidation: showValidation,
       focusNode: focusNode,
-      key: key,
     );
   }
 
-  /// Creates a phone number text field
+  /// Phone number field with [FieldValidators.phoneValidator].
   factory CustomTextField.phone({
     required TextEditingController controller,
     String? labelText,
     String? hintText,
     String? Function(String?)? validator,
-    EdgeInsetsGeometry padding = EdgeInsets.zero,
+    EdgeInsetsGeometry padding = EdgeInsetsDirectional.zero,
     bool enabled = true,
     bool enableRealTimeValidation = false,
     bool showValidation = false,
@@ -4711,6 +4759,7 @@ class CustomTextField extends StatefulWidget {
     Key? key,
   }) {
     return CustomTextField(
+      key: key,
       controller: controller,
       type: CustomTextFieldType.number,
       config: config ?? TextFieldConfig.number,
@@ -4722,17 +4771,43 @@ class CustomTextField extends StatefulWidget {
       enableRealTimeValidation: enableRealTimeValidation,
       showValidation: showValidation,
       focusNode: focusNode,
-      key: key,
       prefix: prefix,
     );
   }
 
-  /// Creates a search text field
+  /// Multiline description field with [TextFieldConfig.description].
+  factory CustomTextField.description({
+    required TextEditingController controller,
+    String? labelText,
+    String? hintText,
+    String? Function(String?)? validator,
+    EdgeInsetsGeometry padding = EdgeInsetsDirectional.zero,
+    bool enabled = true,
+    bool showValidation = false,
+    FocusNode? focusNode,
+    Key? key,
+  }) {
+    return CustomTextField(
+      key: key,
+      controller: controller,
+      type: CustomTextFieldType.description,
+      config: TextFieldConfig.description,
+      labelText: labelText,
+      hintText: hintText,
+      validator: validator ?? FieldValidators.textValidator,
+      padding: padding,
+      enabled: enabled,
+      showValidation: showValidation,
+      focusNode: focusNode,
+    );
+  }
+
+  /// Search field with search icon prefix and filter icon suffix.
   factory CustomTextField.search({
     required TextEditingController controller,
     String? hintText,
     void Function(String)? onChanged,
-    EdgeInsetsGeometry padding = EdgeInsets.zero,
+    EdgeInsetsGeometry padding = EdgeInsetsDirectional.zero,
     bool enabled = true,
     FocusNode? focusNode,
     VoidCallback? suffixOnTap,
@@ -4744,6 +4819,7 @@ class CustomTextField extends StatefulWidget {
     Key? key,
   }) {
     return CustomTextField(
+      key: key,
       controller: controller,
       type: CustomTextFieldType.search,
       config: TextFieldConfig.search,
@@ -4758,87 +4834,36 @@ class CustomTextField extends StatefulWidget {
       showSuffixAlways: showSuffixAlways,
       filterCount: filterCount,
       showFilterIcon: showFilterIcon,
-      key: key,
     );
   }
 
-  /// Controller for the text field
   final TextEditingController controller;
-
-  /// Type of text field (determines default configuration)
   final CustomTextFieldType type;
-
-  /// Custom configuration for styling and behavior
   final TextFieldConfig? config;
-
-  /// Configuration for icons
-  final TextFieldIconConfig? iconConfig;
-
-  /// Padding around the text field
   final EdgeInsetsGeometry padding;
-
-  /// Label text displayed above the field
   final String? labelText;
-
-  /// Hint text displayed inside the field
   final String? hintText;
-
-  /// Color of the hint text
   final Color? hintColor;
-
-  /// Validation function
   final String? Function(String?)? validator;
-
-  /// Whether the field is read-only
   final bool? readOnly;
-
-  /// Callback when the field is tapped
   final VoidCallback? onTap;
-
-  /// Callback when the text changes
   final void Function(String)? onChanged;
-
-  /// Whether the field is enabled
   final bool enabled;
-
-  /// Whether to validate in real-time
   final bool enableRealTimeValidation;
-
-  /// Optional focus node
-  final FocusNode? focusNode;
-
-  /// Callback when the suffix icon is tapped
-  final VoidCallback? suffixOnTap;
-
-  /// Callback when the prefix icon is tapped
-  final VoidCallback? prefixOnTap;
-
-  /// Callback when search action is triggered (keyboard search button or prefix tap)
-  final VoidCallback? onSearch;
-
-  /// Whether to show suffix icon always (for search field)
-  final bool showSuffixAlways;
-
-  /// Filter count to display as badge on suffix icon
-  final int? filterCount;
-
-  /// Whether to show the filter icon in search field (default true)
-  final bool showFilterIcon;
-
-  /// Custom prefix widget (overrides iconConfig.prefixPath)
-  final Widget? prefix;
-
-  /// Background color of the text field
-  final Color? backgroundColor;
-
-  /// Text style for the input text
-  final TextStyle? textStyle;
-
-  /// Custom suffix widget (overrides iconConfig.suffixPath)
-  final Widget? suffix;
-
-  /// Controls when validation errors should be shown (typically after form submission)
   final bool showValidation;
+  final FocusNode? focusNode;
+  final Widget? prefix;
+  final Widget? suffix;
+  final VoidCallback? suffixOnTap;
+  final Color? backgroundColor;
+  final TextStyle? textStyle;
+  final TextInputAction? textInputAction;
+
+  final VoidCallback? onSearch;
+  final bool showFilterIcon;
+  final bool showSuffixAlways;
+  final int? filterCount;
+  final VoidCallback? prefixOnTap;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -4870,90 +4895,26 @@ class _CustomTextFieldState extends State<CustomTextField> {
     super.dispose();
   }
 
-  /// Gets the effective configuration for this text field
-  TextFieldConfig get _effectiveConfig {
-    return widget.config ?? _getDefaultConfigForType(widget.type);
+  TextFieldConfig get _config {
+    if (widget.config != null) return widget.config!;
+    return switch (widget.type) {
+      CustomTextFieldType.email => TextFieldConfig.email,
+      CustomTextFieldType.password => TextFieldConfig.password,
+      CustomTextFieldType.description => TextFieldConfig.description,
+      CustomTextFieldType.number => TextFieldConfig.number,
+      CustomTextFieldType.search => TextFieldConfig.search,
+      CustomTextFieldType.text => TextFieldConfig.text,
+    };
   }
 
-  /// Gets the effective icon configuration for this text field
-  TextFieldIconConfig get _effectiveIconConfig {
-    return widget.iconConfig ?? const TextFieldIconConfig();
-  }
+  bool get _isSearch => widget.type == CustomTextFieldType.search;
 
-  /// Gets default configuration based on field type
-  TextFieldConfig _getDefaultConfigForType(CustomTextFieldType type) {
-    switch (type) {
-      case CustomTextFieldType.email:
-        return TextFieldConfig.email;
-      case CustomTextFieldType.password:
-        return TextFieldConfig.password;
-      case CustomTextFieldType.description:
-        return TextFieldConfig.description;
-      case CustomTextFieldType.number:
-        return TextFieldConfig.number;
-      case CustomTextFieldType.search:
-        return TextFieldConfig.search;
-      case CustomTextFieldType.text:
-        return TextFieldConfig.text;
-    }
-  }
+  bool get _isPassword => widget.type == CustomTextFieldType.password;
 
-  /// Handles text changes
-  void _onChanged(String value) {
-    widget.onChanged?.call(value);
-  }
+  Widget? _buildPrefix() {
+    if (widget.prefix != null) return widget.prefix;
+    if (!_isSearch) return null;
 
-  /// Toggles password visibility
-  void _togglePasswordVisibility() {
-    setState(() => _obscureText = !_obscureText);
-  }
-
-  /// Creates the border decoration
-  InputBorder _createBorder(Color color) {
-    return OutlineInputBorder(
-      borderSide: BorderSide(color: color),
-      borderRadius: BorderRadius.all(
-        Radius.circular(_effectiveConfig.borderRadius),
-      ),
-    );
-  }
-
-  /// Creates the error border
-  InputBorder _createErrorBorder() {
-    return OutlineInputBorder(
-      borderSide: const BorderSide(color: AppColors.error),
-      borderRadius: BorderRadius.all(
-        Radius.circular(_effectiveConfig.borderRadius),
-      ),
-    );
-  }
-
-  /// Builds the prefix icon widget
-  Widget? _buildPrefixIcon() {
-    if (widget.prefix != null) {
-      return widget.prefix;
-    }
-    if (widget.type == CustomTextFieldType.search) {
-      return _buildSearchPrefixIcon();
-    }
-
-    final iconConfig = _effectiveIconConfig;
-    if (iconConfig.prefix != null) {
-      return iconConfig.prefix;
-    }
-
-    if (iconConfig.prefixPath != null) {
-      return _buildIconFromPath(
-        iconConfig.prefixPath!,
-        const EdgeInsetsDirectional.only(bottom: 8, top: 8, start: 16, end: 8),
-      );
-    }
-
-    return null;
-  }
-
-  /// Builds the search prefix icon
-  Widget _buildSearchPrefixIcon() {
     return GestureDetector(
       onTap: widget.prefixOnTap ?? widget.onSearch,
       child: Padding(
@@ -4968,89 +4929,64 @@ class _CustomTextFieldState extends State<CustomTextField> {
     );
   }
 
-  /// Builds the suffix icon widget
-  Widget? _buildSuffixIcon() {
-    if (widget.suffix != null) {
-      return widget.suffix;
-    }
-    if (widget.type == CustomTextFieldType.search) {
+  Widget? _buildSuffix() {
+    if (widget.suffix != null) return widget.suffix;
+
+    if (_isSearch) {
       if (!widget.showFilterIcon) return null;
-      return _buildSearchSuffixIcon();
+      return Visibility(
+        visible: widget.showSuffixAlways || _focusNode.hasFocus,
+        child: Padding(
+          padding: const EdgeInsetsDirectional.only(
+            start: 8,
+            end: 22,
+            top: 8,
+            bottom: 8,
+          ),
+          child: CustomFilterIconWidget(filterCount: widget.filterCount),
+        ),
+      );
     }
 
-    if (widget.type == CustomTextFieldType.password) {
-      return _buildPasswordSuffixIcon();
-    }
-
-    final iconConfig = _effectiveIconConfig;
-    if (iconConfig.suffix != null) {
-      return iconConfig.suffix;
-    }
-
-    if (iconConfig.suffixPath != null) {
-      return _buildIconFromPath(
-        iconConfig.suffixPath!,
-        const EdgeInsets.symmetric(horizontal: 12),
-        color: iconConfig.suffixColor,
+    if (_isPassword) {
+      return GestureDetector(
+        onTap: () => setState(() => _obscureText = !_obscureText),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.symmetric(horizontal: 12),
+          child: Icon(
+            _obscureText ? Icons.visibility_off : Icons.visibility,
+            size: 20,
+            color: AppColors.textSecondary,
+          ),
+        ),
       );
     }
 
     return null;
   }
 
-  /// Builds the search suffix icon
-  Widget _buildSearchSuffixIcon() {
-    final shouldShow = widget.showSuffixAlways || _focusNode.hasFocus;
-
-    return Visibility(
-      visible: shouldShow,
-      child: Padding(
-        padding: const EdgeInsetsDirectional.only(
-          start: 8,
-          end: 22,
-          top: 8,
-          bottom: 8,
-        ),
-        child: CustomFilterIconWidget(
-          filterCount: widget.filterCount,
-        ),
-      ),
+  InputBorder _border(Color color) {
+    return OutlineInputBorder(
+      borderSide: BorderSide(color: color),
+      borderRadius: BorderRadius.all(Radius.circular(_config.borderRadius)),
     );
   }
 
-  /// Builds the password suffix icon
-  Widget _buildPasswordSuffixIcon() {
-    return GestureDetector(
-      onTap: _togglePasswordVisibility,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: SvgPicture.asset(
-          _obscureText ? AssetPaths.dummyIcon : AssetPaths.dummyIcon,
-        ),
-      ),
-    );
-  }
+  InputBorder get _errorBorder => OutlineInputBorder(
+    borderSide: const BorderSide(color: AppColors.error),
+    borderRadius: BorderRadius.all(Radius.circular(_config.borderRadius)),
+  );
 
-  /// Builds an icon from asset path with custom padding and color
-  Widget _buildIconFromPath(
-    String path,
-    EdgeInsetsGeometry padding, {
-    Color? color,
-  }) {
-    return Padding(
-      padding: padding,
-      child: SvgPicture.asset(
-        path,
-        width: 16,
-        colorFilter:
-            color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
-      ),
-    );
+  Color _borderColor({required bool hasFocus, required bool hasError}) {
+    if (!widget.enabled) return AppColors.borderPrimary;
+    if (hasError) return AppColors.error;
+    if (hasFocus) return AppColors.blackPrimary;
+    return AppColors.borderPrimary;
   }
 
   @override
   Widget build(BuildContext context) {
-    final config = _effectiveConfig;
+    final config = _config;
 
     return Padding(
       padding: widget.padding,
@@ -5060,7 +4996,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           if (widget.labelText != null) ...[
             Text(
               widget.labelText!,
-              style: context.b1.copyWith(color: AppColors.blackPrimary),
+              style: context.p1Medium.copyWith(color: AppColors.blackPrimary),
             ),
             const SizedBox(height: 8),
           ],
@@ -5068,70 +5004,103 @@ class _CustomTextFieldState extends State<CustomTextField> {
             listenable: Listenable.merge([_focusNode, widget.controller]),
             builder: (context, child) {
               final hasFocus = _focusNode.hasFocus;
-              // Check for errors to show error border
-              final validationError = widget.showValidation && widget.validator != null
+              final validationError =
+                  widget.showValidation && widget.validator != null
                   ? widget.validator!(widget.controller.text)
                   : null;
-              final hasError = validationError != null && validationError.isNotEmpty;
-              
-              return TextFormField(
-                cursorWidth: 1.5,
-                cursorHeight: 22,
-                controller: widget.controller,
-                focusNode: _focusNode,
-                enabled: widget.enabled,
-                readOnly: widget.readOnly ?? false,
-                obscureText: config.obscureText ? _obscureText : false,
-                obscuringCharacter: '*',
-                keyboardType: config.keyboardType,
-                textInputAction: widget.type == CustomTextFieldType.search
-                    ? TextInputAction.search
-                    : TextInputAction.done,
-                maxLines: config.maxLines,
-                maxLength: config.maxLength,
-                maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                inputFormatters: config.inputFormatters,
-                style: widget.textStyle ?? context.b2,
-                cursorColor: AppColors.blackPrimary,
-                autovalidateMode: (widget.enableRealTimeValidation && widget.showValidation)
-                    ? AutovalidateMode.onUserInteraction
-                    : AutovalidateMode.disabled,
-                onChanged: _onChanged,
-                onFieldSubmitted: widget.type == CustomTextFieldType.search
-                    ? (_) => widget.onSearch?.call()
-                    : null,
-                validator: widget.validator,
-                decoration: InputDecoration(
-                  hintText: widget.hintText,
-                  filled: true,
-                  fillColor: hasFocus
-                      ? AppColors.textFieldBackground
-                      : widget.backgroundColor ?? AppColors.white,
-                  hintStyle: context.b2.copyWith(
-                    color: widget.hintColor ?? AppColors.textSecondary,
+              final hasError =
+                  validationError != null && validationError.isNotEmpty;
+
+              final suffixWidget = _buildSuffix();
+
+              return DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(config.borderRadius),
                   ),
-                  counterText: '',
-                  border: _createBorder(_getBorderColorFromFocus(hasFocus, hasError)),
-                  enabledBorder: _createBorder(
-                    _getBorderColorFromFocus(hasFocus, hasError),
-                  ),
-                  focusedBorder: _createBorder(
-                    _getBorderColorFromFocus(hasFocus, hasError),
-                  ),
-                  errorBorder: _createErrorBorder(),
-                  focusedErrorBorder: _createErrorBorder(),
-                  errorStyle: context.caption.copyWith(
-                    color: AppColors.error,
-                  ),
-                  prefixIcon: _buildPrefixIcon(),
-                  suffixIcon: _buildSuffixIcon() != null
-                      ? GestureDetector(
-                          onTap: widget.suffixOnTap,
-                          child: _buildSuffixIcon(),
-                        )
+                  boxShadow: hasFocus
+                      ? [
+                          BoxShadow(
+                            color: AppColors.blackPrimary.withValues(
+                              alpha: 0.15,
+                            ),
+                            blurRadius: 4,
+                          ),
+                        ]
+                      : const [],
+                ),
+                child: TextFormField(
+                  cursorWidth: 1.5,
+                  cursorHeight: 22,
+                  controller: widget.controller,
+                  focusNode: _focusNode,
+                  enabled: widget.enabled,
+                  readOnly: widget.readOnly ?? false,
+                  obscureText: config.obscureText && _obscureText,
+                  obscuringCharacter: '*',
+                  keyboardType: config.keyboardType,
+                  textCapitalization:
+                      config.keyboardType == TextInputType.emailAddress
+                      ? TextCapitalization.none
+                      : TextCapitalization.sentences,
+                  textInputAction:
+                      widget.textInputAction ??
+                      config.textInputAction ??
+                      (_isSearch
+                          ? TextInputAction.search
+                          : TextInputAction.done),
+                  maxLines: config.maxLines,
+                  maxLength: config.maxLength,
+                  maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                  inputFormatters: config.inputFormatters,
+                  style: widget.textStyle ?? context.p2,
+                  cursorColor: AppColors.blackPrimary,
+                  autovalidateMode:
+                      (widget.enableRealTimeValidation && widget.showValidation)
+                      ? AutovalidateMode.onUserInteraction
+                      : AutovalidateMode.disabled,
+                  onChanged: widget.onChanged,
+                  onFieldSubmitted: _isSearch
+                      ? (_) => widget.onSearch?.call()
                       : null,
-                  contentPadding:
-                      config.contentPadding ?? const EdgeInsets.all(12),
+                  validator: widget.validator,
+                  decoration: InputDecoration(
+                    hintText: widget.hintText,
+                    filled: true,
+                    fillColor: widget.backgroundColor ?? AppColors.white,
+                    hintStyle: context.p2.copyWith(
+                      color: widget.hintColor ?? AppColors.textSecondary,
+                    ),
+                    counterText: '',
+                    border: _border(
+                      _borderColor(hasFocus: hasFocus, hasError: hasError),
+                    ),
+                    enabledBorder: _border(
+                      _borderColor(hasFocus: hasFocus, hasError: hasError),
+                    ),
+                    disabledBorder: _border(AppColors.borderPrimary),
+                    focusedBorder: _border(
+                      _borderColor(hasFocus: hasFocus, hasError: hasError),
+                    ),
+                    errorBorder: _errorBorder,
+                    focusedErrorBorder: _errorBorder,
+                    errorStyle: context.captionMedium.copyWith(
+                      color: AppColors.error,
+                    ),
+                    prefixIcon: _buildPrefix(),
+                    prefixIconConstraints: widget.prefix != null
+                        ? const BoxConstraints()
+                        : null,
+                    suffixIcon: suffixWidget != null
+                        ? GestureDetector(
+                            onTap: widget.suffixOnTap,
+                            child: suffixWidget,
+                          )
+                        : null,
+                    contentPadding:
+                        config.contentPadding ??
+                        const EdgeInsetsDirectional.all(12),
+                  ),
                 ),
               );
             },
@@ -5140,14 +5109,68 @@ class _CustomTextFieldState extends State<CustomTextField> {
       ),
     );
   }
+}
 
-  /// Gets the border color based on focus state (for ValueListenableBuilder)
-  Color _getBorderColorFromFocus(bool hasFocus, [bool hasError = false]) {
-    if (!widget.enabled) return AppColors.textTertiary;
-    if (hasError) return AppColors.error;
-    if (hasFocus) return AppColors.blackPrimary;
-    return AppColors.textTertiary;
-  }
+/// Configuration for text field styling and behavior.
+///
+/// Use the predefined static constants for common field types,
+/// or create a custom instance for specialized configurations.
+///
+/// ```dart
+/// // Predefined
+/// CustomTextField(config: TextFieldConfig.number, ...)
+///
+/// // Custom
+/// CustomTextField(config: TextFieldConfig(maxLines: 4, maxLength: 500), ...)
+/// ```
+class TextFieldConfig {
+  const TextFieldConfig({
+    this.maxLines = 1,
+    this.maxLength = 100,
+    this.keyboardType = TextInputType.text,
+    this.textInputAction,
+    this.obscureText = false,
+    this.borderRadius = 12.0,
+    this.contentPadding,
+    this.inputFormatters,
+  });
+
+  final int maxLines;
+  final int maxLength;
+  final TextInputType keyboardType;
+  final TextInputAction? textInputAction;
+  final bool obscureText;
+  final double borderRadius;
+  final EdgeInsetsGeometry? contentPadding;
+  final List<TextInputFormatter>? inputFormatters;
+
+  static const TextFieldConfig email = TextFieldConfig(
+    keyboardType: TextInputType.emailAddress,
+  );
+
+  static const TextFieldConfig password = TextFieldConfig(
+    keyboardType: TextInputType.visiblePassword,
+    obscureText: true,
+  );
+
+  static const TextFieldConfig description = TextFieldConfig(
+    maxLines: 5,
+    maxLength: 500,
+    borderRadius: 18,
+    keyboardType: TextInputType.multiline,
+    textInputAction: TextInputAction.newline,
+    contentPadding: EdgeInsetsDirectional.only(start: 16, top: 24),
+  );
+
+  static final TextFieldConfig number = TextFieldConfig(
+    maxLength: 10,
+    keyboardType: TextInputType.number,
+    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+  );
+
+  static const TextFieldConfig text = TextFieldConfig();
+
+  static const TextFieldConfig search = TextFieldConfig();
 }
 ''';
 
@@ -5320,7 +5343,7 @@ class CustomFilterIconWidget extends StatelessWidget {
               constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
               child: Text(
                 filterCount!.toString().padLeft(2, '0'),
-                style: context.l3.secondary.copyWith(fontSize: 8),
+                style: context.overline.secondary.copyWith(fontSize: 8),
                 textAlign: TextAlign.center,
               ),
             ),

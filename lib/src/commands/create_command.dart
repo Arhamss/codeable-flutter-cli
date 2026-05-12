@@ -66,7 +66,7 @@ class CreateCommand extends Command<int> {
     if (appName == null || appName.isEmpty) {
       appName = _logger.prompt(
         'What is the name of your app? (e.g., My App)',
-        defaultValue: TemplateEngine.toPascalCase(projectName),
+        defaultValue: TemplateEngine.toTitleCase(projectName),
       );
     }
 

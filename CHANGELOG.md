@@ -1,5 +1,120 @@
 # Changelog
 
+## 1.0.35
+
+### CustomButton — Single Widget, Five Factories
+- **Removed** `CustomOutlineButton` — folded into `CustomButton.tertiary`. Generated apps now have a single button widget with five named factories instead of three separate widgets
+- **`CustomButton.primary`** — black filled, default brand action (unchanged)
+- **`CustomButton.secondary`** *(new)* — filled in `AppColors.secondaryMain`, alternate brand action
+- **`CustomButton.tertiary`** — outlined (white bg, black border), takes the slot the old `CustomButton.secondary` used to fill
+- **`CustomButton.danger`** *(new)* — red filled for destructive actions (delete, leave, cancel subscription)
+- **`CustomButton.text`** — text-only ghost button (was previously `CustomButton.tertiary`)
+- Removed redundant `loadingColor` field — uses `textColor` directly
+- Added `alignPrefixStart` and `centerContent` flags for finer layout control
+- Smarter disabled fallbacks: `disabledBackgroundColor ?? backgroundColor.withValues(alpha: 0.4)` instead of hardcoded `blackPrimary`
+- All factories are now `const`-correct
+- `socialAuthButtonTemplate` updated to use `.tertiary` (the new outlined slot)
+
+### CustomTextField — Cleaner API & Focus Shadow
+- **Removed** the `TextFieldIconConfig` indirection — prefix/suffix are now inline `Widget?` props
+- Added subtle focus shadow via `DecoratedBox` (`blackPrimary` glow at 15% alpha) to signal active state without changing the fill color
+- Smart `textCapitalization` (none for emails, sentences elsewhere) and smart `textInputAction` (multiline → newline, search → search, else done)
+- Password eye toggle now uses `Icons.visibility`/`Icons.visibility_off` instead of the broken `dummyIcon` placeholder
+- Border-radius default dropped from `100` (pill) → `12` (rounded rect); description multi-line stays `18`
+- Border palette: `borderPrimary` (idle/disabled) → `blackPrimary` (focused) → `error`. Removed the focus-bg-swap to `textFieldBackground` — focus is signaled by border + shadow
+- Fixed broken `context.caption` reference (didn't exist in the dual-font setup) — now uses `context.captionMedium`
+
+### New Widgets — UserAvatar & Improved CachedImage
+- **Added `UserAvatar`** — circular avatar with deterministic gradient (seeded by `user.id` so each user gets a stable color), optional photo via `CustomCachedImageWidget`, and `isLoading` overlay for upload state. Falls back to initials when the photo URL is invalid or fails to load
+- **`CustomCachedImageWidget`** gained an `errorFallback: Widget?` parameter so callers (like `UserAvatar`) can render a custom widget on load failure instead of the generic placeholder. Empty-URL and image-error fallbacks now both use `SvgPicture.asset(AssetPaths.imageIcon)` with a `neutral700` color filter
+- Bundled `image_icon.svg` into `lib/src/assets/svgs/` so the error fallback ships out of the box — no missing-asset crashes in fresh projects
+
+### App Theming — Android 15 SafeArea & Theme Polish
+- `AppView` is now a `StatefulWidget` that queries `device_info_plus` on launch — on Android SDK 35+ (Android 15, edge-to-edge by default) it wraps the `MaterialApp.router` content in `SafeArea` so content doesn't draw under the status/nav bars. iOS and older Android keep their existing layout
+- Added `canvasColor: AppColors.backgroundPrimary` to `ThemeData` so page transitions don't flash white
+
+### AppColors Additions
+- `secondaryMain` (`#454545`) — fill for `CustomButton.secondary`; swap to brand accent
+- `blackPrimaryShade` (`#000000`) — darker companion for blackPrimary gradients
+- `neutral700` (`#979A9C`) — mid-dark gray for icons on placeholders
+- `avatarGradients` — six gradient pairs used by `UserAvatar` (first is brand default, rest deterministically picked by `seed.hashCode`)
+
+### API Layer — Cancel Token Support
+- All `ApiService` methods (`get`, `post`, `put`, `patch`, `patchMultipart`, `delete`) now accept an optional `CancelToken? cancelToken`. `_handleRequest` rethrows `DioExceptionType.cancel` instead of wrapping it in `AppApiException`
+- `delete` now also accepts an optional `data` body
+- `RepositoryResponse` gained an `isCancelled` flag; `execute()` catches `DioException` of type `cancel` and returns `RepositoryResponse(isSuccess: false, isCancelled: true)` so cubits can no-op cancelled requests cleanly
+- `RepositoryResponse` and `AppApiException` now carry an optional `details: List<dynamic>?` field for structured error payloads
+- Generated `featureCubitTemplate` ships with a `_cancelToken` field, `close()` override, and an example cancellation pattern in comments
+
+### ToastHelper — Match Holos Exactly
+- All three toasts (`error`, `success`, `info`) now hide the close-X chip via `closeButton: const ToastCloseButton(showType: CloseButtonShowType.none)` since `closeOnClick` and `dragToClose` already handle dismissal
+- Error toast's SVG icon now wears `colorFilter: ColorFilter.mode(AppColors.white, BlendMode.srcIn)` so it renders white on the red background
+- Outer padding switched from `EdgeInsets.symmetric` to `EdgeInsetsDirectional.symmetric` for proper RTL handling
+
+### AppLogger — Headers & Auth Token
+- Added `AppLogger.authToken(String?)` — pretty-prints the bearer token in a boxed format for debug-only flows
+- API request logging now **omits the `Authorization` header entirely** instead of partially masking it (`xxx...`) — cleaner request logs
+- `DataState<T>` gained a `map<R>(R Function(T))` transformer for cubit-side projection without losing status/error context
+
+### FirebaseNotificationService — Cleanup
+- Replaced all `debugPrint` calls with `AppLogger.info` / `AppLogger.error` (with stack traces)
+- Added `onTokenRefresh` stream getter and `handleInitialMessage()` for cold-start notification taps
+- Foreground messages now route through `LocalNotificationService` so banners actually show — previously left as a TODO
+- Removed `setForegroundNotificationPresentationOptions` call on iOS — was causing duplicate banners (system + flutter_local_notifications)
+
+### Generated `.gitignore` — Mirror Holos
+- New `gitignore_template.dart` overwrites Flutter's default `.gitignore` after `flutter create` with the holos-standard set: `.swiftpm/`, `.history`, `migrate_working_dir/`, `app.*.symbols`, `app.*.map.json`, `/android/app/{debug,profile,release}`, `/coverage/`, `/env/`, `**/*.jks`, `**/*.keystore`, `**/android/key.properties`, etc.
+- The CLI's existing `.idea/runConfigurations/` whitelist append still runs on top, preserving the IDE-config-commit behavior
+
+### Text Style System — Dual Font with Weight Variants
+- **Switched** the text-style extension to a structured size + weight system across two fonts (`AppFonts.heading` = BBBPoppins for `display`/`h1`–`h5`, `AppFonts.body` = SFProRounded for `p1`/`p2`/`caption`/`overline`)
+- Each size has three weight variants: `h1`/`h1Medium`/`h1Bold`, `p1`/`p1Medium`/`p1Bold`, `caption`/`captionMedium`/`captionBold`
+- Added `display` (43, w400, heading font), `overline` (10, w400, body font), and `letterSpacing` parameter to the private style builders
+- New text style modifiers: `.primary`, `.secondary`, `.light`, `.hint` (replaces the old `.secondary` / `.tertiary` pair)
+- All template references migrated from old `b1`/`b2`/`l2` getters to new `p1Medium`/`p2`/`captionMedium`
+
+### New Generated File — String Extensions
+- Added `lib/utils/extensions/string_extensions.dart` with a `titleCase` getter (splits on `_` or whitespace, capitalizes each word)
+
+### AI Config (CLAUDE.md / .cursorrules) — Major Enrichment
+Pulled in everything generated apps were previously missing:
+- **Layer Rules** — explicit dependency direction (`presentation → domain ← data`)
+- **When to Create a Separate Feature** decision rule
+- **Shared Models** — `core/models/common/` for cross-feature models
+- Full **State Pattern code example** — `Equatable` + `DataState<T>` wrapping + `copyWith` template
+- **Custom Components — MANDATORY** section listing every banned raw widget/API and the required replacement, including the new `CustomCachedImageWidget` and `UserAvatar` bans
+- Full **Enums & Extensions code example** with `displayName` / `color` / `fromString` switch patterns
+- **Naming conventions** — file/class/variable/constant/enum casing rules
+- **Imports** — package imports only, no relative paths
+- **AppLogger.error** requirement in repository error handling
+- **SafeArea documentation** — explains the `AppView` Android 15 behavior so AI doesn't add manual `SafeArea` per screen
+- **Quick Reference Checklist** — 22-item review checklist for self-audit
+- Updated `CustomButton` factory list (5 variants) and `CustomTextField` factory list across both AI configs
+- Updated text-style docs to reflect the dual-font setup with all size + weight variants enumerated
+
+### CLI Commands
+- **`create`**: app-name prompt now defaults to Title Case (`my_app` → "My App") instead of PascalCase ("MyApp"), matching what users typically type for the human-readable display name
+- **`change-app-name`**: now scans `lib/l10n/` recursively for `.arb` files instead of just the top level — picks up files in `arb/` subfolders that the new project layout uses
+- Added `TemplateEngine.toTitleCase()` helper
+
+### Dependency Updates (generated `pubspec.yaml`)
+- `bloc` ^9.2.0 → ^9.2.1
+- `dio` ^5.9.1 → ^5.9.2
+- `go_router` ^17.2.0 → ^17.2.3
+- `firebase_core` ^4.6.0 → ^4.8.0
+- `firebase_messaging` ^16.1.3 → ^16.2.1
+- `firebase_remote_config` ^6.3.0 → ^6.5.0
+- `sign_in_with_apple` ^7.0.1 → ^8.0.0 (major)
+- `purchases_flutter` ^9.16.1 → ^10.0.2 (major)
+- `flutter_svg` ^2.2.4 → ^2.3.0
+- `image_picker` ^1.2.1 → ^1.2.2
+- `toastification` ^3.1.0 → ^3.2.0
+- `device_info_plus` ^12.3.0 → ^12.4.0
+- `build_runner` ^2.11.1 → ^2.15.0
+- `envied_generator` ^1.3.4 → ^1.3.5
+- **Removed**: `firebase_auth`, `cloud_firestore`, `firebase_storage` (add per project)
+- **Removed**: `lottie`, `blur`, `flutter_swipe_button` (add per project)
+
 ## 1.0.34
 
 ### iOS Signing — Strip Host Machine's DEVELOPMENT_TEAM

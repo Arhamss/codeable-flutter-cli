@@ -13,6 +13,7 @@ import 'package:codeable_cli/src/templates/constants_templates.dart';
 import 'package:codeable_cli/src/templates/core_templates.dart';
 import 'package:codeable_cli/src/templates/core_widgets_templates.dart';
 import 'package:codeable_cli/src/templates/feature_templates.dart';
+import 'package:codeable_cli/src/templates/gitignore_template.dart';
 import 'package:codeable_cli/src/templates/ios_templates.dart';
 import 'package:codeable_cli/src/templates/l10n_templates.dart';
 import 'package:codeable_cli/src/templates/makefile_template.dart';
@@ -335,6 +336,8 @@ class ProjectGenerator {
         nullCheckExtensionTemplate,
         vars,
       ),
+      'lib/utils/extensions/string_extensions.dart':
+          stringExtensionsTemplate,
 
       // Navigation — NavItem model + shell navigation widget (commented out)
       'lib/core/models/navigation_item.dart': navItemModelTemplate,
@@ -503,10 +506,6 @@ class ProjectGenerator {
         loadingWidgetTemplate,
         vars,
       ),
-      'lib/utils/widgets/core_widgets/outline_button.dart': render(
-        outlineButtonTemplate,
-        vars,
-      ),
       'lib/utils/widgets/core_widgets/paginated_list_view.dart': render(
         paginatedListViewTemplate,
         vars,
@@ -586,6 +585,10 @@ class ProjectGenerator {
       ),
       'lib/utils/widgets/core_widgets/time_picker.dart': render(
         timePickerTemplate,
+        vars,
+      ),
+      'lib/utils/widgets/core_widgets/user_avatar.dart': render(
+        userAvatarTemplate,
         vars,
       ),
       // Extra widgets (referenced by core_widgets export)
@@ -758,13 +761,11 @@ class ProjectGenerator {
       File('$projectPath/env/$envName')
           .writeAsStringSync(render(dotEnvTemplate, vars));
     }
-    // Add /env/ to .gitignore
+    // Replace Flutter's default .gitignore with our standard one
     final gitignorePath = '$projectPath/.gitignore';
-    final gitignoreFile = File(gitignorePath);
-    var gitignoreContent = '';
-    if (gitignoreFile.existsSync()) {
-      gitignoreContent = gitignoreFile.readAsStringSync();
-    }
+    final gitignoreFile = File(gitignorePath)
+      ..writeAsStringSync(gitignoreTemplate);
+    var gitignoreContent = gitignoreFile.readAsStringSync();
     if (!gitignoreContent.contains('/env/')) {
       gitignoreContent += '\n# Environment files\n/env/\n';
     }
@@ -1148,11 +1149,7 @@ class ProjectGenerator {
               'ENABLE_BITCODE = NO;\n\t\t\t\tFLAVOR_APP_NAME = "$appName";',
             );
 
-            // Strip DEVELOPMENT_TEAM that `flutter create` baked in from the
-            // host machine's Xcode preferences. Leaving it in pins every
-            // flavor's signing to whoever ran the CLI, blocking other devs
-            // from selecting their own team. Removing it makes Xcode show
-            // "Team: None" so each developer picks their own.
+        
             block = block.replaceFirst(
               RegExp(r'\n\s*DEVELOPMENT_TEAM = [^;]+;'),
               '',

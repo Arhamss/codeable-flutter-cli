@@ -25,6 +25,19 @@ class TemplateEngine {
         .join();
   }
 
+  /// Converts a snake_case name to Title Case (words separated by spaces).
+  static String toTitleCase(String snakeCase) {
+    return snakeCase
+        .split('_')
+        .map(
+          (word) => word.isEmpty
+              ? ''
+              : '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}',
+        )
+        .where((w) => w.isNotEmpty)
+        .join(' ');
+  }
+
   /// Converts a snake_case name to camelCase.
   static String toCamelCase(String snakeCase) {
     final pascal = toPascalCase(snakeCase);
@@ -59,7 +72,7 @@ class TemplateEngine {
         .replaceAll(RegExp('[^a-z0-9_]'), '')
         .replaceAll(RegExp('^[0-9]'), '');
     final resolvedAppName =
-        appName.isEmpty ? toPascalCase(snakeName) : appName;
+        appName.isEmpty ? toTitleCase(snakeName) : appName;
     return {
       'project_name': snakeName,
       'ProjectName': toPascalCase(snakeName),

@@ -13,7 +13,21 @@ abstract class AppColors {
   static const black = Color(0xFF000000);
   static const error = Color(0xFFFF1E00);
   static const blackPrimary = Color(0xFF0D121C);
+  static const blackPrimaryShade = Color(0xFF000000);
+  static const secondaryMain = Color(0xFF454545);
   static const whitePrimary = Color(0xFFFCFCFC);
+  static const neutral700 = Color(0xFF979A9C);
+
+  /// Used by [UserAvatar]. First entry is the default (when [seed] is null).
+  /// Remaining entries are picked deterministically by `seed.hashCode`.
+  static const avatarGradients = [
+    [blackPrimary, blackPrimaryShade],
+    [Color(0xFFFE835F), Color(0xFFFF5668)],
+    [Color(0xFFBC7AFA), Color(0xFFA84EFB)],
+    [Color(0xFF9383FA), Color(0xFF7C69F9)],
+    [Color(0xFFFFB367), Color(0xFFFF9831)],
+    [Color(0xFF74BBFA), Color(0xFF3CA4FF)],
+  ];
   static const textPrimary = Color(0xFF0D121C);
   static const textOnPrimary = Color(0xFFFFFFFF);
   static const textSecondary = Color(0xFF697586);
@@ -38,29 +52,18 @@ abstract class AppColors {
   static const blackLight = Color(0xFFF0F0F0);
   static const shipped = Color(0xFFFBFDCC);
   static const delivered = Color(0xFFA3FFC6);
-
-  // Additional Colors
   static const grayscale70 = Color(0xFF78828A);
   static const strokeLight = Color(0xFFF6F6F6);
-
-  // Semantic Colors
   static const success = Color(0xFF22C661);
   static const warning = Color(0xFFFFD336);
   static const info = Color(0xFF2196F3);
-
   static const borderSecondary = Color(0xFFF0F0F0);
-
-  // Shadow Colors
   static const shadowLight = Color(0x1A000000);
   static const shadowMedium = Color(0x40000000);
   static const shadowDark = Color(0x80000000);
-
-  // Additional UI Colors
   static const cartNotificationBackground = Color(0xFFEFE8DF);
   static const blurOverlayScrim = Color(0xFF40475B);
   static const buttonDisabledText = Color(0x80FFFFFF);
-
-  // Misc
   static const divider = Color(0xFFE0E0E0);
   static const shimmerBase = Color(0xFFE0E0E0);
   static const shimmerHighlight = Color(0xFFF5F5F5);
@@ -72,7 +75,6 @@ const appTextStyleTemplate = r'''
 import 'package:flutter/material.dart';
 import 'package:{{project_name}}/constants/app_colors.dart';
 
-/// Font family constants used throughout the app.
 abstract class AppFonts {
   static const heading = 'BBBPoppins';
   static const body = 'SFProRounded';
@@ -84,7 +86,8 @@ extension AppTextStyle on BuildContext {
     FontWeight weight, {
     Color color = AppColors.textPrimary,
     FontStyle fontStyle = FontStyle.normal,
-    double? height,
+    double height = 1.3,
+    double letterSpacing = 0,
   }) {
     return TextStyle(
       fontFamily: AppFonts.heading,
@@ -93,6 +96,7 @@ extension AppTextStyle on BuildContext {
       fontStyle: fontStyle,
       color: color,
       height: height,
+      letterSpacing: letterSpacing,
     );
   }
 
@@ -101,7 +105,8 @@ extension AppTextStyle on BuildContext {
     FontWeight weight, {
     Color color = AppColors.textPrimary,
     FontStyle fontStyle = FontStyle.normal,
-    double? height,
+    double height = 1.3,
+    double letterSpacing = 0,
   }) {
     return TextStyle(
       fontFamily: AppFonts.body,
@@ -110,52 +115,54 @@ extension AppTextStyle on BuildContext {
       fontStyle: fontStyle,
       color: color,
       height: height,
+      letterSpacing: letterSpacing,
     );
   }
 
-  // ─── Headlines (BBBPoppins) ───
+  TextStyle get display => _heading(43, FontWeight.w400, height: 1.2);
 
-  TextStyle get h1 => _heading(40, FontWeight.w700, height: 1);
-  TextStyle get h2 => _heading(28, FontWeight.w700);
-  TextStyle get h3 => _heading(24, FontWeight.w600);
+  TextStyle get h1 => _heading(32, FontWeight.w400, height: 1.2);
+  TextStyle get h1Medium => _heading(32, FontWeight.w500, height: 1.2);
+  TextStyle get h1Bold => _heading(32, FontWeight.w700, height: 1.2);
 
-  // ─── Titles (BBBPoppins) ───
+  TextStyle get h2 => _heading(28, FontWeight.w400, height: 1.2);
+  TextStyle get h2Medium => _heading(28, FontWeight.w500, height: 1.2);
+  TextStyle get h2Bold => _heading(28, FontWeight.w700, height: 1.2);
 
-  TextStyle get t1 => _heading(20, FontWeight.w600);
-  TextStyle get t2 => _heading(18, FontWeight.w600);
-  TextStyle get t3 => _heading(16, FontWeight.w600);
+  TextStyle get h3 => _heading(24, FontWeight.w400);
+  TextStyle get h3Medium => _heading(24, FontWeight.w500);
+  TextStyle get h3Bold => _heading(24, FontWeight.w700);
 
-  // ─── Body (SFProRounded) ───
+  TextStyle get h4 => _heading(20, FontWeight.w400);
+  TextStyle get h4Medium => _heading(20, FontWeight.w500);
+  TextStyle get h4Bold => _heading(20, FontWeight.w700);
 
-  TextStyle get b1 => _body(16, FontWeight.w600);
-  TextStyle get b2 => _body(14, FontWeight.w400);
-  TextStyle get b3 => _body(12, FontWeight.w600);
+  TextStyle get h5 => _heading(18, FontWeight.w400);
+  TextStyle get h5Medium => _heading(18, FontWeight.w500);
+  TextStyle get h5Bold => _heading(18, FontWeight.w700);
 
-  // ─── Labels (SFProRounded) ───
+  TextStyle get p1 => _body(16, FontWeight.w400);
+  TextStyle get p1Medium => _body(16, FontWeight.w500);
+  TextStyle get p1Bold => _body(16, FontWeight.w700);
 
-  TextStyle get l1 => _body(14, FontWeight.w600);
-  TextStyle get l2 => _body(12, FontWeight.w500);
-  TextStyle get l3 => _body(10, FontWeight.w400);
+  TextStyle get p2 => _body(14, FontWeight.w400);
+  TextStyle get p2Medium => _body(14, FontWeight.w500);
+  TextStyle get p2Bold => _body(14, FontWeight.w700);
 
-  // ─── Weight variants & italics ───
+  TextStyle get caption => _body(12, FontWeight.w400);
+  TextStyle get captionMedium => _body(12, FontWeight.w500);
+  TextStyle get captionBold => _body(12, FontWeight.w700);
 
-  TextStyle get thickText => _body(18, FontWeight.w800);
-  TextStyle get lightText => _body(18, FontWeight.w300);
-  TextStyle get extraLightText => _body(18, FontWeight.w200);
-  TextStyle get italicBody => _body(
-    14,
-    FontWeight.w400,
-    fontStyle: FontStyle.italic,
-  );
+  TextStyle get overline => _body(10, FontWeight.w400);
 }
 
-extension TextStyleSecondary on TextStyle {
+extension TextStyleModifiers on TextStyle {
+  TextStyle get primary => copyWith(color: AppColors.blackPrimary);
   TextStyle get secondary => copyWith(color: AppColors.white);
-
-  TextStyle get tertiary => copyWith(color: AppColors.textTertiary);
+  TextStyle get light => copyWith(color: AppColors.textSecondary);
+  TextStyle get hint => copyWith(color: AppColors.textTertiary);
 }
 
-/// Alias on TextStyle so you can write `.withStyle(...)` if you prefer
 extension TextStyleWithStyle on TextStyle {
   TextStyle withStyle({
     double? fontSize,
@@ -179,7 +186,6 @@ const assetPathsTemplate = '''
 class AssetPaths {
   const AssetPaths._();
 
-  /// SVG Icons — bundled with the project
   static const arrowLeftIcon = 'assets/vectors/arrow_left_icon.svg';
   static const googleIcon = 'assets/vectors/google_icon.svg';
   static const appleIcon = 'assets/vectors/apple_icon.svg';
@@ -190,16 +196,15 @@ class AssetPaths {
   static const emblemWhite = 'assets/vectors/emblem_white.svg';
   static const codeableDark = 'assets/vectors/codeable_dark.svg';
   static const codeableWhite = 'assets/vectors/codeable_white.svg';
+  static const imageIcon = 'assets/vectors/image_icon.svg';
 
-  /// SVG Icons — add your own assets for these
+  /// Add SVG/PNG sources for these paths under `assets/vectors/` and `assets/images/`.
   static const tickIcon = 'assets/vectors/tick_icon.svg';
   static const searchIcon = 'assets/vectors/search_icon.svg';
   static const filterIcon = 'assets/vectors/filter_icon.svg';
   static const dropdownArrowIcon = 'assets/vectors/dropdown_arrow_icon.svg';
   static const starFilledIcon = 'assets/vectors/star_filled_icon.svg';
   static const starUnfilledIcon = 'assets/vectors/star_empty_icon.svg';
-
-  /// Dummy Asset
   static const dummyIcon = 'assets/images/dummy.png';
 }
 ''';

@@ -39,9 +39,14 @@ class ApiService {
   Future<Response<dynamic>> get(
     String endpoint, {
     Map<String, dynamic>? queryParams,
+    CancelToken? cancelToken,
   }) async {
     return _handleRequest(
-      () => _dio.get(endpoint, queryParameters: queryParams),
+      () => _dio.get(
+        endpoint,
+        queryParameters: queryParams,
+        cancelToken: cancelToken,
+      ),
     );
   }
 
@@ -49,35 +54,60 @@ class ApiService {
   Future<Response<dynamic>> post({
     required String endpoint,
     dynamic data,
+    CancelToken? cancelToken,
   }) async {
-    return _handleRequest(() => _dio.post(endpoint, data: data));
+    return _handleRequest(
+      () => _dio.post(endpoint, data: data, cancelToken: cancelToken),
+    );
   }
 
   /// PUT Request
-  Future<Response<dynamic>> put(String endpoint, dynamic data) async {
-    return _handleRequest(() => _dio.put(endpoint, data: data));
+  Future<Response<dynamic>> put(
+    String endpoint,
+    dynamic data, {
+    CancelToken? cancelToken,
+  }) async {
+    return _handleRequest(
+      () => _dio.put(endpoint, data: data, cancelToken: cancelToken),
+    );
   }
 
   /// PATCH Request
-  Future<Response<dynamic>> patch(String endpoint, dynamic data) async {
-    return _handleRequest(() => _dio.patch(endpoint, data: data));
+  Future<Response<dynamic>> patch(
+    String endpoint,
+    dynamic data, {
+    CancelToken? cancelToken,
+  }) async {
+    return _handleRequest(
+      () => _dio.patch(endpoint, data: data, cancelToken: cancelToken),
+    );
   }
 
   Future<Response<dynamic>> patchMultipart(
     String endpoint,
-    Map<String, dynamic> data,
-  ) async {
+    Map<String, dynamic> data, {
+    CancelToken? cancelToken,
+  }) async {
     final formData = FormData.fromMap(data);
-    return _handleRequest(() => _dio.patch(endpoint, data: formData));
+    return _handleRequest(
+      () => _dio.patch(endpoint, data: formData, cancelToken: cancelToken),
+    );
   }
 
   /// DELETE Request
   Future<Response<dynamic>> delete(
     String endpoint, {
+    dynamic data,
     Map<String, dynamic>? queryParams,
+    CancelToken? cancelToken,
   }) async {
     return _handleRequest(
-      () => _dio.delete(endpoint, queryParameters: queryParams),
+      () => _dio.delete(
+        endpoint,
+        data: data,
+        queryParameters: queryParams,
+        cancelToken: cancelToken,
+      ),
     );
   }
 
@@ -88,6 +118,7 @@ class ApiService {
     try {
       return await request();
     } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) rethrow;
       throw _handleDioError(e);
     } catch (e, s) {
       AppLogger.error('Unhandled API error', e, s);
@@ -149,10 +180,11 @@ class ApiService {
 
 const appApiExceptionTemplate = '''
 class AppApiException implements Exception {
-  AppApiException(this.message, {this.statusCode});
+  AppApiException(this.message, {this.statusCode, this.details});
 
   final String message;
   final int? statusCode;
+  final List<dynamic>? details;
 
   @override
   String toString() => message;
@@ -1448,7 +1480,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:{{project_name}}/core/notifications/local_notification_service.dart';
+import 'package:{{project_name}}/utils/helpers/logger_helper.dart';
 
 class FirebaseNotificationService {
   factory FirebaseNotificationService() {
@@ -1468,13 +1501,15 @@ class FirebaseNotificationService {
   Stream<Map<String, dynamic>> get navigationStream =>
       navigationStreamController.stream;
 
+  Stream<String> get onTokenRefresh => _firebaseMessaging.onTokenRefresh;
+
   Future<String?> getFcmToken() async {
     try {
       final token = await _firebaseMessaging.getToken();
-      debugPrint('FCM Token: \$token');
+      AppLogger.info('FCM Token: \$token');
       return token;
-    } catch (e) {
-      debugPrint('Error fetching FCM token: \$e');
+    } catch (e, s) {
+      AppLogger.error('Error fetching FCM token', e, s);
       return null;
     }
   }
@@ -1483,22 +1518,26 @@ class FirebaseNotificationService {
     try {
       await _firebaseMessaging.deleteToken();
       return true;
-    } catch (e) {
-      debugPrint('Error deleting FCM token: \$e');
+    } catch (e, s) {
+      AppLogger.error('Error deleting FCM token', e, s);
       return false;
     }
   }
 
   Future<void> initialize() async {
-    await _firebaseMessaging.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-
+    // iOS foreground presentation is intentionally left at SDK defaults
+    // (all false). Enabling alert/badge/sound here makes iOS show its own
+    // banner on top of the flutter_local_notifications one, duplicating the
+    // notification.
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     FirebaseMessaging.onMessageOpenedApp.listen(_onMessageOpenedApp);
     FirebaseMessaging.onMessage.listen(_onForegroundMessage);
+  }
+
+  Future<void> handleInitialMessage() async {
+    final initial = await _firebaseMessaging.getInitialMessage();
+    if (initial == null) return;
+    navigationStreamController.add(initial.data);
   }
 
   Future<void> _onMessageOpenedApp(RemoteMessage message) async {
@@ -1506,22 +1545,31 @@ class FirebaseNotificationService {
   }
 
   Future<void> _onForegroundMessage(RemoteMessage message) async {
-    debugPrint('Foreground message: \${message.data}');
-    // TODO: Handle foreground notifications (show local notification)
+    AppLogger.info('Foreground message: \${message.data}');
+
+    final notification = message.notification;
+    if (notification != null) {
+      await LocalNotificationService().sendLocalNotification(
+        notification.title,
+        notification.body,
+        json.encode(message.data),
+      );
+    }
   }
 }
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  debugPrint('Background message: \${message.data}');
+  AppLogger.info('Background message: \${message.data}');
 }
 ''';
 
 const localNotificationServiceTemplate = '''
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:{{project_name}}/core/notifications/firebase_notifications.dart';
+import 'package:{{project_name}}/utils/helpers/logger_helper.dart';
 
 class LocalNotificationService {
   factory LocalNotificationService() {
@@ -1536,11 +1584,17 @@ class LocalNotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
+  int _notificationId = 0;
+
   Future<void> initializeLocalNotifications() async {
     const androidInitializationSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const darwinInitializationSettings = DarwinInitializationSettings();
+    const darwinInitializationSettings = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
 
     const initializationSettings = InitializationSettings(
       android: androidInitializationSettings,
@@ -1561,10 +1615,11 @@ class LocalNotificationService {
 
     try {
       final decodedPayload = json.decode(payload) as Map<String, dynamic>;
-      debugPrint('Parsed payload: \$decodedPayload');
-      // TODO: Handle notification tap navigation
-    } catch (e) {
-      debugPrint('Error parsing notification payload: \$e');
+      FirebaseNotificationService().navigationStreamController.add(
+        decodedPayload,
+      );
+    } catch (e, s) {
+      AppLogger.error('Error parsing notification payload', e, s);
     }
   }
 
@@ -1588,7 +1643,7 @@ class LocalNotificationService {
     );
 
     await flutterLocalNotificationsPlugin.show(
-      id: 0,
+      id: _notificationId++,
       title: title ?? 'Notification',
       body: body ?? '',
       notificationDetails: notificationDetails,
@@ -1627,6 +1682,17 @@ void debugLog(
 }) {
   if (kDebugMode) {
     log(message, stackTrace: stackTrace);
+  }
+}
+''';
+
+const stringExtensionsTemplate = '''
+extension StringExtensions on String {
+  String get titleCase {
+    if (isEmpty) return '';
+    return split(RegExp(r'[_\\s]+'))
+        .map((w) => w.isEmpty ? w : '\${w[0].toUpperCase()}\${w.substring(1)}')
+        .join(' ');
   }
 }
 ''';

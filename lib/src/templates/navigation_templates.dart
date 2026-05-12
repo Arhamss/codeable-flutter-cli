@@ -101,7 +101,7 @@ import 'package:{{project_name}}/core/models/navigation_item.dart';
 //               isSelected ? item.selectedIcon : item.icon,
 //             ),
 //             const SizedBox(height: 4),
-//             Text(item.label, style: context.l2.copyWith(color: color)),
+//             Text(item.label, style: context.captionMedium.copyWith(color: color)),
 //           ],
 //         ),
 //       ),

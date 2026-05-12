@@ -60,6 +60,7 @@ class {{FeatureName}}Model extends Equatable {
 ''';
 
 const featureCubitTemplate = '''
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:{{project_name}}/features/{{feature_path}}/domain/repository/{{feature_name}}_repository.dart';
 import 'package:{{project_name}}/features/{{feature_path}}/presentation/cubit/state.dart';
@@ -69,8 +70,29 @@ class {{FeatureName}}Cubit extends Cubit<{{FeatureName}}State> {
       : super(const {{FeatureName}}State());
 
   final {{FeatureName}}Repository repository;
+  CancelToken? _cancelToken;
+
+  @override
+  Future<void> close() {
+    _cancelToken?.cancel();
+    return super.close();
+  }
 
   // TODO: Add cubit methods
+  // Example with cancel token:
+  //
+  // Future<void> fetchData() async {
+  //   _cancelToken?.cancel();
+  //   _cancelToken = CancelToken();
+  //   emit(state.copyWith(fetch: const DataState.loading()));
+  //   final result = await repository.fetchData(cancelToken: _cancelToken);
+  //   if (result.isCancelled) return;
+  //   if (result.isSuccess && result.data != null) {
+  //     emit(state.copyWith(fetch: DataState.loaded(data: result.data)));
+  //   } else {
+  //     emit(state.copyWith(fetch: DataState.failure(error: result.message)));
+  //   }
+  // }
 }
 ''';
 
@@ -218,7 +240,7 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 'Log in to continue',
-                style: context.b1.copyWith(color: AppColors.textSecondary),
+                style: context.p1Medium.copyWith(color: AppColors.textSecondary),
               ),
               const Spacer(),
               CustomSocialAuthButton(

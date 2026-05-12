@@ -131,6 +131,15 @@ class DataState<T> extends Equatable {
   bool get hasError => error?.toString().isNotEmpty ?? true;
   bool get hasNoError => !hasError;
 
+  DataState<R> map<R>(R Function(T) transform) {
+    return DataState<R>(
+      key: key,
+      data: data != null ? transform(data as T) : null,
+      status: status,
+      error: error,
+    );
+  }
+
   @override
   List<Object?> get props => [key, data, status, error];
 }
@@ -211,6 +220,7 @@ class APIState<T> extends Equatable {
 ''';
 
 const repositoryResponseTemplate = '''
+import 'package:dio/dio.dart';
 import 'package:{{project_name}}/core/api_service/app_api_exception.dart';
 import 'package:{{project_name}}/utils/helpers/logger_helper.dart';
 
@@ -219,11 +229,15 @@ class RepositoryResponse<T> {
     required this.isSuccess,
     this.data,
     this.message,
+    this.details,
+    this.isCancelled = false,
   });
 
   final bool isSuccess;
   final T? data;
   final String? message;
+  final List<dynamic>? details;
+  final bool isCancelled;
 }
 
 Future<RepositoryResponse<T>> execute<T>(
@@ -232,8 +246,17 @@ Future<RepositoryResponse<T>> execute<T>(
   try {
     final data = await action();
     return RepositoryResponse(isSuccess: true, data: data);
+  } on DioException catch (e) {
+    if (e.type == DioExceptionType.cancel) {
+      return RepositoryResponse(isSuccess: false, isCancelled: true);
+    }
+    rethrow;
   } on AppApiException catch (e) {
-    return RepositoryResponse(isSuccess: false, message: e.message);
+    return RepositoryResponse(
+      isSuccess: false,
+      message: e.message,
+      details: e.details,
+    );
   } catch (e, s) {
     AppLogger.error('Unexpected error', e, s);
     return RepositoryResponse(
@@ -254,8 +277,6 @@ class AppLogger {
 
   static const _w = 60;
   static const _encoder = JsonEncoder.withIndent('  ');
-
-  // ── General Logging ──────────────────────────────────
 
   static void debug(String message) {
     if (kDebugMode) debugPrint('  🔹 $message');
@@ -311,7 +332,17 @@ class AppLogger {
     if (kDebugMode) debugPrint('  ⚪ $message');
   }
 
-  // ── API Logging ──────────────────────────────────────
+  static void authToken(String? token) {
+    if (!kDebugMode || token == null || token.isEmpty) return;
+    final buf = StringBuffer()
+      ..writeln()
+      ..writeln('  ╔${'═' * _w}')
+      ..writeln('  ║ 🔑 Auth Token')
+      ..writeln('  ╟${'─' * _w}')
+      ..writeln('  ║   $token')
+      ..write('  ╚${'═' * _w}');
+    debugPrint(buf.toString(), wrapWidth: 1024);
+  }
 
   static void apiRequest({
     required String method,
@@ -331,10 +362,8 @@ class AppLogger {
     if (headers != null && headers.isNotEmpty) {
       buf.writeln('  ╟${'─' * _w}');
       for (final e in headers.entries) {
-        final value = e.key.toLowerCase() == 'authorization'
-            ? '${e.value.toString().substring(0, 15)}...'
-            : e.value;
-        buf.writeln('  ║   ${e.key}: $value');
+        if (e.key.toLowerCase() == 'authorization') continue;
+        buf.writeln('  ║   ${e.key}: ${e.value}');
       }
     }
 
@@ -407,8 +436,6 @@ class AppLogger {
     debugPrint(buf.toString());
   }
 
-  // ── Private Helpers ──────────────────────────────────
-
   static String _prettyJson(dynamic data) {
     try {
       final object = data is String ? jsonDecode(data) : data;
@@ -437,9 +464,15 @@ class ToastHelper {
       backgroundColor: AppColors.error,
       borderRadius: BorderRadius.circular(48),
       borderSide: BorderSide.none,
+      closeButton: const ToastCloseButton(showType: CloseButtonShowType.none),
       icon: Padding(
         padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
-        child: SvgPicture.asset(AssetPaths.errorIcon, height: 24, width: 24),
+        child: SvgPicture.asset(
+          AssetPaths.errorIcon,
+          height: 24,
+          width: 24,
+          colorFilter: const ColorFilter.mode(AppColors.white, BlendMode.srcIn),
+        ),
       ),
       title: Text(
         message ?? 'Something went wrong. Please try again later.',
@@ -454,7 +487,10 @@ class ToastHelper {
       ),
       autoCloseDuration: const Duration(seconds: 3),
       alignment: Alignment.topCenter,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: 12,
+        vertical: 8,
+      ),
       closeOnClick: true,
       pauseOnHover: true,
       dragToClose: true,
@@ -468,6 +504,7 @@ class ToastHelper {
       backgroundColor: AppColors.positiveBottomStatusBackground,
       borderRadius: BorderRadius.circular(48),
       borderSide: BorderSide.none,
+      closeButton: const ToastCloseButton(showType: CloseButtonShowType.none),
       icon: Padding(
         padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
         child: SvgPicture.asset(AssetPaths.successIcon, height: 24, width: 24),
@@ -486,7 +523,10 @@ class ToastHelper {
       autoCloseDuration: const Duration(seconds: 3),
       showProgressBar: false,
       alignment: Alignment.topCenter,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: 12,
+        vertical: 8,
+      ),
       closeOnClick: true,
       pauseOnHover: true,
       dragToClose: true,
@@ -499,6 +539,7 @@ class ToastHelper {
       backgroundColor: AppColors.warningBottomStatusBackground,
       borderRadius: BorderRadius.circular(48),
       borderSide: BorderSide.none,
+      closeButton: const ToastCloseButton(showType: CloseButtonShowType.none),
       icon: Padding(
         padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
         child: SvgPicture.asset(AssetPaths.infoIcon, height: 24, width: 24),
@@ -516,7 +557,10 @@ class ToastHelper {
       ),
       autoCloseDuration: const Duration(seconds: 3),
       alignment: Alignment.topCenter,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: 12,
+        vertical: 8,
+      ),
       closeOnClick: true,
       pauseOnHover: true,
       dragToClose: true,

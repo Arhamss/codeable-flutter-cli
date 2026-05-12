@@ -20,7 +20,7 @@ const claudeMdTemplate = r'''
 ## Overview
 {{description}}
 
-This is a Flutter application built with Clean Architecture and BLoC/Cubit state management.
+This is a Flutter application built with Clean Architecture and BLoC/Cubit state management, scaffolded with the [Codeable Flutter CLI](https://github.com/gocodeable/codeable-flutter-cli).
 
 ## Architecture
 
@@ -40,13 +40,14 @@ lib/
 │   ├── models/
 │   │   ├── api_response/        # API response models
 │   │   ├── auth/                # Auth-related models (Hive TypeAdapters)
-│   │   └── common/              # Shared models
+│   │   └── common/              # Shared models used by 2+ features
 │   ├── permissions/             # Permission manager and messages
 │   └── field_validators.dart    # Form field validators
 ├── features/                    # Feature modules (see Feature Structure below)
 ├── go_router/                   # GoRouter configuration and route definitions
 ├── l10n/                        # Localization (ARB files, generated code)
 ├── utils/
+│   ├── enums/                   # Domain-specific enums with extensions
 │   ├── extensions/              # Dart extensions
 │   ├── helpers/                 # Helper utilities (toast, layout, decorations, etc.)
 │   ├── response_data_model/     # Response parsing utilities
@@ -55,7 +56,7 @@ lib/
 ```
 
 ### Feature Structure (Clean Architecture)
-Each feature follows this pattern:
+Each feature follows a strict 3-layer architecture:
 ```
 features/<feature_name>/
 ├── data/
@@ -66,15 +67,67 @@ features/<feature_name>/
 └── presentation/
     ├── cubit/           # Cubit + State classes
     ├── views/           # Screen widgets
-    └── widgets/         # Feature-specific widgets
+    └── widgets/         # Feature-specific widgets (organized by concern in subfolders)
 ```
+
+**Layer Rules:**
+- **Data layer** handles API calls, parsing, and error catching
+- **Domain layer** defines abstract contracts (repository interfaces)
+- **Presentation layer** manages UI and state — never calls APIs directly
+- Dependencies flow inward: `presentation → domain ← data`
+
+### When to Create a Separate Feature
+A concern gets its own feature folder when:
+- It has its own cubit/state and repository
+- It has its own screens/views
+- It would bloat the parent feature's cubit with unrelated state
+
+### Shared Models
+Models used by 2+ features belong in `core/models/common/`, not duplicated in each feature's `data/models/`.
+
+---
 
 ## Key Patterns
 
 ### State Management
 - Uses **flutter_bloc** with **Cubit** pattern (not full Bloc with events)
-- States use **DataState<T>** enum: `initial`, `loading`, `loaded`, `failure`
+- States use **DataState<T>** enum: `initial`, `loading`, `loaded`, `failure`, `pageLoading`
 - Cubits are registered in `lib/app/view/app_page.dart` via MultiBlocProvider
+- **No try-catch blocks in cubits** — error handling belongs in the repository
+- **No direct API/service calls from cubits** — always go through the repository
+- Use `context.read<MyCubit>()` for actions, `BlocBuilder` for state-dependent UI
+- Cache cubit references in local variables when using multiple cubits
+
+### State Pattern
+States use `Equatable` with a `DataState<T>` wrapper for each async data field:
+```dart
+class MyFeatureState extends Equatable {
+  const MyFeatureState({
+    this.items = const DataState<ItemsResponseModel>.initial(),
+    this.deleteState = const DataState<void>.initial(),
+  });
+
+  final DataState<ItemsResponseModel> items;
+  final DataState<void> deleteState;
+
+  MyFeatureState copyWith({
+    DataState<ItemsResponseModel>? items,
+    DataState<void>? deleteState,
+  }) {
+    return MyFeatureState(
+      items: items ?? this.items,
+      deleteState: deleteState ?? this.deleteState,
+    );
+  }
+
+  @override
+  List<Object?> get props => [items, deleteState];
+}
+```
+
+- Use `DataState<void>` for action-only states (create, delete, update) that don't return data
+- Use `DataState<ResponseModel>` for states that hold response data
+- **Use `PaginationModel<T>`** for paginated state — never define separate `currentPage`, `totalPages`, `hasMore`, `List<T> items` fields manually
 
 ### Dependency Injection
 - Uses **GetIt** via `Injector` wrapper class
@@ -93,10 +146,16 @@ features/<feature_name>/
 - Router config in `lib/go_router/router.dart`
 
 ### Styling
-- Colors: `AppColors.blackPrimary`, `AppColors.white`, `AppColors.textSecondary`, etc.
-- Text styles via context extension: `context.h1`, `context.t1`, `context.b1`, `context.l1`
-- Text style modifiers: `.secondary` (white), `.tertiary` (gray)
-- Fonts: BBBPoppins (headings/titles via `AppFonts.heading`), SFProRounded (body/labels via `AppFonts.body`)
+- Colors: `AppColors.blackPrimary`, `AppColors.secondaryMain`, `AppColors.white`, `AppColors.textSecondary`, `AppColors.error`, etc.
+- Two font families:
+  - **BBBPoppins** for headings — `AppFonts.heading` (used by `display`, `h1`–`h5` and their `Medium`/`Bold` variants)
+  - **SFProRounded** for body and labels — `AppFonts.body` (used by `p1`/`p2`/`caption`/`overline` and their `Medium`/`Bold` variants)
+- Text styles via context extension — size + weight variants:
+  - **Display:** `context.display` (43, w400, heading font)
+  - **Headings:** `h1`/`h1Medium`/`h1Bold` (32) · `h2`/`h2Medium`/`h2Bold` (28) · `h3`/`h3Medium`/`h3Bold` (24) · `h4`/`h4Medium`/`h4Bold` (20) · `h5`/`h5Medium`/`h5Bold` (18)
+  - **Body:** `p1`/`p1Medium`/`p1Bold` (16) · `p2`/`p2Medium`/`p2Bold` (14)
+  - **Caption:** `caption`/`captionMedium`/`captionBold` (12) · `overline` (10)
+- Text style modifiers: `.primary` (blackPrimary), `.secondary` (white), `.light` (textSecondary), `.hint` (textTertiary)
 - Assets: `AssetPaths.arrowLeftIcon`, `AssetPaths.searchIcon`, etc.
 
 ### Storage
@@ -133,12 +192,24 @@ features/<feature_name>/
 - Custom `_AppLogPrinter` with ANSI colors, timestamps, tree-style stack traces
 - Automatically filtered: `DevelopmentFilter` in debug, `ProductionFilter` in release
 
+### SafeArea (Android 15+ edge-to-edge)
+- `AppView` runs an Android SDK check on launch via `device_info_plus`
+- On SDK 35+, the builder wraps `MaterialApp.router` content in `SafeArea`
+- iOS and older Android keep the standard insets-aware layout
+- Do not add manual `SafeArea` to individual screens — `AppView` handles it globally
+
+---
+
 ## Core Widgets (lib/utils/widgets/core_widgets/)
 Reusable components available through `exports.dart`:
 - `CustomAppBar` - App bar with back button, title, actions
-- `CustomButton` - Primary filled button
-- `CustomOutlineButton` - Outlined button
-- `CustomTextField` - Text form field with validation
+- `CustomButton` - Single button widget with named factories:
+  - `CustomButton.primary` — black filled (default brand action)
+  - `CustomButton.secondary` — `AppColors.secondaryMain` filled (alternate brand color)
+  - `CustomButton.tertiary` — outlined (white bg, black border)
+  - `CustomButton.danger` — red filled (destructive actions)
+  - `CustomButton.text` — text-only ghost (low-emphasis links like "Forgot password?")
+- `CustomTextField` - Text form field with validation (factories: `.email`, `.password`, `.number`, `.phone`, `.description`, `.search`)
 - `CustomSearchField` - Search input field
 - `CustomDropdown` - Dropdown selector
 - `SearchableDropdown` - Searchable dropdown with filtering
@@ -147,35 +218,114 @@ Reusable components available through `exports.dart`:
 - `CustomConfirmationDialog` - Confirmation dialog
 - `CustomBottomSheet` - Bottom sheet wrapper
 - `PaginatedListView` / `PaginatedGridView` - Paginated scrollable lists
+- `RetryWidget` - Error state with retry button
+- `EmptyStateWidget` - Empty state display
+- `CustomLoadingWidget` / `ShimmerLoadingWidget` - Loading indicators
+- `CustomCachedImageWidget` - Network image with shimmer placeholder, asset fallback, custom `errorFallback` widget. Always use this — never raw `Image.network` or `CachedNetworkImage`.
+- `UserAvatar` - Circular avatar with deterministic gradient (seeded by user ID), optional photo, and `isLoading` overlay for upload state. Always use for user/profile avatars.
+
+---
 
 ## Coding Standards & Quality Rules
 
 ### Code Cleanliness
 - **Delete unused code** — Remove unused imports, variables, methods, classes, widgets, models, and files. No dead code in the codebase.
 - **No commented-out code** — If code is removed, delete it entirely. Git history preserves it if needed. No commented-out files either.
-- **No useless comments** — Don't restate what the code does. No doc comments on self-explanatory methods. No `// Section` separators. Only comment where the "why" isn't obvious.
+- **No useless comments** — Don't restate what the code does. No doc comments on self-explanatory methods. No `// Section` separators. No `// ===== Section =====` dividers. Only comment where the "why" isn't obvious.
 - **Resolve all analyzer hints** — Do not suppress with `// ignore:` unless absolutely necessary. Fix the underlying issue. Run `dart analyze` and ensure zero issues.
+- **No TODO comments in committed code** — resolve them before committing or track in issue tracker.
 
 ### View Rules
 - Views should be **very clean** — no business logic, no data transformations
 - **No `_buildXyz()` methods** — extract into separate `StatelessWidget` files in `widgets/`
 - **No private widgets in view files** — extract to their own `StatelessWidget` files
-- **No business logic in views** — views call cubit methods; cubits handle logic
+- **No business logic in views** — views call cubit methods; cubits handle logic. No increment/decrement methods, no data formatting, no link generation, no conditional computation in views.
 - **No `setState()`** — use Cubit state management exclusively
 - **View files should not exceed ~1000 lines** — refactor if they do
-- Dispose all controllers (`TextEditingController`, `ScrollController`, `FocusNode`, etc.) in `dispose()`
+- Dispose all controllers (`TextEditingController`, `ScrollController`, `FocusNode`, `AnimationController`, `Timer`, etc.) in `dispose()`
 - Cache cubit references in local variables when using multiple cubits
 
 ### Widget Rules
 - Each extracted widget in its **own `.dart` file** as a `StatelessWidget`
+- **One class per file** — never put multiple widget classes in a single file. No private `_HelperWidget` classes inside another widget file.
 - Widget files go in `feature/presentation/widgets/` organized by concern (subfolders, not flat dumps)
 - No business logic in widgets — only UI rendering
+- Pass data via constructor parameters, not by reading cubits internally (unless necessary for actions)
+- **Exception:** Self-contained bottom sheets that return a result via `Navigator.pop` may use `ValueNotifier` + `ValueListenableBuilder` for ephemeral selection state. This is strictly for UI-only state that doesn't affect feature business state.
+
+### Inline vs Extract — Know the Difference
+- **Keep inline** when the code is simple, readable, and used once:
+  - A `Padding` with a `Text` — just write it inline
+  - A `Row` with 2–3 children — inline is fine
+  - A ternary for show/hide: `isVisible ? Widget() : const SizedBox.shrink()`
+  - Simple decoration (`Container` with color/border/radius) — inline
+- **Extract to a separate widget file** when:
+  - The subtree is 30+ lines or 3+ nesting levels deep
+  - The same pattern appears in 2+ places — extract immediately
+  - The widget has its own logic (onTap handlers, formatting, conditional rendering)
+  - It makes the parent screen hard to read
+- **Never extract** a 5-line widget into its own file just for the sake of "clean architecture" — that's over-modularization, not cleanliness
+
+### No Over-Engineering
+- **No abstract base classes** for a single implementation — just write the class directly
+- **No utility functions** used only once — inline the logic
+- **No wrapper widgets** that just pass through all props to a child — that's pointless indirection
+- **No unnecessary `Container`** — don't wrap a `Text` in a `Container` just for padding, use `Padding` directly. Don't wrap in `Column`/`Row` when there's only one child.
+- **No premature generalization** — write the specific thing first. Only generalize when you have 2+ concrete uses.
+- **Three similar lines is better than a premature abstraction** — copy-paste is fine until a real pattern emerges
+
+### Spacing & Layout Consistency
+- Use `SizedBox(height: N)` / `SizedBox(width: N)` for spacing, not `Padding` with a single side
+- Stick to the spacing scale: 4, 8, 12, 16, 20, 24, 32, 40, 48 — no arbitrary values like 13 or 27
+- Use `EdgeInsetsDirectional` (not `EdgeInsets`) for RTL support
+- Standard screen horizontal padding: 16
+- Standard section spacing: 24
+- Standard item spacing in lists: 12 or 16
+
+### Cubit Lifecycle
+- **Never fetch data in the cubit constructor** — use an `init()` method called from the screen
+- Simple setters are one-liners: `void setEmail(String v) => emit(state.copyWith(email: v));`
+- **Don't create a method for every tiny state change** — if you have 5 fields that just need setters, a few generic setters are fine
+- **Reset state explicitly** — provide a `resetState()` method when the cubit is reused across navigation (e.g., onboarding flows)
+
+### Type Safety
+- **Never use `dynamic`** when the type is known — use the actual type
+- **Prefer `Object?` over `dynamic`** when you need a top type (forces null checks)
+- **No `as` casts without null safety** — use `as Type?` with null fallback, never bare `as Type` on API data
 
 ### BlocBuilder / BlocListener
 - **Always use `buildWhen`** on `BlocBuilder` to limit rebuilds
 - **Always use `listenWhen`** on `BlocListener` to limit side effects
-- **If `listenWhen` checks 5+ variables, split the listener** — use separate focused listeners
+- **If `listenWhen` checks 5+ variables, split the listener** — use separate focused listeners with `MultiBlocListener`
 - Extract complex listener logic into named methods
+
+```dart
+BlocListener<MyCubit, MyState>(
+  listenWhen: (prev, curr) => prev.deleteState != curr.deleteState,
+  listener: _handleDeleteState,
+  child: ...
+)
+```
+
+### Cancel Token Pattern
+- Cubits own a `CancelToken? _cancelToken` field for cancellable API calls
+- Before each API call: cancel the previous token, create a new one:
+  ```dart
+  _cancelToken?.cancel();
+  _cancelToken = CancelToken();
+  ```
+- Pass `cancelToken: _cancelToken` through repository → ApiService
+- After `await`, check `result.isCancelled` — if true, `return` immediately (do not emit state)
+- Cancel the token in `close()`:
+  ```dart
+  @override
+  Future<void> close() {
+    _cancelToken?.cancel();
+    return super.close();
+  }
+  ```
+- Repository interfaces accept `CancelToken? cancelToken` on methods that hit the network
+- `execute()` catches `DioException.cancel` and returns `RepositoryResponse(isSuccess: false, isCancelled: true)`
 
 ### Repository Error Handling
 - Use `execute()` from `repository_response.dart` for all repository methods — no manual try-catch
@@ -184,49 +334,160 @@ Reusable components available through `exports.dart`:
 - Business-level failures throw `AppApiException` inside the callback
 - No try-catch in cubits — error handling belongs in repositories
 - No `response.statusCode == 200` checks — ApiService throws on non-2xx
+- Always log errors with `AppLogger.error('descriptive message', exception, stackTrace)`
 
 ### Models
 - **One model per file** — never put multiple model classes in a single file
+- **No model duplication across features** — if two features need the same model, consolidate into one file. Keep the fuller version; rename simpler DTOs distinctly (e.g., `CreateSubscriptionTierRequest` vs `SubscriptionTierModel`)
 - Resilient parsing — `as Type? ?? defaultValue`, never crash on missing fields
-- List parsing must skip malformed items (map + whereType pattern)
+- List parsing must skip malformed items (map + whereType pattern):
+```dart
+final items = (json['items'] as List<dynamic>?)
+    ?.map((e) {
+      try { return ItemModel.fromJson(e as Map<String, dynamic>); }
+      catch (_) { return null; }
+    })
+    .whereType<ItemModel>()
+    .toList() ?? [];
+```
 - No manual Hive adapters — use code generation with `build_runner`
 - **Use `PaginationModel<T>`** for paginated state — never define separate pagination fields
+- Shared models (used by 2+ features) belong in `core/models/common/`
 
 ### Parallelization
 - Use `Future.wait` for independent async calls — never await sequentially
+```dart
+await Future.wait([
+  _appPreferences.setAuthToken(authToken),
+  _appPreferences.setRefreshToken(refreshToken),
+  _appPreferences.cacheSession(stage: stage, data: data),
+]);
+```
 
-### Custom Components
-- Use project dialog widget for all dialogs — never raw `AlertDialog`
-- Use project button widget — never raw `ElevatedButton` or `TextButton`
-- Use `ToastHelper` for messages, `AppLogger` for logging (no `print`/`debugPrint`)
-- Use `DateFormat` from `intl` + `DateTimeHelper` — never manual date string manipulation
-
-### Feature Extraction
-A concern gets its own feature folder when:
-- It has its own cubit/state and repository
-- It has its own screens/views
-- It would bloat the parent feature's cubit with unrelated state
+### Custom Components — MANDATORY
+- **Dialogs:** Use `CustomConfirmationDialog` — never raw `AlertDialog` or `showDialog` with manual buttons
+- **Buttons:** Use `CustomButton` — never raw `ElevatedButton`, `TextButton`, or `OutlinedButton`. Pick the right factory:
+  - `.primary` for the main action on a screen
+  - `.secondary` for an alternate filled action (uses `secondaryMain`)
+  - `.tertiary` for outlined / less-emphasized actions
+  - `.danger` for destructive actions (delete, leave, cancel)
+  - `.text` for inline links and low-emphasis actions ("Forgot password?", "Skip")
+- **Text inputs:** Use `CustomTextField` with named factories (`.email`, `.password`, `.phone`, `.number`, `.description`, `.search`) — never raw `TextField` or `TextFormField`
+- **Toasts:** Use `ToastHelper.showSuccessToast()` / `showErrorToast()` / `showInfoToast()` — never raw `SnackBar` or `ScaffoldMessenger`
+- **Logging:** Use `AppLogger` — never `print()` or `debugPrint()`
+- **Date formatting:** Use `DateTimeHelper` — never raw `DateFormat` directly in features. All date/time formatting must go through `DateTimeHelper` static methods:
+  - `DateTimeHelper.formatApiDate(date)` → `yyyy-MM-dd`
+  - `DateTimeHelper.formatTime12(time)` → `h:mm a`
+  - `DateTimeHelper.formatTime24(time)` → `HH:mm`
+  - `DateTimeHelper.formatDisplayDate(date)` → `MMM dd, yyyy`
+  - `DateTimeHelper.formatShortWeekday(date)` → `EEE d MMM`
+  - `DateTimeHelper.formatShortDate(date)` → `MMM d`
+  - If a new format is needed, add it to `DateTimeHelper` first, then use it.
+- **Colors:** Use `AppColors` constants — never hardcoded `Color(0x...)` or `Colors.xxx`
+- **Bottom sheets:** Use `CustomBottomSheet` for consistent drag handle and styling
+- **Network images:** Use `CustomCachedImageWidget` — never raw `Image.network` or `CachedNetworkImage` directly. Pass `errorFallback` when you need a custom error widget (e.g. initials inside `UserAvatar`).
+- **User/profile avatars:** Use `UserAvatar` — never compose your own `CircleAvatar` or `ClipOval(Image.network(...))`. Pass `seed` (user/member ID) for deterministic gradient assignment when rendering other users.
 
 ### Enums & Extensions
-- Create enums for finite value sets (statuses, types, roles)
+- Create enums for **any finite set of values** (statuses, types, roles, actions, filters)
+- String comparisons like `== 'active'` or `== 'pending'` in models/widgets are violations — use enums with `fromString` factories
 - Create **enum extensions** for display names, colors, icons — don't scatter switch statements
-- Enum files go in `data/models/` or `core/` if shared
+- Enum files go in `utils/enums/` (shared) or `data/models/` (feature-specific)
+- **Never define enums inline** in widget files — always in their own file
+
+```dart
+enum OrderStatus { pending, confirmed, delivered, cancelled }
+
+extension OrderStatusX on OrderStatus {
+  String get displayName => switch (this) {
+    OrderStatus.pending => 'Pending',
+    OrderStatus.confirmed => 'Confirmed',
+    OrderStatus.delivered => 'Delivered',
+    OrderStatus.cancelled => 'Cancelled',
+  };
+
+  Color get color => switch (this) {
+    OrderStatus.pending => AppColors.warning,
+    OrderStatus.confirmed => AppColors.info,
+    OrderStatus.delivered => AppColors.success,
+    OrderStatus.cancelled => AppColors.error,
+  };
+
+  static OrderStatus fromString(String value) => switch (value) {
+    'pending' => OrderStatus.pending,
+    'confirmed' => OrderStatus.confirmed,
+    'delivered' => OrderStatus.delivered,
+    'cancelled' => OrderStatus.cancelled,
+    _ => OrderStatus.pending,
+  };
+}
+```
 
 ### Naming
-- **No spelling mistakes** in class names, variable names, file names, or widget names
+- **No spelling mistakes** in class names, variable names, file names, or widget names — typos in code are permanent
 - All names should be descriptive and self-documenting
+- Files: `snake_case` — e.g., `user_profile_screen.dart`
+- Classes: `PascalCase` — e.g., `UserProfileScreen`
+- Variables/methods: `camelCase` — e.g., `loadUserProfile()`
+- Constants: `camelCase` — e.g., `defaultPageSize`
+- Enums: `PascalCase` for type, `camelCase` for values — e.g., `OrderStatus.confirmed`
 
 ### Reusability
-- Before creating a new widget, check if a similar one already exists
-- Common UI patterns go in `utils/widgets/`, feature-specific in `widgets/`
+- **Reusability is a top priority** when writing widgets, utilities, and helpers
+- Before creating a new widget, check if a similar one already exists in `utils/widgets/core_widgets/`
+- Common UI patterns go in `utils/widgets/core_widgets/`, feature-specific in `widgets/`
+- If a widget is used by 2+ features, move it to `core_widgets/` and export via `exports.dart`
+- If you find yourself copy-pasting UI code across screens, extract it into a shared widget immediately
+- Consistent `BorderRadius` — use standardized values project-wide, not arbitrary per-widget values
+
+### Imports
+- **Use package imports** — never relative imports (`import 'package:{{project_name}}/...'` not `import '../../../'`)
+- Use `exports.dart` barrel file for commonly used packages (Flutter, BLoC, GoRouter, constants, core widgets)
 
 ### AI-Generated Code
 - **Do not blindly accept AI-generated code** — review every file it modifies
-- If AI generates `setState`, raw `AlertDialog`, generic `catch (e)`, or manual Hive adapters, fix before committing
+- If AI generates `setState`, raw `AlertDialog`, generic `catch (e)`, manual Hive adapters, direct `DateFormat`, or hardcoded `Color(0x...)`, fix before committing
 
 ### Git Commits
 - **No `Co-Authored-By: Claude` or any AI co-author lines** in commit messages
 - Use conventional commit prefixes: `feat:`, `fix:`, `chore:`, `refactor:`, etc.
+
+---
+
+## Quick Reference Checklist
+
+When writing or reviewing code, verify:
+
+- [ ] Feature folder follows `data/domain/presentation` structure
+- [ ] Cubits have no try-catch — error handling in repositories only
+- [ ] Repos use `execute()` from `repository_response.dart` — no manual try-catch
+- [ ] Views have no `_build` methods, no `setState`, no business logic
+- [ ] Every widget is in its **own file** as a `StatelessWidget` — one class per file
+- [ ] `BlocBuilder` has `buildWhen`, `BlocListener` has `listenWhen`
+- [ ] Models parse resiliently with `as Type? ?? default` — one model per file
+- [ ] `PaginationModel<T>` for paginated state — no manual pagination fields
+- [ ] `DataState<T>` wraps every async field in state
+- [ ] Custom UI components used (`CustomConfirmationDialog`, `CustomButton`, `CustomTextField`, `CustomBottomSheet`, `ToastHelper`)
+- [ ] `DateTimeHelper` for ALL date formatting — no direct `DateFormat`
+- [ ] `AppColors` for ALL colors — no hardcoded `Color(0x...)`
+- [ ] `AppLogger` for logging — no `print`/`debugPrint`
+- [ ] Independent async calls use `Future.wait`
+- [ ] Enums for finite value sets — no string comparisons. Enum extensions for display values
+- [ ] Enums in their own files in `utils/enums/` or `data/models/` — never inline in widgets
+- [ ] No dead code, commented code, useless comments, or `// ignore:` suppressions
+- [ ] No model duplication across features — shared models in `core/models/common/`
+- [ ] Shared widgets (used by 2+ features) in `core_widgets/` — not cross-feature imports
+- [ ] Package imports only — no relative imports
+- [ ] View files under ~1000 lines
+- [ ] Widget folders organized by concern (subfolders, not flat dumps)
+- [ ] No spelling mistakes in names
+- [ ] Simple inline code stays inline — no extracting 5-line widgets into separate files
+- [ ] No over-engineering — no abstract base for one impl, no wrapper widgets, no unnecessary Container
+- [ ] `SizedBox` for spacing — not `Padding` with single side
+- [ ] Cubit fetches data via `init()` — never in constructor
+- [ ] Cancel token pattern used for API calls — cancel in `close()`, check `isCancelled` after await
+
+---
 
 ## Build Flavors
 - **development** (`main_development.dart`) - DevicePreview enabled
@@ -245,6 +506,9 @@ flutter gen-l10n
 
 # Run analysis
 flutter analyze
+
+# Auto-fix lints
+dart fix --apply
 ```
 ''';
 
@@ -261,7 +525,7 @@ Flutter mobile application using Clean Architecture with BLoC/Cubit pattern.
 - Networking: Dio
 - Local Storage: Hive
 - Routing: GoRouter
-- Styling: Google Fonts (Plus Jakarta Sans), custom AppColors, context-based text styles
+- Styling: Custom `AppColors`, context-based text styles, dual font setup (BBBPoppins for headings, SFProRounded for body)
 - Localization: flutter_localizations with ARB files + static `Localization` service
 
 ## Architecture Rules
@@ -290,15 +554,17 @@ Each feature lives in `lib/features/<name>/` with:
 - Resolve repository dependencies via `Injector.resolve<Type>()`
 
 ### Styling
-- Colors: Use `AppColors` constants (e.g., `AppColors.blackPrimary`, `AppColors.white`, `AppColors.textSecondary`)
-- Text: Use context extension (e.g., `context.h1`, `context.t1`, `context.b1`, `context.l1`)
-- Text modifiers: `.secondary` (white text), `.tertiary` (gray text)
-- Fonts: BBBPoppins for headings/titles, SFProRounded for body/labels
+- Colors: Use `AppColors` constants (e.g., `AppColors.blackPrimary`, `AppColors.secondaryMain`, `AppColors.white`, `AppColors.textSecondary`, `AppColors.error`)
+- Text: Use context extension. Two font families:
+  - Headings (BBBPoppins via `AppFonts.heading`): `display`, `h1`–`h5` (+ Medium/Bold variants)
+  - Body (SFProRounded via `AppFonts.body`): `p1`–`p2` (+ Medium/Bold), `caption` (+ Medium/Bold), `overline`
+- Text modifiers: `.primary` (blackPrimary), `.secondary` (white), `.light` (textSecondary), `.hint` (textTertiary)
 - Assets: Reference via `AssetPaths` constants
 
 ### API Layer
 - Use `ApiService` for all network calls (GET, POST, PUT, PATCH, DELETE)
-- Wrap responses in `RepositoryResponse<T>`
+- Pass `CancelToken? cancelToken` through repository → ApiService for cancellable requests
+- Wrap responses in `RepositoryResponse<T>` — check `result.isCancelled` after await
 - Define endpoints in `lib/core/endpoints/endpoints.dart`
 - Handle errors via `AppApiException`
 
@@ -324,8 +590,10 @@ Each feature lives in `lib/features/<name>/` with:
 
 ### Core Widgets
 Prefer using existing core widgets from `lib/utils/widgets/core_widgets/`:
-- CustomAppBar, CustomButton, CustomOutlineButton, CustomTextField
-- CustomSearchField, CustomDropdown, SearchableDropdown
+- CustomAppBar
+- `CustomButton` with factories: `.primary` (black filled), `.secondary` (`secondaryMain` filled), `.tertiary` (outlined), `.danger` (red), `.text` (ghost)
+- `CustomTextField` with factories: `.email`, `.password`, `.number`, `.phone`, `.description`, `.search`
+- CustomDropdown, SearchableDropdown
 - CustomSectionTitle, CustomConfirmationDialog, CustomBottomSheet
 - PaginatedListView, PaginatedGridView
 
@@ -349,32 +617,51 @@ Prefer using existing core widgets from `lib/utils/widgets/core_widgets/`:
 ## Coding Standards & Quality Rules
 - **No dead code** — delete unused imports, variables, methods, classes, widgets, models, files
 - **No commented-out code** — delete removed code entirely, git preserves history
-- **No useless comments** — no doc comments on self-explanatory methods, no section separators
+- **No useless comments** — no doc comments on self-explanatory methods, no section separators, no `// ===== ... =====` dividers
+- **No TODO comments** in committed code — resolve before commit or track in issue tracker
 - **Resolve all analyzer hints** — never suppress with `// ignore:`, fix the issue
 - **No `setState()`** — use Cubit state management exclusively
 - **No `_buildXyz()` methods** — extract into separate StatelessWidget files
 - **No private widgets in view files** — extract to their own StatelessWidget files
+- **One class per file** — never put multiple widget/model classes in a single file
 - **No business logic in views** — views call cubit methods; cubits handle logic
 - **View files should not exceed ~1000 lines** — refactor if they do
+- **Dispose all controllers** in `dispose()` — `TextEditingController`, `ScrollController`, `FocusNode`, `AnimationController`, `Timer`, etc.
+- **Cancel tokens in `close()`** — cubits that make API calls must cancel `_cancelToken` in `close()`. Before each call: `_cancelToken?.cancel(); _cancelToken = CancelToken();`. After await: `if (result.isCancelled) return;`
 - **Always use `buildWhen`/`listenWhen`** on BlocBuilder/BlocListener
-- **If `listenWhen` checks 5+ variables, split the listener** — use separate focused listeners
+- **If `listenWhen` checks 5+ variables, split the listener** — use separate focused listeners with `MultiBlocListener`
 - **Use `execute()` from `repository_response.dart`** for all repository methods — no manual try-catch
 - **Callbacks return `T` directly** — `execute()` wraps the result in `RepositoryResponse<T>`
 - **Void operations**: `execute<void>(() async { ... })` — no return needed inside callback
 - **Business-level failures** throw `AppApiException` inside the callback
 - **No try-catch in cubits** — error handling belongs in repositories
-- **Use `Future.wait`** for independent async calls
+- **Always log errors** with `AppLogger.error('descriptive message', exception, stackTrace)` in repositories
+- **No `response.statusCode == 200` checks** — `ApiService` throws on non-2xx
+- **Use `Future.wait`** for independent async calls — never await sequentially
 - **One model per file** — never put multiple model classes in a single file
+- **No model duplication across features** — shared models go in `core/models/common/`
 - **Use `PaginationModel<T>`** for paginated state — no manual pagination fields
-- **Models parse resiliently** — `as Type? ?? default`, skip malformed list items
-- **No manual Hive adapters** — use code generation
-- **Use project custom components** — project dialog, button, appbar, ToastHelper
-- **Create enums with extensions** for display names, colors, icons — don't scatter switch statements
-- **No spelling mistakes** in class names, variable names, file names, or widget names
+- **Use `DataState<T>`** to wrap every async field in state
+- **Models parse resiliently** — `as Type? ?? default`, skip malformed list items via `whereType`
+- **No manual Hive adapters** — use code generation with `build_runner`
+- **MANDATORY custom components** — `CustomButton` (never `ElevatedButton`/`TextButton`/`OutlinedButton`), `CustomTextField` (never `TextField`/`TextFormField`), `CustomConfirmationDialog` (never `AlertDialog`), `CustomBottomSheet`, `ToastHelper` (never `SnackBar`/`ScaffoldMessenger`), `AppLogger` (never `print`/`debugPrint`), `DateTimeHelper` (never raw `DateFormat`), `CustomCachedImageWidget` (never `Image.network` or raw `CachedNetworkImage`), `UserAvatar` (never `CircleAvatar` or `ClipOval(Image.network(...))`)
+- **`AppColors` for ALL colors** — no hardcoded `Color(0x...)` or `Colors.xxx`
+- **Create enums with extensions** for display names, colors, icons — never scatter switch statements
+- **Enums for finite value sets** — no string comparisons like `== 'pending'`. Use `fromString` factories
+- **Never define enums inline** in widget files — own file in `utils/enums/` or `data/models/`
+- **No spelling mistakes** in class names, variable names, file names, or widget names — typos are permanent
 - **Widget folders organized by concern** — subfolders, not flat dumps
-- **Reusability first** — check for existing widgets before creating new ones
+- **Reusability first** — check `utils/widgets/core_widgets/` before creating new widgets. If used by 2+ features, move to `core_widgets/`
+- **Use package imports** — never relative imports (`import 'package:{{project_name}}/...'` not `import '../../../'`)
+- **Keep simple things inline** — a Padding with a Text, a Row with 2 children, a simple ternary. Only extract to a separate widget file when 30+ lines or reused.
+- **No over-engineering** — no abstract base classes for one implementation, no utility functions used once, no wrapper widgets that just pass through props, no unnecessary Container wrapping
+- **No unnecessary wrapping** — don't wrap Text in Container for padding (use Padding), don't wrap single child in Column/Row
+- **SizedBox for spacing** — `SizedBox(height: 16)` not `Padding(padding: EdgeInsets.only(top: 16))`. Use spacing scale: 4, 8, 12, 16, 20, 24, 32
+- **Never fetch in cubit constructor** — use an `init()` method called from the screen. Simple setters are one-liners.
+- **No dynamic when type is known** — use actual types. Prefer `Object?` over `dynamic` for top type.
 - **Review AI-generated code** — don't blindly commit; verify it follows these standards
 - **No `Co-Authored-By` AI lines** in git commit messages
+- **Conventional commit prefixes** — `feat:`, `fix:`, `chore:`, `refactor:`, etc.
 
 ## File Structure for New Features
 When creating a new feature, create all required directories and files:
@@ -632,19 +919,24 @@ If arguments are missing, ask the user for: feature path, HTTP method (GET/POST/
 ### Step 2: Add Repository Method (Domain)
 1. Read the abstract repository in `<feature>/domain/repository/`.
 2. Add a new method signature that returns `Future<RepositoryResponse<T>>` where T is the expected response type.
-3. If a response model is needed, create it in `<feature>/data/models/`.
+3. Include `CancelToken? cancelToken` as an optional parameter.
+4. If a response model is needed, create it in `<feature>/data/models/`.
 
 ### Step 3: Add Repository Implementation (Data)
 1. Read the repository impl in `<feature>/data/repository/`.
 2. Implement the new method using `_apiService` for the HTTP call.
-3. Use `ApiResponseHandler.handleResponse()` for response parsing.
-4. Handle both success and error cases.
+3. Pass `cancelToken: cancelToken` to the `_apiService` call.
+4. Wrap in `execute()` — no manual try-catch.
 
 ### Step 4: Add Cubit Method
 1. Read the cubit file.
-2. Add a method that:
+2. If the cubit doesn't have a `CancelToken? _cancelToken` field and `close()` override, add them.
+3. Add a method that:
+   - Cancels the previous token: `_cancelToken?.cancel();`
+   - Creates a new token: `_cancelToken = CancelToken();`
    - Emits loading state
-   - Calls the repository method
+   - Calls the repository method with `cancelToken: _cancelToken`
+   - Checks `if (result.isCancelled) return;` before emitting
    - Emits loaded state with data on success
    - Emits failure state on error
 
@@ -733,19 +1025,20 @@ For each new field:
 
 ### Step 3: Add Cubit Methods
 For each new action:
-1. Add the method to the cubit class.
-2. Follow the existing pattern:
+1. If the cubit doesn't have a `CancelToken? _cancelToken` field and `close()` override, add them.
+2. Add the method to the cubit class.
+3. Follow the cancel token pattern:
    ```dart
    Future<void> fetchSomething() async {
-     emit(state.copyWith(somethingState: DataState.loading));
-     final response = await _repository.getSomething();
-     if (response.isSuccess) {
-       emit(state.copyWith(
-         somethingState: DataState.loaded,
-         something: response.data,
-       ));
+     _cancelToken?.cancel();
+     _cancelToken = CancelToken();
+     emit(state.copyWith(somethingState: const DataState.loading()));
+     final result = await repository.getSomething(cancelToken: _cancelToken);
+     if (result.isCancelled) return;
+     if (result.isSuccess && result.data != null) {
+       emit(state.copyWith(somethingState: DataState.loaded(data: result.data)));
      } else {
-       emit(state.copyWith(somethingState: DataState.failure));
+       emit(state.copyWith(somethingState: DataState.failure(error: result.message)));
      }
    }
    ```
@@ -1916,7 +2209,7 @@ Then ask: Do you have a **description** of the screen, or a **Figma URL** to ref
 
 - **Core widgets**: `lib/core/widgets/` (CustomAppBar, CustomButton, CustomTextField, PaginatedListView, PaginatedGridView, etc.)
 - **AppColors**: `lib/constants/app_colors.dart`
-- **Text styles**: Extensions on BuildContext — `context.h1`, `context.h2`, `context.t1`, `context.t2`, `context.b1`, `context.b2`, `context.l1`, `context.l2` (heading, title, body, label sizes)
+- **Text styles**: Extensions on BuildContext — `context.display`, `context.h1`–`context.h5` (+ Medium/Bold), `context.p1`–`context.p2` (+ Medium/Bold), `context.caption` (+ Medium/Bold), `context.overline`
 - **AssetPaths**: `lib/constants/asset_paths.dart`
 - **Feature cubit**: `<feature>/presentation/cubit/cubit.dart`
 - **Feature state**: `<feature>/presentation/cubit/state.dart`
@@ -1960,7 +2253,7 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(context.l10n.somethingWentWrong, style: context.b1),
+                  Text(context.l10n.somethingWentWrong, style: context.p1Medium),
                   SizedBox(height: 16),
                   CustomButton(
                     text: context.l10n.retry,
@@ -2002,11 +2295,11 @@ class ProfileScreen extends StatelessWidget {
 ### Text Styles
 ```dart
 Text('Heading', style: context.h1)
-Text('Title', style: context.t1)
-Text('Body text', style: context.b1)
-Text('Label', style: context.l1)
+Text('Title', style: context.h4Medium)
+Text('Body text', style: context.p1)
+Text('Label', style: context.p2Bold)
 // Use .copyWith() for modifications:
-Text('Custom', style: context.b1.copyWith(color: AppColors.primary))
+Text('Custom', style: context.p1.copyWith(color: AppColors.primary))
 ```
 
 ### Colors
@@ -2023,9 +2316,17 @@ SvgPicture.asset(AssetPaths.emptyState)
 
 ### Spacing (RTL-safe)
 ```dart
+// Use SizedBox for gaps between widgets:
+SizedBox(height: 16)
+SizedBox(width: 8)
+
+// Use EdgeInsetsDirectional for padding:
 Padding(padding: EdgeInsetsDirectional.only(start: 16, end: 16))
 Padding(padding: EdgeInsetsDirectional.all(16))
 // NEVER use EdgeInsets.left/right — always use EdgeInsetsDirectional.start/end
+
+// Spacing scale: 4, 8, 12, 16, 20, 24, 32, 40, 48
+// Standard screen horizontal padding: 16
 ```
 
 ## Rules
@@ -2033,11 +2334,15 @@ Padding(padding: EdgeInsetsDirectional.all(16))
 - ALWAYS use existing core widgets before building custom ones.
 - ALWAYS use `context.l10n.keyName` for user-facing strings.
 - ALWAYS use `EdgeInsetsDirectional` instead of `EdgeInsets` for RTL support.
-- ALWAYS use `context.h1/t1/b1/l1` text styles — do NOT use raw TextStyle.
+- ALWAYS use `context.h1/p1/p2/caption` text styles — do NOT use raw TextStyle.
 - ALWAYS use `AppColors` — do NOT use hardcoded Color values.
 - ALWAYS handle loading, error, and empty states.
 - Use `BlocBuilder` for UI rendering, `BlocConsumer` when side effects are also needed.
-- Keep the screen widget clean — extract complex sub-widgets into separate widget files in `<feature>/presentation/widgets/`.
+- Keep the screen widget clean — extract complex sub-widgets (30+ lines) into separate widget files in `<feature>/presentation/widgets/`.
+- Keep simple inline code inline — do NOT extract a Padding+Text or a simple Row into a separate file.
+- Do NOT over-engineer — no wrapper widgets, no unnecessary Container, no abstract base for one impl.
+- Use `SizedBox` for spacing — not `Padding` with a single side.
+- Do NOT wrap a single child in `Column`/`Row` — just use the child directly.
 - Do NOT modify unrelated code.
 ''';
 

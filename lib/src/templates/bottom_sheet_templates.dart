@@ -27,7 +27,7 @@ class {{SheetName}}Sheet extends StatelessWidget {
       children: [
         ListTile(
           leading: const Icon(Icons.edit_outlined),
-          title: Text('Edit', style: context.b1),
+          title: Text('Edit', style: context.p1Medium),
           onTap: () {
             Navigator.pop(context);
             onSelected('edit');
@@ -37,7 +37,7 @@ class {{SheetName}}Sheet extends StatelessWidget {
           leading: Icon(Icons.delete_outline, color: AppColors.error),
           title: Text(
             'Delete',
-            style: context.b1.copyWith(color: AppColors.error),
+            style: context.p1Medium.copyWith(color: AppColors.error),
           ),
           onTap: () {
             Navigator.pop(context);
