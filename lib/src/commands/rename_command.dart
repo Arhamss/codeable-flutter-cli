@@ -53,8 +53,10 @@ class RenameCommand extends Command<int> {
 
     // Read current name from pubspec.yaml
     final pubspecContent = pubspecFile.readAsStringSync();
-    final nameMatch = RegExp(r'^name:\s*(.+)$', multiLine: true)
-        .firstMatch(pubspecContent);
+    final nameMatch = RegExp(
+      r'^name:\s*(.+)$',
+      multiLine: true,
+    ).firstMatch(pubspecContent);
     if (nameMatch == null) {
       _logger.err('Could not find "name:" field in pubspec.yaml.');
       return ExitCode.software.code;
@@ -66,16 +68,17 @@ class RenameCommand extends Command<int> {
       return ExitCode.success.code;
     }
 
-    _logger.info('');
-    _logger.info(
-      'Renaming ${lightCyan.wrap(oldName)} → ${lightCyan.wrap(newName)}...',
-    );
-    _logger.info('');
+    _logger
+      ..info('')
+      ..info(
+        'Renaming ${lightCyan.wrap(oldName)} → ${lightCyan.wrap(newName)}...',
+      )
+      ..info('');
 
     // Step 1: Update pubspec.yaml
     final pubspecProgress = _logger.progress('Updating pubspec.yaml');
     final updatedPubspec = pubspecContent.replaceFirst(
-      RegExp('^name:\\s*.+\$', multiLine: true),
+      RegExp(r'^name:\s*.+$', multiLine: true),
       'name: $newName',
     );
     pubspecFile.writeAsStringSync(updatedPubspec);
@@ -127,8 +130,8 @@ class RenameCommand extends Command<int> {
       ['pub', 'get'],
       workingDirectory:
           currentDirName == oldName && !Directory.current.existsSync()
-              ? '${currentDir.parent.path}/$newName'
-              : null,
+          ? '${currentDir.parent.path}/$newName'
+          : null,
     );
 
     if (pubGetResult.exitCode != 0) {

@@ -1,4 +1,4 @@
-const apiServiceTemplate = '''
+const apiServiceTemplate = r'''
 import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:{{project_name}}/config/flavor_config.dart';
@@ -16,7 +16,7 @@ class ApiService {
   ApiService._internal() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: '\${Endpoints.baseUrl}/\${Endpoints.apiVersion}/',
+        baseUrl: '${Endpoints.baseUrl}/${Endpoints.apiVersion}/',
         connectTimeout: const Duration(seconds: 60),
         receiveTimeout: const Duration(seconds: 60),
         headers: {'Content-Type': 'application/json'},
@@ -152,7 +152,7 @@ class ApiService {
             case 500:
               errorMessage = 'Internal server error';
             default:
-              errorMessage = 'Unexpected error: \${e.response?.statusMessage}';
+              errorMessage = 'Unexpected error: ${e.response?.statusMessage}';
           }
         }
       }
@@ -172,7 +172,7 @@ class ApiService {
       }
     }
 
-    AppLogger.error('API Error: \$errorMessage');
+    AppLogger.error('API Error: $errorMessage');
     throw AppApiException(errorMessage, statusCode: statusCode);
   }
 }
@@ -195,7 +195,7 @@ String extractApiErrorMessage(Object e, String fallback) {
 }
 ''';
 
-const authInterceptorTemplate = '''
+const authInterceptorTemplate = r'''
 import 'package:dio/dio.dart';
 import 'package:{{project_name}}/core/app_preferences/app_preferences.dart';
 import 'package:{{project_name}}/core/endpoints/endpoints.dart';
@@ -217,7 +217,7 @@ class AuthInterceptor extends Interceptor {
     final token = _appPreferences.getAuthToken();
 
     if (token != null) {
-      options.headers['Authorization'] = 'Bearer \$token';
+      options.headers['Authorization'] = 'Bearer $token';
     }
 
     return handler.next(options);
@@ -232,7 +232,7 @@ class AuthInterceptor extends Interceptor {
       final newToken = await _handleTokenRefresh();
 
       if (newToken != null) {
-        err.requestOptions.headers['Authorization'] = 'Bearer \$newToken';
+        err.requestOptions.headers['Authorization'] = 'Bearer $newToken';
         final retryResponse = await _dio.fetch<dynamic>(err.requestOptions);
         return handler.resolve(retryResponse);
       }
@@ -264,8 +264,8 @@ class AuthInterceptor extends Interceptor {
       }
 
       final response = await _dio.post<dynamic>(
-        '\${Endpoints.baseUrl}/\${Endpoints.refresh}',
-        options: Options(headers: {'Authorization': 'Bearer \$refreshToken'}),
+        '${Endpoints.baseUrl}/${Endpoints.refresh}',
+        options: Options(headers: {'Authorization': 'Bearer $refreshToken'}),
       );
 
       if (response.statusCode == 200) {
@@ -1027,7 +1027,7 @@ class ApiError {
 }
 ''';
 
-const apiErrorTemplate = '''
+const apiErrorTemplate = r'''
 import 'package:equatable/equatable.dart';
 
 class ApiError extends Equatable {
@@ -1059,7 +1059,7 @@ class ApiError extends Equatable {
   List<Object?> get props => [code, message, timestamp];
 
   @override
-  String toString() => '\$code: \$message';
+  String toString() => '$code: $message';
 }
 ''';
 
@@ -1102,7 +1102,7 @@ class BaseApiResponse<T> {
 }
 ''';
 
-const apiResponseHandlerTemplate = '''
+const apiResponseHandlerTemplate = r'''
 import 'package:dio/dio.dart';
 import 'package:{{project_name}}/core/models/api_response/api_response_model.dart';
 import 'package:{{project_name}}/core/models/api_response/base_api_response.dart';
@@ -1145,12 +1145,12 @@ class ApiResponseHandler<T extends BaseApiResponse<dynamic>> {
 
       return ResponseModel<T>(
         status: ResponseStatus.responseError,
-        error: 'Request failed with status code \$statusCode',
+        error: 'Request failed with status code $statusCode',
       );
     } catch (e) {
       return ResponseModel<T>(
         status: ResponseStatus.responseError,
-        error: 'Exception during parsing: \$e',
+        error: 'Exception during parsing: $e',
       );
     }
   }
@@ -1203,7 +1203,7 @@ class ResponseModel<T> {
 }
 ''';
 
-const permissionManagerTemplate = '''
+const permissionManagerTemplate = r'''
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -1288,7 +1288,7 @@ class PermissionManager {
         shouldShowRationale: status.isDenied,
       );
     } catch (e) {
-      debugPrint('Error requesting location permission: \$e');
+      debugPrint('Error requesting location permission: $e');
       return const PermissionResult(state: PermissionState.unknown);
     }
   }
@@ -1305,7 +1305,7 @@ class PermissionManager {
         shouldShowRationale: status.isDenied,
       );
     } catch (e) {
-      debugPrint('Error requesting camera permission: \$e');
+      debugPrint('Error requesting camera permission: $e');
       return const PermissionResult(state: PermissionState.unknown);
     }
   }
@@ -1322,7 +1322,7 @@ class PermissionManager {
         shouldShowRationale: status.isDenied,
       );
     } catch (e) {
-      debugPrint('Error requesting photos permission: \$e');
+      debugPrint('Error requesting photos permission: $e');
       return const PermissionResult(state: PermissionState.unknown);
     }
   }
@@ -1341,7 +1341,7 @@ class PermissionManager {
         shouldShowRationale: status.isDenied,
       );
     } catch (e) {
-      debugPrint('Error requesting permission: \$e');
+      debugPrint('Error requesting permission: $e');
       return const PermissionResult(state: PermissionState.unknown);
     }
   }
@@ -1361,12 +1361,12 @@ class PermissionManager {
           context: context,
           permissionName: permissionName,
           message: customPermanentlyDeniedMessage ??
-              '\$permissionName access is required. Please enable it in Settings.',
+              '$permissionName access is required. Please enable it in Settings.',
         );
       }
       return false;
     } catch (e) {
-      debugPrint('Error requesting permission with dialog: \$e');
+      debugPrint('Error requesting permission with dialog: $e');
       return false;
     }
   }
@@ -1421,7 +1421,7 @@ class PermissionManager {
       barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('\$permissionName Permission Required'),
+        title: Text('$permissionName Permission Required'),
         content: Text(message),
         actions: [
           TextButton(
@@ -1475,7 +1475,7 @@ class PermissionMessages {
 }
 ''';
 
-const firebaseNotificationsTemplate = '''
+const firebaseNotificationsTemplate = r'''
 import 'dart:async';
 import 'dart:convert';
 
@@ -1506,7 +1506,7 @@ class FirebaseNotificationService {
   Future<String?> getFcmToken() async {
     try {
       final token = await _firebaseMessaging.getToken();
-      AppLogger.info('FCM Token: \$token');
+      AppLogger.info('FCM Token: $token');
       return token;
     } catch (e, s) {
       AppLogger.error('Error fetching FCM token', e, s);
@@ -1545,7 +1545,7 @@ class FirebaseNotificationService {
   }
 
   Future<void> _onForegroundMessage(RemoteMessage message) async {
-    AppLogger.info('Foreground message: \${message.data}');
+    AppLogger.info('Foreground message: ${message.data}');
 
     final notification = message.notification;
     if (notification != null) {
@@ -1560,7 +1560,7 @@ class FirebaseNotificationService {
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  AppLogger.info('Background message: \${message.data}');
+  AppLogger.info('Background message: ${message.data}');
 }
 ''';
 
@@ -1686,12 +1686,12 @@ void debugLog(
 }
 ''';
 
-const stringExtensionsTemplate = '''
+const stringExtensionsTemplate = r'''
 extension StringExtensions on String {
   String get titleCase {
     if (isEmpty) return '';
-    return split(RegExp(r'[_\\s]+'))
-        .map((w) => w.isEmpty ? w : '\${w[0].toUpperCase()}\${w.substring(1)}')
+    return split(RegExp(r'[_\s]+'))
+        .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}')
         .join(' ');
   }
 }

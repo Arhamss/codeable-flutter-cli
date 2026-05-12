@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:mason_logger/mason_logger.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:codeable_cli/src/command_runner.dart';
 import 'package:codeable_cli/src/commands/commands.dart';
 import 'package:codeable_cli/src/version.dart';
+import 'package:mason_logger/mason_logger.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
 

@@ -1908,7 +1908,7 @@ class CustomDropdownCubit extends Cubit<CustomDropdownState> {
 }
 ''';
 
-const String customSlidingTabTemplate = '''
+const String customSlidingTabTemplate = r'''
 import 'package:{{project_name}}/exports.dart';
 
 class CustomSlidingTab extends StatefulWidget {
@@ -2039,7 +2039,7 @@ class SlidingTabItem {
   final dynamic value;
 
   @override
-  String toString() => 'SlidingTabItem(label: \$label, value: \$value)';
+  String toString() => 'SlidingTabItem(label: $label, value: $value)';
 }
 ''';
 
@@ -2400,7 +2400,6 @@ class CustomLoadingWidget extends StatelessWidget {
   }
 }
 ''';
-
 
 const String paginatedListViewTemplate = '''
 import 'package:{{project_name}}/exports.dart';
@@ -2875,7 +2874,6 @@ class _PaginatedSliverGridViewState<T>
 }
 ''';
 
-
 const String progressDashesTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
@@ -3005,7 +3003,7 @@ class CustomRetryWidget extends StatelessWidget {
 }
 ''';
 
-const String reusableCalendarWidgetTemplate = '''
+const String reusableCalendarWidgetTemplate = r'''
 import 'package:{{project_name}}/exports.dart';
 
 enum CalendarMode {
@@ -3078,7 +3076,7 @@ class _ReusableCalendarWidgetState extends State<ReusableCalendarWidget> {
                   ),
                 ),
                 Text(
-                  '\${_getMonthName(_currentMonth.month)} \${_currentMonth.year}',
+                  '${_getMonthName(_currentMonth.month)} ${_currentMonth.year}',
                   style: context.p1Medium.copyWith(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -3286,7 +3284,7 @@ class _ReusableCalendarWidgetState extends State<ReusableCalendarWidget> {
 }
 ''';
 
-const String richTextTemplate = '''
+const String richTextTemplate = r'''
 import 'package:flutter/gestures.dart';
 import 'package:{{project_name}}/exports.dart';
 
@@ -3328,7 +3326,7 @@ class CustomRichText extends StatelessWidget {
             ),
         children: [
           TextSpan(
-            text: noSpace ? richText : ' \$richText ',
+            text: noSpace ? richText : ' $richText ',
             style: richTextStyle ??
                 context.p2Bold.copyWith(
                   fontSize: 10,
@@ -3896,7 +3894,7 @@ class CustomShimmerWidget extends StatelessWidget {
 }
 ''';
 
-const String sliderTemplate = '''
+const String sliderTemplate = r'''
 import 'package:{{project_name}}/exports.dart';
 
 class FeesSlider extends StatefulWidget {
@@ -3935,7 +3933,7 @@ class _FeesSliderState extends State<FeesSlider> {
             ),
             const Spacer(),
             Text(
-              'Amount: \\\$ \${_value.toInt()}',
+              'Amount: \$ ${_value.toInt()}',
               style: context.p1Medium.copyWith(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
@@ -3973,7 +3971,7 @@ class _FeesSliderState extends State<FeesSlider> {
 }
 ''';
 
-const String slidingCartNotificationTemplate = '''
+const String slidingCartNotificationTemplate = r'''
 import 'package:{{project_name}}/exports.dart';
 import 'package:{{project_name}}/utils/helpers/cart_notification_helper.dart';
 import 'package:lottie/lottie.dart';
@@ -4163,7 +4161,7 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
                           children: [
                             Flexible(
                               child: Text(
-                                '\${widget.quantity} x \${widget.productName}',
+                                '${widget.quantity} x ${widget.productName}',
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: AppColors.blackPrimary,
@@ -4393,7 +4391,7 @@ class CustomSocialAuthButton extends StatelessWidget {
 }
 ''';
 
-const String stackedImagesWidgetTemplate = '''
+const String stackedImagesWidgetTemplate = r'''
 import 'package:{{project_name}}/exports.dart';
 
 class CustomStackedImages extends StatelessWidget {
@@ -4446,7 +4444,7 @@ class CustomStackedImages extends StatelessWidget {
                 constraints: BoxConstraints(minHeight: size),
                 alignment: Alignment.center,
                 child: Text(
-                  '+\${images.length - maxImages}',
+                  '+${images.length - maxImages}',
                   style: context.overline.copyWith(
                     fontSize: size * 0.3,
                     color: AppColors.blackPrimary,
@@ -5262,7 +5260,6 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
 }
 ''';
 
-
 // --- Extra widget files (referenced by core widgets export) ---
 
 const String blurOverlayTemplate = '''
@@ -5400,7 +5397,7 @@ class CartNotificationHelper {
 }
 ''';
 
-const String datetimeHelperTemplate = '''
+const String datetimeHelperTemplate = r'''
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -5419,7 +5416,7 @@ import 'package:intl/intl.dart';
 ///
 /// if (isoDateTime != null) {
 ///   // Send to API: "2025-06-15T14:00:00.000Z"
-///   print('Combined DateTime: \$isoDateTime');
+///   print('Combined DateTime: $isoDateTime');
 /// }
 /// ```
 class DateTimeHelper {
@@ -5564,7 +5561,7 @@ class DateTimeHelper {
     final monthName = DateFormat('MMMM').format(date);
     final year = date.year;
 
-    return '\$day\$suffix \$monthName, \$year';
+    return '$day$suffix $monthName, $year';
   }
 
   /// Gets the ordinal suffix for a day number (st, nd, rd, th)

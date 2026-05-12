@@ -1,6 +1,6 @@
 /// Simple mustache-style template engine.
 ///
-/// Replaces `{{key}}` placeholders in templates with values from [vars].
+/// Replaces `{{key}}` placeholders in templates with values from a vars map.
 class TemplateEngine {
   const TemplateEngine._();
 

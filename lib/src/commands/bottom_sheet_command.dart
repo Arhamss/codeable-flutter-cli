@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:mason_logger/mason_logger.dart';
 import 'package:codeable_cli/src/template_engine.dart';
 import 'package:codeable_cli/src/templates/bottom_sheet_templates.dart';
+import 'package:mason_logger/mason_logger.dart';
 
 class BottomSheetCommand extends Command<int> {
   BottomSheetCommand({required Logger logger}) : _logger = logger {
@@ -11,7 +11,8 @@ class BottomSheetCommand extends Command<int> {
       ..addOption(
         'feature',
         abbr: 'f',
-        help: 'Feature path relative to lib/features/ '
+        help:
+            'Feature path relative to lib/features/ '
             '(e.g., customer/orders or orders).',
       )
       ..addOption(
@@ -41,8 +42,9 @@ class BottomSheetCommand extends Command<int> {
   Future<int> run() async {
     final args = argResults?.rest;
     if (args == null || args.isEmpty) {
-      _logger.err('Please provide a sheet name.');
-      _logger.info(invocation);
+      _logger
+        ..err('Please provide a sheet name.')
+        ..info(invocation);
       return ExitCode.usage.code;
     }
 
@@ -64,8 +66,10 @@ class BottomSheetCommand extends Command<int> {
 
     // Parse project name
     final pubspecContent = pubspecFile.readAsStringSync();
-    final nameMatch = RegExp(r'^name:\s*(.+)$', multiLine: true)
-        .firstMatch(pubspecContent);
+    final nameMatch = RegExp(
+      r'^name:\s*(.+)$',
+      multiLine: true,
+    ).firstMatch(pubspecContent);
     if (nameMatch == null) {
       _logger.err('Could not parse project name from pubspec.yaml');
       return ExitCode.software.code;
@@ -108,12 +112,12 @@ class BottomSheetCommand extends Command<int> {
     // Ensure widgets directory exists
     final widgetsDir = Directory(
       '${featureDir.path}/presentation/widgets',
-    );
-    widgetsDir.createSync(recursive: true);
+    )..createSync(recursive: true);
 
     // Build naming
-    final snakeSheet = TemplateEngine.toSnakeCase(sheetName)
-        .replaceAll(RegExp('[^a-z0-9_]'), '');
+    final snakeSheet = TemplateEngine.toSnakeCase(
+      sheetName,
+    ).replaceAll(RegExp('[^a-z0-9_]'), '');
 
     // Derive feature prefix from the feature directory name
     // e.g., "customer/orders" -> prefix is "customer_orders"
@@ -127,9 +131,7 @@ class BottomSheetCommand extends Command<int> {
     final sheetTitle = snakeSheet
         .split('_')
         .map(
-          (w) => w.isEmpty
-              ? ''
-              : '${w[0].toUpperCase()}${w.substring(1)}',
+          (w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1)}',
         )
         .join(' ');
 
@@ -153,7 +155,6 @@ class BottomSheetCommand extends Command<int> {
     if (File(filePath).existsSync()) {
       final overwrite = _logger.confirm(
         'File $fileName already exists. Overwrite?',
-        defaultValue: false,
       );
       if (!overwrite) {
         _logger.info('Aborted.');
@@ -174,8 +175,7 @@ class BottomSheetCommand extends Command<int> {
       ..info('')
       ..success('Created $fileName')
       ..info(
-        '  File: lib/features/$featurePath/'
-        'presentation/widgets/$fileName',
+        '  File: lib/features/$featurePath/presentation/widgets/$fileName',
       )
       ..info('')
       ..info('Usage:')
@@ -192,9 +192,7 @@ class BottomSheetCommand extends Command<int> {
     final features = <String>[];
     for (final entity in dir.listSync()) {
       if (entity is Directory) {
-        final name = entity.uri.pathSegments
-            .where((s) => s.isNotEmpty)
-            .last;
+        final name = entity.uri.pathSegments.where((s) => s.isNotEmpty).last;
         final path = prefix.isEmpty ? name : '$prefix/$name';
 
         // It's a feature if it has presentation/ or data/ subdirs

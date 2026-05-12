@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:mason_logger/mason_logger.dart';
 import 'package:codeable_cli/src/generators/feature_generator.dart';
 import 'package:codeable_cli/src/generators/keystore_generator.dart';
 import 'package:codeable_cli/src/template_engine.dart';
+import 'package:codeable_cli/src/templates/ai_config_templates.dart';
 import 'package:codeable_cli/src/templates/analysis_options_template.dart';
 import 'package:codeable_cli/src/templates/android_templates.dart';
 import 'package:codeable_cli/src/templates/app_templates.dart';
@@ -19,11 +19,11 @@ import 'package:codeable_cli/src/templates/l10n_templates.dart';
 import 'package:codeable_cli/src/templates/makefile_template.dart';
 import 'package:codeable_cli/src/templates/navigation_templates.dart';
 import 'package:codeable_cli/src/templates/pubspec_template.dart';
-import 'package:codeable_cli/src/templates/ai_config_templates.dart';
 import 'package:codeable_cli/src/templates/readme_template.dart';
 import 'package:codeable_cli/src/templates/router_templates.dart';
 import 'package:codeable_cli/src/templates/run_config_templates.dart';
 import 'package:codeable_cli/src/templates/utils_templates.dart';
+import 'package:mason_logger/mason_logger.dart';
 
 class ProjectGenerator {
   ProjectGenerator({required Logger logger}) : _logger = logger;
@@ -52,8 +52,9 @@ class ProjectGenerator {
     // Sanitize roles upfront
     final sanitizedRoles = roles
         .map(
-          (r) => TemplateEngine.toSnakeCase(r)
-              .replaceAll(RegExp('[^a-z0-9_]'), ''),
+          (r) => TemplateEngine.toSnakeCase(
+            r,
+          ).replaceAll(RegExp('[^a-z0-9_]'), ''),
         )
         .where((r) => r.isNotEmpty)
         .toList();
@@ -120,8 +121,9 @@ class ProjectGenerator {
     }
 
     // Remove default main.dart run configuration
-    final defaultRunConfig =
-        File('$projectPath/.idea/runConfigurations/main_dart.xml');
+    final defaultRunConfig = File(
+      '$projectPath/.idea/runConfigurations/main_dart.xml',
+    );
     if (defaultRunConfig.existsSync()) {
       defaultRunConfig.deleteSync();
     }
@@ -186,18 +188,18 @@ class ProjectGenerator {
     // Create role + common directories when roles specified
     if (hasRoles) {
       for (final role in sanitizedRoles) {
-        Directory('$projectPath/lib/features/$role')
-            .createSync(recursive: true);
+        Directory(
+          '$projectPath/lib/features/$role',
+        ).createSync(recursive: true);
       }
-      Directory('$projectPath/lib/features/common')
-          .createSync(recursive: true);
+      Directory('$projectPath/lib/features/common').createSync(recursive: true);
     }
     structureProgress.complete('Project structure created');
 
     // Step 4: Write all template files
     final filesProgress = _logger.progress('Writing template files');
 
-    final render = TemplateEngine.render;
+    const render = TemplateEngine.render;
 
     final files = <String, String>{
       // Entry points
@@ -336,13 +338,14 @@ class ProjectGenerator {
         nullCheckExtensionTemplate,
         vars,
       ),
-      'lib/utils/extensions/string_extensions.dart':
-          stringExtensionsTemplate,
+      'lib/utils/extensions/string_extensions.dart': stringExtensionsTemplate,
 
       // Navigation — NavItem model + shell navigation widget (commented out)
       'lib/core/models/navigation_item.dart': navItemModelTemplate,
-      'lib/features/navigation/presentation/views/app_navigation.dart':
-          render(navigationWidgetTemplate, vars),
+      'lib/features/navigation/presentation/views/app_navigation.dart': render(
+        navigationWidgetTemplate,
+        vars,
+      ),
 
       // Go Router — use base templates (no onboarding) when roles exist
       'lib/go_router/exports.dart': render(
@@ -607,18 +610,28 @@ class ProjectGenerator {
       // Standalone onboarding feature (only when no roles)
       if (!hasRoles) ...{
         'lib/features/onboarding/domain/repository/'
-            'onboarding_repository.dart':
-            render(onboardingRepositoryTemplate, onboardingVars),
+            'onboarding_repository.dart': render(
+          onboardingRepositoryTemplate,
+          onboardingVars,
+        ),
         'lib/features/onboarding/data/repository/'
-            'onboarding_repository_impl.dart':
-            render(onboardingRepositoryImplTemplate, onboardingVars),
+            'onboarding_repository_impl.dart': render(
+          onboardingRepositoryImplTemplate,
+          onboardingVars,
+        ),
         'lib/features/onboarding/data/models/.gitkeep': '',
-        'lib/features/onboarding/presentation/cubit/cubit.dart':
-            render(onboardingCubitTemplate, onboardingVars),
-        'lib/features/onboarding/presentation/cubit/state.dart':
-            render(onboardingStateTemplate, onboardingVars),
-        'lib/features/onboarding/presentation/views/login_screen.dart':
-            render(loginScreenTemplate, onboardingVars),
+        'lib/features/onboarding/presentation/cubit/cubit.dart': render(
+          onboardingCubitTemplate,
+          onboardingVars,
+        ),
+        'lib/features/onboarding/presentation/cubit/state.dart': render(
+          onboardingStateTemplate,
+          onboardingVars,
+        ),
+        'lib/features/onboarding/presentation/views/login_screen.dart': render(
+          loginScreenTemplate,
+          onboardingVars,
+        ),
         'lib/features/onboarding/presentation/widgets/.gitkeep': '',
       },
 
@@ -638,11 +651,9 @@ class ProjectGenerator {
       'Makefile': makefileTemplate,
 
       // Android Studio run configurations
-      '.idea/runConfigurations/development.xml':
-          runConfigDevelopmentTemplate,
+      '.idea/runConfigurations/development.xml': runConfigDevelopmentTemplate,
       '.idea/runConfigurations/staging.xml': runConfigStagingTemplate,
-      '.idea/runConfigurations/production.xml':
-          runConfigProductionTemplate,
+      '.idea/runConfigurations/production.xml': runConfigProductionTemplate,
     };
 
     for (final entry in files.entries) {
@@ -758,8 +769,9 @@ class ProjectGenerator {
       '.env.staging',
       '.env.production',
     ]) {
-      File('$projectPath/env/$envName')
-          .writeAsStringSync(render(dotEnvTemplate, vars));
+      File(
+        '$projectPath/env/$envName',
+      ).writeAsStringSync(render(dotEnvTemplate, vars));
     }
     // Replace Flutter's default .gitignore with our standard one
     final gitignorePath = '$projectPath/.gitignore';
@@ -918,7 +930,7 @@ class ProjectGenerator {
       }
 
       assetsProgress.complete('App icons & splash copied');
-    } catch (e) {
+    } on Object catch (e) {
       assetsProgress.fail('Failed to copy assets: $e');
     }
   }
@@ -1003,8 +1015,18 @@ class ProjectGenerator {
 
   static const _flavors = [
     {'name': 'production', 'suffix': '', 'label': '', 'icon': 'AppIcon'},
-    {'name': 'staging', 'suffix': '.stg', 'label': ' [STG]', 'icon': 'AppIcon-stg'},
-    {'name': 'development', 'suffix': '.dev', 'label': ' [DEV]', 'icon': 'AppIcon-dev'},
+    {
+      'name': 'staging',
+      'suffix': '.stg',
+      'label': ' [STG]',
+      'icon': 'AppIcon-stg',
+    },
+    {
+      'name': 'development',
+      'suffix': '.dev',
+      'label': ' [DEV]',
+      'icon': 'AppIcon-dev',
+    },
   ];
 
   static const _buildTypes = ['Debug', 'Release', 'Profile'];
@@ -1054,7 +1076,7 @@ class ProjectGenerator {
       r'buildConfigurations = \((.*?)\);',
       dotAll: true,
     );
-    final uuidInListRe = RegExp(r'([0-9A-F]{24})');
+    final uuidInListRe = RegExp('([0-9A-F]{24})');
 
     for (final m in listDefRe.allMatches(clContent)) {
       final kind = m.group(1)!; // PBXProject or PBXNativeTarget
@@ -1062,8 +1084,8 @@ class ProjectGenerator {
       final targetIdx = kind == 'PBXProject'
           ? 1
           : name == 'Runner'
-              ? 2
-              : 3;
+          ? 2
+          : 3;
       for (final u in uuidInListRe.allMatches(m.group(3)!)) {
         configToTarget[u.group(1)!] = targetIdx;
       }
@@ -1114,7 +1136,7 @@ class ProjectGenerator {
 
           // Replace the name (handles both `name = Debug;` and `name = "Debug";`)
           block = block.replaceFirst(
-            RegExp(r'name = "?' + bt + r'"?;'),
+            RegExp('name = "?$bt"?;'),
             'name = "$configName";',
           );
 
@@ -1133,13 +1155,13 @@ class ProjectGenerator {
 
             // Replace PRODUCT_BUNDLE_IDENTIFIER
             block = block.replaceFirst(
-              RegExp(r'PRODUCT_BUNDLE_IDENTIFIER = [^;]+;'),
+              RegExp('PRODUCT_BUNDLE_IDENTIFIER = [^;]+;'),
               'PRODUCT_BUNDLE_IDENTIFIER = $bundleId;',
             );
 
             // Replace ASSETCATALOG_COMPILER_APPICON_NAME
             block = block.replaceFirst(
-              RegExp(r'ASSETCATALOG_COMPILER_APPICON_NAME = [^;]+;'),
+              RegExp('ASSETCATALOG_COMPILER_APPICON_NAME = [^;]+;'),
               'ASSETCATALOG_COMPILER_APPICON_NAME = "$iconName";',
             );
 
@@ -1149,7 +1171,6 @@ class ProjectGenerator {
               'ENABLE_BITCODE = NO;\n\t\t\t\tFLAVOR_APP_NAME = "$appName";',
             );
 
-        
             block = block.replaceFirst(
               RegExp(r'\n\s*DEVELOPMENT_TEAM = [^;]+;'),
               '',
@@ -1165,8 +1186,8 @@ class ProjectGenerator {
     content = content.replaceFirst(
       configSectionRe,
       '/* Begin XCBuildConfiguration section */\n'
-          '$newBlocks'
-          '/* End XCBuildConfiguration section */',
+      '$newBlocks'
+      '/* End XCBuildConfiguration section */',
     );
 
     // --- Step 5: Update XCConfigurationList entries ---
@@ -1185,8 +1206,7 @@ class ProjectGenerator {
         for (var btIdx = 0; btIdx < _buildTypes.length; btIdx++) {
           for (var flIdx = 0; flIdx < _flavors.length; flIdx++) {
             final uuid = _flavorUuid(btIdx + 1, flIdx + 1, tgIdx);
-            final name =
-                '${_buildTypes[btIdx]}-${_flavors[flIdx]['name']}';
+            final name = '${_buildTypes[btIdx]}-${_flavors[flIdx]['name']}';
             refs.writeln('\t\t\t\t$uuid /* $name */,');
           }
         }
@@ -1194,8 +1214,8 @@ class ProjectGenerator {
         final targetLabel = tgIdx == 1
             ? 'PBXProject "Runner"'
             : tgIdx == 2
-                ? 'PBXNativeTarget "Runner"'
-                : 'PBXNativeTarget "RunnerTests"';
+            ? 'PBXNativeTarget "Runner"'
+            : 'PBXNativeTarget "RunnerTests"';
 
         final listRe = RegExp(
           '(Build configuration list for '
@@ -1223,9 +1243,10 @@ class ProjectGenerator {
     content = content.replaceFirstMapped(
       RegExp(
         r'(97C146ED1CF9000F007C117D = \{[^}]*?'
-        r'CreatedOnToolsVersion = [^;]+;)',
+        'CreatedOnToolsVersion = [^;]+;)',
       ),
-      (m) => '${m.group(1)}\n'
+      (m) =>
+          '${m.group(1)}\n'
           '\t\t\t\t\tProvisioningStyle = Manual;',
     );
 
@@ -1237,8 +1258,7 @@ class ProjectGenerator {
   void _createFlavorSchemes(String projectPath) {
     final schemesDir = Directory(
       '$projectPath/ios/Runner.xcodeproj/xcshareddata/xcschemes',
-    );
-    schemesDir.createSync(recursive: true);
+    )..createSync(recursive: true);
 
     // Remove the default Runner.xcscheme (references non-existent Debug/Release)
     final defaultScheme = File('${schemesDir.path}/Runner.xcscheme');
@@ -1249,8 +1269,9 @@ class ProjectGenerator {
         iosFlavorSchemeTemplate,
         {'flavor': flavor['name']!},
       );
-      File('${schemesDir.path}/${flavor['name']}.xcscheme')
-          .writeAsStringSync(rendered);
+      File(
+        '${schemesDir.path}/${flavor['name']}.xcscheme',
+      ).writeAsStringSync(rendered);
     }
   }
 
@@ -1304,9 +1325,9 @@ class ProjectGenerator {
     const id = _copyGoogleServicePhaseId;
     // Shell script with $PLIST var — use raw segments to avoid
     // Dart treating shell variables as interpolation.
-    final phaseDefinition =
+    const phaseDefinition =
         '\t\t$id'
-        r' /* Copy GoogleService-Info.plist */ = {'
+        ' /* Copy GoogleService-Info.plist */ = {'
         '\n\t\t\tisa = PBXShellScriptBuildPhase;'
         '\n\t\t\tbuildActionMask = 2147483647;'
         '\n\t\t\tfiles = ('
@@ -1318,37 +1339,11 @@ class ProjectGenerator {
         '\n\t\t\tname = "Copy GoogleService-Info.plist";'
         '\n\t\t\toutputFileListPaths = ('
         '\n\t\t\t);'
-        '\n\t\t\toutputPaths = ('
-        '\n\t\t\t);'
+        '\n\t\t\toutputPaths = (\n\t\t\t);'
         '\n\t\t\trunOnlyForDeploymentPostprocessing = 0;'
         '\n\t\t\tshellPath = /bin/sh;'
         '\n\t\t\tshellScript = '
-        r'''"#!/bin/sh\n'''
-        r'''PROJECT_DIR=\"${SRCROOT}/..\"\n'''
-        r'''FIREBASE_CONFIG_DIR=\"${PROJECT_DIR}/firebase\"\n'''
-        r'''\n'''
-        r'''case \"${CONFIGURATION}\" in\n'''
-        r'''    \"Debug-development\"|\"Release-development\"|\"Profile-development\")\n'''
-        r'''        PLIST=\"${FIREBASE_CONFIG_DIR}/development/GoogleService-Info.plist\"\n'''
-        r'''    ;;\n'''
-        r'''    \"Debug-staging\"|\"Release-staging\"|\"Profile-staging\")\n'''
-        r'''        PLIST=\"${FIREBASE_CONFIG_DIR}/staging/GoogleService-Info.plist\"\n'''
-        r'''    ;;\n'''
-        r'''    \"Debug-production\"|\"Release-production\"|\"Profile-production\")\n'''
-        r'''        PLIST=\"${FIREBASE_CONFIG_DIR}/production/GoogleService-Info.plist\"\n'''
-        r'''    ;;\n'''
-        r'''    *)\n'''
-        r'''        echo \"warning: Unknown configuration ${CONFIGURATION} — skipping GoogleService-Info.plist copy\"\n'''
-        r'''        exit 0\n'''
-        r'''    ;;\n'''
-        r'''esac\n'''
-        r'''\n'''
-        r'''if [ -f \"$PLIST\" ]; then\n'''
-        r'''    cp \"$PLIST\" \"${PROJECT_DIR}/ios/Runner/GoogleService-Info.plist\"\n'''
-        r'''    echo \"${CONFIGURATION} GoogleService-Info.plist copied\"\n'''
-        r'''else\n'''
-        r'''    echo \"warning: GoogleService-Info.plist not found at $PLIST — skipping (add it when you set up Firebase)\"\n'''
-        r'''fi\n";'''
+        r'''"#!/bin/sh\nPROJECT_DIR=\"${SRCROOT}/..\"\nFIREBASE_CONFIG_DIR=\"${PROJECT_DIR}/firebase\"\n\ncase \"${CONFIGURATION}\" in\n    \"Debug-development\"|\"Release-development\"|\"Profile-development\")\n        PLIST=\"${FIREBASE_CONFIG_DIR}/development/GoogleService-Info.plist\"\n    ;;\n    \"Debug-staging\"|\"Release-staging\"|\"Profile-staging\")\n        PLIST=\"${FIREBASE_CONFIG_DIR}/staging/GoogleService-Info.plist\"\n    ;;\n    \"Debug-production\"|\"Release-production\"|\"Profile-production\")\n        PLIST=\"${FIREBASE_CONFIG_DIR}/production/GoogleService-Info.plist\"\n    ;;\n    *)\n        echo \"warning: Unknown configuration ${CONFIGURATION} — skipping GoogleService-Info.plist copy\"\n        exit 0\n    ;;\nesac\n\nif [ -f \"$PLIST\" ]; then\n    cp \"$PLIST\" \"${PROJECT_DIR}/ios/Runner/GoogleService-Info.plist\"\n    echo \"${CONFIGURATION} GoogleService-Info.plist copied\"\nelse\n    echo \"warning: GoogleService-Info.plist not found at $PLIST — skipping (add it when you set up Firebase)\"\nfi\n";'''
         '\n\t\t};';
 
     content = content.replaceFirst(

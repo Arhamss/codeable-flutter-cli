@@ -595,24 +595,24 @@ class FocusHandler extends StatelessWidget {
 }
 ''';
 
-const stringHelperTemplate = '''
+const stringHelperTemplate = r'''
 extension StringHelpers on String {
   String get toLetterCase =>
-      length > 0 ? '\${this[0].toUpperCase()}\${substring(1).toLowerCase()}' : '';
+      length > 0 ? '${this[0].toUpperCase()}${substring(1).toLowerCase()}' : '';
 
   String get toTitleCase => replaceAll(RegExp(' +'), ' ')
       .split(' ')
       .map((str) => str.toLetterCase)
       .join(' ');
 
-  String sPluralise(num number) => (number == 1) ? this : '\${this}s';
+  String sPluralise(num number) => (number == 1) ? this : '${this}s';
 }
 
 extension StringListHelper on List<String> {
-  String get toBulletedString => map((item) => '\\u2022 \$item').join('\\n\\n');
+  String get toBulletedString => map((item) => '\u2022 $item').join('\n\n');
 
-  String bulletedString({String gap = '\\n'}) =>
-      map((item) => '\\u2022 \$item').join(gap);
+  String bulletedString({String gap = '\n'}) =>
+      map((item) => '\u2022 $item').join(gap);
 }
 
 extension ImagePathHelper on String {
@@ -897,7 +897,7 @@ class UrlHelper {
 }
 """;
 
-const responsiveHelperTemplate = r"""
+const responsiveHelperTemplate = """
 import 'package:flutter/material.dart';
 
 class ResponsiveHelper {
@@ -1045,11 +1045,11 @@ class ImageConversionHelper {
 }
 """;
 
-const phoneNumberParserTemplate = '''
+const phoneNumberParserTemplate = r'''
 class PhoneNumberParser {
   static Map<String, String> parsePhoneNumber(String phoneNumber) {
     try {
-      final cleanNumber = phoneNumber.replaceAll(RegExp(r'[^\\d+]'), '');
+      final cleanNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
 
       if (cleanNumber.startsWith('+')) {
         for (var i = 2; i <= 5; i++) {

@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:mason_logger/mason_logger.dart';
 import 'package:codeable_cli/src/template_engine.dart';
 import 'package:codeable_cli/src/templates/feature_templates.dart';
+import 'package:mason_logger/mason_logger.dart';
 
 class FeatureGenerator {
   const FeatureGenerator({required Logger logger}) : _logger = logger;
@@ -15,13 +15,13 @@ class FeatureGenerator {
     required String projectPath,
     String? role,
   }) async {
-    final snakeName = TemplateEngine.toSnakeCase(featureName)
-        .replaceAll(RegExp('[^a-z0-9_]'), '');
+    final snakeName = TemplateEngine.toSnakeCase(
+      featureName,
+    ).replaceAll(RegExp('[^a-z0-9_]'), '');
 
     // Sanitize role if provided
     final snakeRole = role != null
-        ? TemplateEngine.toSnakeCase(role)
-            .replaceAll(RegExp('[^a-z0-9_]'), '')
+        ? TemplateEngine.toSnakeCase(role).replaceAll(RegExp('[^a-z0-9_]'), '')
         : null;
 
     // "common" role is a directory-only grouping — no name prefix
@@ -29,17 +29,14 @@ class FeatureGenerator {
 
     // Composite feature name: "customer_home" or just "home"
     // Common role = no prefix
-    final compositeSnakeName =
-        (snakeRole != null && !isCommonRole)
-            ? '${snakeRole}_$snakeName'
-            : snakeName;
-    final compositePascalName =
-        TemplateEngine.toPascalCase(compositeSnakeName);
+    final compositeSnakeName = (snakeRole != null && !isCommonRole)
+        ? '${snakeRole}_$snakeName'
+        : snakeName;
+    final compositePascalName = TemplateEngine.toPascalCase(compositeSnakeName);
     final compositeCamelName = TemplateEngine.toCamelCase(compositeSnakeName);
 
     // Feature path for imports: "customer/home", "common/home", or just "home"
-    final featurePath =
-        snakeRole != null ? '$snakeRole/$snakeName' : snakeName;
+    final featurePath = snakeRole != null ? '$snakeRole/$snakeName' : snakeName;
 
     // Route path: "/customer-home" or "/home" (common = no prefix)
     final routePath = (snakeRole != null && !isCommonRole)
@@ -53,8 +50,10 @@ class FeatureGenerator {
       return false;
     }
     final pubspecContent = pubspecFile.readAsStringSync();
-    final nameMatch = RegExp(r'^name:\s*(.+)$', multiLine: true)
-        .firstMatch(pubspecContent);
+    final nameMatch = RegExp(
+      r'^name:\s*(.+)$',
+      multiLine: true,
+    ).firstMatch(pubspecContent);
     if (nameMatch == null) {
       _logger.err('Could not parse project name from pubspec.yaml');
       return false;
@@ -97,10 +96,14 @@ class FeatureGenerator {
           TemplateEngine.render(featureRepositoryImplTemplate, vars),
       '$featuresDir/data/models/${compositeSnakeName}_model.dart':
           TemplateEngine.render(featureModelTemplate, vars),
-      '$featuresDir/presentation/cubit/cubit.dart':
-          TemplateEngine.render(featureCubitTemplate, vars),
-      '$featuresDir/presentation/cubit/state.dart':
-          TemplateEngine.render(featureStateTemplate, vars),
+      '$featuresDir/presentation/cubit/cubit.dart': TemplateEngine.render(
+        featureCubitTemplate,
+        vars,
+      ),
+      '$featuresDir/presentation/cubit/state.dart': TemplateEngine.render(
+        featureStateTemplate,
+        vars,
+      ),
       '$featuresDir/presentation/views/${compositeSnakeName}_screen.dart':
           TemplateEngine.render(featureScreenTemplate, vars),
     };
@@ -131,14 +134,15 @@ class FeatureGenerator {
       routePath: routePath,
     );
 
-    _logger.info('');
-    _logger.success('Feature $compositeSnakeName fully wired up:');
-    _logger.info('  - Cubit registered in app_page.dart');
-    _logger.info('  - Route added to go_router');
-    _logger.info(
-      '  - Navigate with: '
-      'context.goNamed(AppRouteNames.${compositeCamelName}Screen)',
-    );
+    _logger
+      ..info('')
+      ..success('Feature $compositeSnakeName fully wired up:')
+      ..info('  - Cubit registered in app_page.dart')
+      ..info('  - Route added to go_router')
+      ..info(
+        '  - Navigate with: '
+        'context.goNamed(AppRouteNames.${compositeCamelName}Screen)',
+      );
 
     return true;
   }
@@ -161,18 +165,17 @@ class FeatureGenerator {
 
     // Add imports before the class declaration
     final repoImport =
-        "import 'package:$projectName/features/$featurePath/data/repository/"
-        "${compositeSnakeName}_repository_impl.dart';";
+        "import 'package:$projectName/features/$featurePath/data/repository/${compositeSnakeName}_repository_impl.dart';";
     final cubitImport =
-        "import 'package:$projectName/features/$featurePath/presentation/"
-        "cubit/cubit.dart';";
+        "import 'package:$projectName/features/$featurePath/presentation/cubit/cubit.dart';";
 
     // Find the last import line and add after it
     final importPattern = RegExp(r"^import\s+'[^']+';$", multiLine: true);
     final importMatches = importPattern.allMatches(content).toList();
     if (importMatches.isNotEmpty) {
       final lastImportEnd = importMatches.last.end;
-      content = '${content.substring(0, lastImportEnd)}\n'
+      content =
+          '${content.substring(0, lastImportEnd)}\n'
           '$repoImport\n'
           '$cubitImport'
           '${content.substring(lastImportEnd)}';
@@ -185,12 +188,14 @@ class FeatureGenerator {
     );
     final providersMatch = providersEndPattern.firstMatch(content);
     if (providersMatch != null) {
-      final blocProvider = '          BlocProvider(\n'
+      final blocProvider =
+          '          BlocProvider(\n'
           '            create: (context) => ${pascalName}Cubit(\n'
           '              repository: ${pascalName}RepositoryImpl(),\n'
           '            ),\n'
           '          ),\n';
-      content = '${content.substring(0, providersMatch.start)}\n'
+      content =
+          '${content.substring(0, providersMatch.start)}\n'
           '$blocProvider'
           '${content.substring(providersMatch.start)}';
     }
@@ -215,8 +220,7 @@ class FeatureGenerator {
     if (exportsFile.existsSync()) {
       var content = exportsFile.readAsStringSync();
       final screenImport =
-          "import 'package:$projectName/features/$featurePath/presentation/"
-          "views/${compositeSnakeName}_screen.dart';";
+          "import 'package:$projectName/features/$featurePath/presentation/views/${compositeSnakeName}_screen.dart';";
 
       // Insert before "part 'router.dart';"
       if (!content.contains(screenImport)) {
@@ -237,9 +241,10 @@ class FeatureGenerator {
     if (routerFile.existsSync()) {
       var content = routerFile.readAsStringSync();
 
-      final newRoute = 'GoRoute(\n'
-          "        name: AppRouteNames.${camelName}Screen,\n"
-          "        path: AppRoutes.${camelName}Screen,\n"
+      final newRoute =
+          'GoRoute(\n'
+          '        name: AppRouteNames.${camelName}Screen,\n'
+          '        path: AppRoutes.${camelName}Screen,\n'
           '        builder: (context, state) => '
           'const ${pascalName}Screen(),\n'
           '      ),';
@@ -260,7 +265,8 @@ class FeatureGenerator {
           final endOfLastRoute = content.indexOf('),', lastRouteClose);
           if (endOfLastRoute != -1) {
             final insertPos = endOfLastRoute + 2;
-            content = '${content.substring(0, insertPos)}\n'
+            content =
+                '${content.substring(0, insertPos)}\n'
                 '      $newRoute'
                 '${content.substring(insertPos)}';
           }
@@ -282,7 +288,8 @@ class FeatureGenerator {
       );
       final routesMatch = appRoutesPattern.firstMatch(content);
       if (routesMatch != null) {
-        final routeEntry = "  static const ${camelName}Screen = "
+        final routeEntry =
+            '  static const ${camelName}Screen = '
             "'$routePath';\n";
         final routesBody = routesMatch.group(1)!;
         if (!routesBody.contains('${camelName}Screen')) {
@@ -299,7 +306,8 @@ class FeatureGenerator {
       );
       final namesMatch = appRouteNamesPattern.firstMatch(content);
       if (namesMatch != null) {
-        final nameEntry = "  static const ${camelName}Screen = "
+        final nameEntry =
+            '  static const ${camelName}Screen = '
             "'$camelName';\n";
         final namesBody = namesMatch.group(1)!;
         if (!namesBody.contains('${camelName}Screen')) {

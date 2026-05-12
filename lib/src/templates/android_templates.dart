@@ -140,20 +140,20 @@ tasks.configureEach {
 }
 ''';
 
-const keyPropertiesTemplate = r'''
+const keyPropertiesTemplate = '''
 storePassword=android
 keyPassword=android
 keyAlias={{project_name}}-alias
 storeFile={{project_name}}-keystore.jks
 ''';
 
-const gradlePropertiesTemplate = r'''
+const gradlePropertiesTemplate = '''
 org.gradle.jvmargs=-Xmx8G -XX:MaxMetaspaceSize=4G -XX:ReservedCodeCacheSize=512m -XX:+HeapDumpOnOutOfMemoryError
 android.useAndroidX=true
 android.enableJetifier=true
 ''';
 
-const androidRootBuildGradleTemplate = r'''
+const androidRootBuildGradleTemplate = '''
 allprojects {
     repositories {
         google()

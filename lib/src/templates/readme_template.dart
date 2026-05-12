@@ -1,4 +1,4 @@
-const readmeTemplate = r'''
+const readmeTemplate = '''
 <div align="center">
 
 # {{ProjectName}}

@@ -47,13 +47,13 @@ class Localization {
 }
 ''';
 
-const l10nYamlTemplate = '''
+const l10nYamlTemplate = r'''
 arb-dir: lib/l10n/arb
 template-arb-file: app_en.arb
 output-localization-file: app_localizations.dart
 output-dir: lib/l10n/gen
 nullable-getter: false
-header: "// dart format off\\n// coverage:ignore-file"
+header: "// dart format off\n// coverage:ignore-file"
 ''';
 
 const appEnArbTemplate = '''
@@ -86,14 +86,14 @@ const appEnArbTemplate = '''
 }
 ''';
 
-const appEsArbTemplate = '''
+const appEsArbTemplate = r'''
 {
   "@@locale": "es",
   "appName": "{{app_name}}",
-  "login": "Iniciar sesi\\u00f3n",
-  "logout": "Cerrar sesi\\u00f3n",
+  "login": "Iniciar sesi\u00f3n",
+  "logout": "Cerrar sesi\u00f3n",
   "home": "Inicio",
-  "loginToContinue": "Inicia sesi\\u00f3n para continuar",
-  "somethingWentWrong": "Algo sali\\u00f3 mal. Por favor, int\\u00e9ntalo de nuevo m\\u00e1s tarde."
+  "loginToContinue": "Inicia sesi\u00f3n para continuar",
+  "somethingWentWrong": "Algo sali\u00f3 mal. Por favor, int\u00e9ntalo de nuevo m\u00e1s tarde."
 }
 ''';

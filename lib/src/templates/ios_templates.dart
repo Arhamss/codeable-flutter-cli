@@ -201,7 +201,7 @@ const iosInfoPlistTemplate = r'''
 </plist>
 ''';
 
-const iosAppDelegateTemplate = r'''
+const iosAppDelegateTemplate = '''
 import UIKit
 import Flutter
 
@@ -232,7 +232,7 @@ import Flutter
 }
 ''';
 
-const iosSceneDelegateTemplate = r'''
+const iosSceneDelegateTemplate = '''
 import Flutter
 import UIKit
 
@@ -241,7 +241,7 @@ class SceneDelegate: FlutterSceneDelegate {
 }
 ''';
 
-const iosEntitlementsTemplate = r'''
+const iosEntitlementsTemplate = '''
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -256,7 +256,7 @@ const iosEntitlementsTemplate = r'''
 </plist>
 ''';
 
-const iosReleaseEntitlementsTemplate = r'''
+const iosReleaseEntitlementsTemplate = '''
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -271,7 +271,8 @@ const iosReleaseEntitlementsTemplate = r'''
 </plist>
 ''';
 
-const iosFlavorSchemeTemplate = '''<?xml version="1.0" encoding="UTF-8"?>
+const iosFlavorSchemeTemplate = '''
+<?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "1510"
    version = "1.3">

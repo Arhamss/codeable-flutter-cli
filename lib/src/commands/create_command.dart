@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:mason_logger/mason_logger.dart';
 import 'package:codeable_cli/src/generators/project_generator.dart';
 import 'package:codeable_cli/src/template_engine.dart';
+import 'package:mason_logger/mason_logger.dart';
 
 class CreateCommand extends Command<int> {
   CreateCommand({required Logger logger}) : _logger = logger {
@@ -36,7 +36,8 @@ class CreateCommand extends Command<int> {
       )
       ..addOption(
         'roles',
-        help: 'Comma-separated list of role directories to create '
+        help:
+            'Comma-separated list of role directories to create '
             'under features/ (e.g., customer,admin).',
       );
   }
@@ -105,7 +106,6 @@ class CreateCommand extends Command<int> {
     if (targetDir.existsSync()) {
       final overwrite = _logger.confirm(
         'Directory $projectName already exists. Overwrite?',
-        defaultValue: false,
       );
       if (!overwrite) {
         _logger.info('Aborted.');
@@ -114,22 +114,23 @@ class CreateCommand extends Command<int> {
       targetDir.deleteSync(recursive: true);
     }
 
-    _logger.info('');
-    _logger.info(
-      'Creating ${lightCyan.wrap(projectName)} '
-      '(${lightCyan.wrap(appName)}) '
-      'with org ${lightCyan.wrap(orgName)}...',
-    );
-    _logger.info('');
+    _logger
+      ..info('')
+      ..info(
+        'Creating ${lightCyan.wrap(projectName)} '
+        '(${lightCyan.wrap(appName)}) '
+        'with org ${lightCyan.wrap(orgName)}...',
+      )
+      ..info('');
 
     // Parse roles
     final rolesRaw = argResults?['roles'] as String?;
     final roles = rolesRaw != null
         ? rolesRaw
-            .split(',')
-            .map((r) => r.trim())
-            .where((r) => r.isNotEmpty)
-            .toList()
+              .split(',')
+              .map((r) => r.trim())
+              .where((r) => r.isNotEmpty)
+              .toList()
         : <String>[];
 
     final generator = ProjectGenerator(logger: _logger);

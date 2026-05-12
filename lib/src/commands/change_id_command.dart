@@ -50,9 +50,10 @@ class ChangeIdCommand extends Command<int> {
       return ExitCode.usage.code;
     }
 
-    _logger.info('');
-    _logger.info('Changing app ID to ${lightCyan.wrap(newId)}...');
-    _logger.info('');
+    _logger
+      ..info('')
+      ..info('Changing app ID to ${lightCyan.wrap(newId)}...')
+      ..info('');
 
     var hadErrors = false;
 
@@ -120,7 +121,7 @@ class ChangeIdCommand extends Command<int> {
     if (!file.existsSync()) return;
 
     var content = file.readAsStringSync();
-    final packageRegex = RegExp(r'package="[^"]*"');
+    final packageRegex = RegExp('package="[^"]*"');
     if (packageRegex.hasMatch(content)) {
       final progress = _logger.progress('Updating AndroidManifest.xml');
       content = content.replaceFirst(

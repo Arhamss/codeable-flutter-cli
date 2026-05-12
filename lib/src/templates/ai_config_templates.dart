@@ -1,4 +1,4 @@
-const claudeSettingsTemplate = r'''
+const claudeSettingsTemplate = '''
 {
   "extraKnownMarketplaces": {
     "codeable-plugins": {
@@ -14,7 +14,7 @@ const claudeSettingsTemplate = r'''
 }
 ''';
 
-const claudeMdTemplate = r'''
+const claudeMdTemplate = '''
 # Project: {{ProjectName}}
 
 ## Overview
@@ -512,7 +512,7 @@ dart fix --apply
 ```
 ''';
 
-const cursorRulesTemplate = r'''
+const cursorRulesTemplate = '''
 # {{ProjectName}} - Cursor Rules
 
 ## Project Type

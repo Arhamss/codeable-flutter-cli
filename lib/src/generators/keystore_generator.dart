@@ -95,7 +95,7 @@ storeFile=$keystoreFileName
         '(saved in android/key.properties)',
       );
       return true;
-    } catch (e) {
+    } on Object catch (e) {
       progress.fail('Keystore generation failed: $e');
       return false;
     }

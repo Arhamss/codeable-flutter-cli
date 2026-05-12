@@ -71,7 +71,7 @@ abstract class AppColors {
 }
 ''';
 
-const appTextStyleTemplate = r'''
+const appTextStyleTemplate = '''
 import 'package:flutter/material.dart';
 import 'package:{{project_name}}/constants/app_colors.dart';
 
@@ -209,7 +209,7 @@ class AssetPaths {
 }
 ''';
 
-const constantsTemplate = r'''
+const constantsTemplate = '''
 class AppConstants {
   AppConstants._();
 
