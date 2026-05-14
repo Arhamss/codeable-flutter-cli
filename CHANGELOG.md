@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.38
+
+### Removed Spell Check from CI Pipeline
+- **Removed** cspell spell-check job from generated `pr_quality_gate.yaml` — was producing false positives on domain-specific terms (e.g., `favorited`, `gorouter`, `imageset`, `snackbars`)
+- **Removed** `.github/cspell.json` from generated project files
+- **Removed** `cspellTemplate()` function from CI templates
+- Existing projects: delete `.github/cspell.json` and remove the `spell-check` job from `.github/workflows/pr_quality_gate.yaml`
+
 ## 1.0.37
 
 ### Deployment CI/CD Integration
@@ -17,7 +25,6 @@
 - **Code quality script** (`scripts/code_quality_check.sh`) enforces 33 project-specific rules across 9 categories: state management, view/widget structure, resource disposal, architecture, enums/type safety, custom components, code quality, imports, and naming conventions
 - **PR template** with type-of-change checkboxes and quality checklist
 - **Dependabot** config for weekly dependency updates (GitHub Actions + pub)
-- **cspell** config for markdown spell checking with VeryGoodOpenSource dictionaries
 - **`make check`** target added to Makefile — runs format + analyze + quality script in one command
 - Script only checks changed files in PRs (not the entire codebase), so existing projects can adopt incrementally
 - Pre-push hook only blocks pushes to `develop`/`dev`/`development` — feature branches are unrestricted

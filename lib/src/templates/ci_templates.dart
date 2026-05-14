@@ -97,13 +97,6 @@ jobs:
 
       - name: Build APK (development, debug)
         run: flutter build apk --flavor development --target lib/main_development.dart --debug
-
-  spell-check:
-    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/spell_check.yml@v1
-    with:
-      includes: |
-        **/*.md
-      modified_files_only: false
 ''';
 
 const prTemplateContent = r'''
@@ -146,28 +139,3 @@ updates:
       interval: "weekly"
 ''';
 
-String cspellTemplate(String projectName) => '''{
-  "version": "0.2",
-  "\$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
-  "dictionaries": ["vgv_allowed", "vgv_forbidden"],
-  "dictionaryDefinitions": [
-    {
-      "name": "vgv_allowed",
-      "path": "https://raw.githubusercontent.com/verygoodopensource/very_good_dictionaries/main/allowed.txt",
-      "description": "Allowed VGV Spellings"
-    },
-    {
-      "name": "vgv_forbidden",
-      "path": "https://raw.githubusercontent.com/verygoodopensource/very_good_dictionaries/main/forbidden.txt",
-      "description": "Forbidden VGV Spellings"
-    }
-  ],
-  "useGitignore": true,
-  "words": [
-    "$projectName",
-    "codeable",
-    "cubit",
-    "cubits"
-  ]
-}
-''';

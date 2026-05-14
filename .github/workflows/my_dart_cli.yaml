@@ -29,15 +29,6 @@ jobs:
     with:
       dart_sdk: "3.11.0"
 
-  spell-check:
-    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/spell_check.yml@v1
-    with:
-      includes: |
-        **/*.md
-        !brick/**/*.md
-        .*/**/*.md
-      modified_files_only: false
-
   verify-version:
     runs-on: ubuntu-latest
     steps:

@@ -39,6 +39,7 @@ Starting a new Flutter project means hours of boilerplate — setting up archite
 | Firebase | Multi-environment directory structure |
 | Localization | ARB files with `context.l10n` + static `Localization` service |
 | CI/CD | GitHub Actions quality gate, 33-rule code quality script, PR template, Dependabot |
+
 | AI Config | CLAUDE.md + .cursorrules + [Claude Plugin](https://github.com/gocodeable/codeable-flutter-cli-claude-plugin) (auto-installed) |
 
 ---

@@ -656,7 +656,6 @@ class ProjectGenerator {
       '.github/workflows/pr_quality_gate.yaml': prQualityGateWorkflowTemplate,
       '.github/PULL_REQUEST_TEMPLATE.md': prTemplateContent,
       '.github/dependabot.yaml': dependabotTemplate,
-      '.github/cspell.json': cspellTemplate(vars['project_name']!),
       'scripts/code_quality_check.sh': codeQualityScriptTemplate,
 
       // Android Studio run configurations
