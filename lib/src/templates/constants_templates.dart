@@ -2,72 +2,47 @@ const appColorsTemplate = '''
 import 'dart:ui';
 
 abstract class AppColors {
-  static const invalidLocationTooltip = Color(0xffFFF0EB);
-  static const locationToolTipBorder = Color(0xffFF5136);
-  static const positiveBottomStatusBorder = Color(0xff22C661);
-  static const positiveBottomStatusBackground = Color(0xffE4F7EB);
-  static const warningBottomStatusBorder = Color(0xffFFD336);
-  static const warningBottomStatusBackground = Color(0xffFFFBEB);
+  // ── Background & Surfaces ──
+  static const background = Color(0xFFF7F8FA);
+  static const surface = Color(0xFFFFFFFF);
+  static const surfaceAlt = Color(0xFFF1F3F6);
+  static const surfaceMuted = Color(0xFFE7EBEF);
+  static const navBar = Color(0xFFFFFFFF);
 
-  static const white = Color(0xFFFFFFFF);
-  static const black = Color(0xFF000000);
-  static const error = Color(0xFFFF1E00);
-  static const blackPrimary = Color(0xFF0D121C);
-  static const blackPrimaryShade = Color(0xFF000000);
-  static const secondaryMain = Color(0xFF454545);
-  static const whitePrimary = Color(0xFFFCFCFC);
-  static const neutral700 = Color(0xFF979A9C);
+  // ── Primary ──
+  static const primary = Color(0xFF0D121C);
+  static const primaryLight = Color(0xFF2A3240);
+  static const primaryMuted = Color(0xFF4A5568);
+  static const primarySoft = Color(0xFFE8EBF0);
 
-  /// Used by [UserAvatar]. First entry is the default (when [seed] is null).
-  /// Remaining entries are picked deterministically by `seed.hashCode`.
-  static const avatarGradients = [
-    [blackPrimary, blackPrimaryShade],
-    [Color(0xFFFE835F), Color(0xFFFF5668)],
-    [Color(0xFFBC7AFA), Color(0xFFA84EFB)],
-    [Color(0xFF9383FA), Color(0xFF7C69F9)],
-    [Color(0xFFFFB367), Color(0xFFFF9831)],
-    [Color(0xFF74BBFA), Color(0xFF3CA4FF)],
-  ];
+  // ── Text ──
   static const textPrimary = Color(0xFF0D121C);
   static const textOnPrimary = Color(0xFFFFFFFF);
   static const textSecondary = Color(0xFF697586);
-  static const textFieldBackground = Color(0xFFF5F8FF);
   static const textTertiary = Color(0xFF9AA4B2);
-  static const backgroundPrimary = Color(0xFFF5F5F5);
-  static const backgroundTertiary = Color(0xFFEEF2F6);
-  static const blackTertiary = Color(0xFF454545);
-  static const red = Color(0xFFF37373);
-  static const filterHandleBar = Color(0xFFCDD5DF);
-  static const activePriceSlider = Color(0xFF595959);
-  static const borderPrimary = Color(0xFFD9D9D9);
-  static const creamWhite = Color(0xFFEFE9DF);
-  static const brown = Color(0xFFAD4E28);
-  static const blackQuaternary = Color(0xFF262626);
-  static const activeDot = Color(0xFF8C8C8C);
-  static const grayModern600 = Color(0xFF4B5565);
-  static const masterCardBackground = Color(0xFF171725);
-  static const additionalWhite = Color(0xFFFEFEFE);
-  static const dividerGrey = Color(0xFFDFE1E7);
-  static const paymentIconBackground = Color(0xFFF6F8FA);
-  static const blackLight = Color(0xFFF0F0F0);
-  static const shipped = Color(0xFFFBFDCC);
-  static const delivered = Color(0xFFA3FFC6);
-  static const grayscale70 = Color(0xFF78828A);
-  static const strokeLight = Color(0xFFF6F6F6);
+
+  // ── Status ──
   static const success = Color(0xFF22C661);
-  static const warning = Color(0xFFFFD336);
-  static const info = Color(0xFF2196F3);
-  static const borderSecondary = Color(0xFFF0F0F0);
-  static const shadowLight = Color(0x1A000000);
-  static const shadowMedium = Color(0x40000000);
-  static const shadowDark = Color(0x80000000);
-  static const cartNotificationBackground = Color(0xFFEFE8DF);
-  static const blurOverlayScrim = Color(0xFF40475B);
-  static const buttonDisabledText = Color(0x80FFFFFF);
-  static const divider = Color(0xFFE0E0E0);
-  static const shimmerBase = Color(0xFFE0E0E0);
-  static const shimmerHighlight = Color(0xFFF5F5F5);
+  static const error = Color(0xFFE8534E);
+  static const warning = Color(0xFFE8A83D);
+  static const info = Color(0xFF3B82F6);
+
+  // ── Borders & Dividers ──
+  static const border = Color(0xFFE1E5EA);
+  static const divider = Color(0xFFECEFF2);
+
+  // ── Shadows ──
+  static const shadowLight = Color(0x0F000000);
+  static const shadowMedium = Color(0x1A000000);
+
+  // ── Misc ──
   static const disabled = Color(0xFFBDBDBD);
+  static const transparent = Color(0x00000000);
+
+  // ── Overlays ──
+  static const overlayText = Color(0xFFFFFFFF);
+  static const overlayTextMuted = Color(0xB3FFFFFF);
+  static const overlayScrim = Color(0xFF000000);
 }
 ''';
 
