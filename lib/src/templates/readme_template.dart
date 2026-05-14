@@ -293,6 +293,23 @@ flutter build ios --flavor production -t lib/main_production.dart
 
 Then archive and distribute via Xcode or CI/CD.
 
+### Automated Deployment (CI/CD)
+
+Set up automated TestFlight (iOS) and Firebase App Distribution (Android) builds with one command:
+
+```bash
+make deploy-setup
+```
+
+This clones and runs [codeable-flutter-deploy](https://github.com/gocodeable/codeable-flutter-deploy), which:
+- Auto-detects your project config (schemes, bundle IDs, Firebase App IDs)
+- Uploads secrets to GitHub
+- Adds GitHub Actions workflows to your project
+
+Once set up, push to `develop-release` for dev builds or `production` for prod builds — both platforms build and distribute automatically.
+
+See the [deploy guide](https://github.com/gocodeable/codeable-flutter-deploy/blob/main/DEV_GUIDE.md) for details.
+
 ---
 
 ## Feature Generation

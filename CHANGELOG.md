@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.37
+
+### Deployment CI/CD Integration
+- **New** — `make deploy-setup` command added to Makefile for one-command CI/CD setup
+- Integrates with [codeable-flutter-deploy](https://github.com/gocodeable/codeable-flutter-deploy) for automated TestFlight (iOS) and Firebase App Distribution (Android) builds
+- Auto-clones the deploy tool if not already installed
+- README updated with deployment section explaining the automated CI/CD workflow
+- Push to `develop-release` for dev builds, `production` for prod builds — both platforms build automatically
+
 ## 1.0.36
 
 ### CI/CD Pipeline — Built-in Quality Gate

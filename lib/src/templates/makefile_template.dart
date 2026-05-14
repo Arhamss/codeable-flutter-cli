@@ -5,7 +5,8 @@ BUILD_FLAGS = --obfuscate --split-debug-info=build/debug-info
         run-dev run-stg run-prod \
         apk-dev apk-stg apk-prod \
         bundle-prod ipa-dev ipa-stg ipa-prod \
-        gen-l10n gen-splash gen-icons
+        gen-l10n gen-splash gen-icons \
+        deploy-setup
 
 # ──────────────────────────── Help ────────────────────────────
 help: ## Show this help
@@ -78,4 +79,14 @@ gen-splash: ## Generate native splash
 
 gen-icons: ## Generate launcher icons
 	dart run flutter_launcher_icons
+
+# ──────────────────────────── Deploy ────────────────────────
+deploy-setup: ## Set up CI/CD for TestFlight + Firebase App Distribution
+	@DEPLOY_DIR="$$HOME/scripts/ci-cd/testflight"; \
+	if [ ! -f "$$DEPLOY_DIR/setup.sh" ]; then \
+		echo "Cloning codeable-flutter-deploy..."; \
+		mkdir -p "$$HOME/scripts/ci-cd"; \
+		git clone https://github.com/gocodeable/codeable-flutter-deploy.git "$$DEPLOY_DIR"; \
+	fi; \
+	"$$DEPLOY_DIR/setup.sh" "$(CURDIR)"
 ''';
