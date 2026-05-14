@@ -16,6 +16,8 @@ import 'package:codeable_cli/src/templates/feature_templates.dart';
 import 'package:codeable_cli/src/templates/gitignore_template.dart';
 import 'package:codeable_cli/src/templates/ios_templates.dart';
 import 'package:codeable_cli/src/templates/l10n_templates.dart';
+import 'package:codeable_cli/src/templates/ci_templates.dart';
+import 'package:codeable_cli/src/templates/code_quality_script_template.dart';
 import 'package:codeable_cli/src/templates/makefile_template.dart';
 import 'package:codeable_cli/src/templates/navigation_templates.dart';
 import 'package:codeable_cli/src/templates/pubspec_template.dart';
@@ -650,6 +652,13 @@ class ProjectGenerator {
       // Makefile
       'Makefile': makefileTemplate,
 
+      // CI/CD Pipeline
+      '.github/workflows/pr_quality_gate.yaml': prQualityGateWorkflowTemplate,
+      '.github/PULL_REQUEST_TEMPLATE.md': prTemplateContent,
+      '.github/dependabot.yaml': dependabotTemplate,
+      '.github/cspell.json': cspellTemplate(vars['project_name']!),
+      'scripts/code_quality_check.sh': codeQualityScriptTemplate,
+
       // Android Studio run configurations
       '.idea/runConfigurations/development.xml': runConfigDevelopmentTemplate,
       '.idea/runConfigurations/staging.xml': runConfigStagingTemplate,
@@ -661,6 +670,10 @@ class ProjectGenerator {
       file.parent.createSync(recursive: true);
       file.writeAsStringSync(entry.value);
     }
+
+    // Make shell scripts executable
+    Process.runSync('chmod', ['+x', '$projectPath/scripts/code_quality_check.sh']);
+
     filesProgress.complete('Template files written');
 
     // Generate onboarding per role (uses FeatureGenerator for auto-wiring)

@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.0.36
+
+### CI/CD Pipeline — Built-in Quality Gate
+- **New** — every generated project now ships with a full CI/CD pipeline out of the box
+- **GitHub Actions workflow** (`pr_quality_gate.yaml`) runs on PRs to `develop`/`dev`/`development` with 5 jobs: semantic PR title, format check, flutter analyze, custom code quality rules, and build verification
+- **Code quality script** (`scripts/code_quality_check.sh`) enforces 33 project-specific rules across 9 categories: state management, view/widget structure, resource disposal, architecture, enums/type safety, custom components, code quality, imports, and naming conventions
+- **PR template** with type-of-change checkboxes and quality checklist
+- **Dependabot** config for weekly dependency updates (GitHub Actions + pub)
+- **cspell** config for markdown spell checking with VeryGoodOpenSource dictionaries
+- **`make check`** target added to Makefile — runs format + analyze + quality script in one command
+- Script only checks changed files in PRs (not the entire codebase), so existing projects can adopt incrementally
+- Pre-push hook only blocks pushes to `develop`/`dev`/`development` — feature branches are unrestricted
+- GitHub Actions annotations: violations appear inline on PR diffs
+
+### Rules Enforced
+- No `setState()` (use Cubit), no try-catch in cubits, `buildWhen`/`listenWhen` required
+- No `_buildXyz()` methods or private classes in views, view files under 1000 lines
+- Controllers/timers must have `dispose()`
+- No raw `AlertDialog`, `ElevatedButton`, `SnackBar`, `DateFormat`, `print()`, `Color(0x...)`
+- No `// ignore:` suppressions, one class per file, repos must use `execute()`
+- Package imports only, snake_case file names
+- Warnings for large files, duplicate widgets, commented-out code, cross-feature imports
+
 ## 1.0.35
 
 ### CustomButton — Single Widget, Five Factories

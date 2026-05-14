@@ -38,6 +38,7 @@ Starting a new Flutter project means hours of boilerplate — setting up archite
 | Platforms | Android & iOS pre-configured |
 | Firebase | Multi-environment directory structure |
 | Localization | ARB files with `context.l10n` + static `Localization` service |
+| CI/CD | GitHub Actions quality gate, 33-rule code quality script, PR template, Dependabot |
 | AI Config | CLAUDE.md + .cursorrules + [Claude Plugin](https://github.com/gocodeable/codeable-flutter-cli-claude-plugin) (auto-installed) |
 
 ---
@@ -81,7 +82,7 @@ dart pub global activate codeable_cli
 ### Activate a specific version
 
 ```bash
-dart pub global activate codeable_cli 1.0.35
+dart pub global activate codeable_cli 1.0.36
 ```
 
 ### Or run without activating
@@ -229,7 +230,10 @@ my_app/
 ├── firebase/                       # Per-flavor Firebase config directories (.gitkeep tracked)
 ├── android/                        # Configured with flavors, signing, ProGuard
 ├── ios/                            # Configured with Podfile, Info.plist, entitlements
-├── Makefile                        # Build commands with obfuscation flags
+├── scripts/code_quality_check.sh    # 33-rule code quality checker
+├── .github/workflows/              # CI/CD pipeline (PR quality gate)
+├── .github/PULL_REQUEST_TEMPLATE.md # Standardized PR template
+├── Makefile                        # Build commands + `make check`
 ├── CLAUDE.md                       # AI assistant context (Claude Code)
 ├── .cursorrules                    # AI assistant context (Cursor)
 └── README.md                       # Project documentation
@@ -651,6 +655,7 @@ make bundle-prod      # Build App Bundle (production, obfuscated)
 make ipa-prod         # Build IPA (production, obfuscated)
 make clean            # Clean and re-fetch dependencies
 make build-runner     # Run build_runner code generation
+make check            # Run all quality checks (pre-PR)
 make help             # Show all available targets
 ```
 

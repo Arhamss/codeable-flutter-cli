@@ -32,6 +32,10 @@ format: ## Format all Dart files
 test: ## Run all tests
 	flutter test
 
+check: lint ## Run all quality checks (pre-PR)
+	dart format --set-exit-if-changed lib/
+	./scripts/code_quality_check.sh
+
 # ──────────────────────────── Run ─────────────────────────────
 run-dev: ## Run development flavor
 	flutter run --flavor development -t lib/main_development.dart
