@@ -36,7 +36,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.32.x"
+          flutter-version: "3.41.x"
           cache: true
 
       - name: Install dependencies
@@ -77,7 +77,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.32.x"
+          flutter-version: "3.41.x"
           cache: true
 
       - name: Setup Java
