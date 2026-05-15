@@ -25,6 +25,8 @@ on:
 jobs:
   semantic-pr:
     if: github.event_name == 'pull_request'
+    permissions:
+      pull-requests: read
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/semantic_pull_request.yml@v1
 
   flutter-checks:

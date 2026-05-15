@@ -22,6 +22,8 @@ on:
 
 jobs:
   semantic-pull-request:
+    permissions:
+      pull-requests: read
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/semantic_pull_request.yml@v1
 
   build:
