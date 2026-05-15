@@ -143,8 +143,8 @@ for f in "${FILES[@]}"; do
   fi
 
   # SM-003: BlocBuilder without buildWhen
-  if grep -q 'BlocBuilder' "$f" 2>/dev/null; then
-    bb_count=$(count_grep 'BlocBuilder' "$f")
+  if grep -q 'BlocBuilder<' "$f" 2>/dev/null; then
+    bb_count=$(count_grep '\bBlocBuilder<' "$f")
     bw_count=$(count_grep 'buildWhen' "$f")
     if [ "$bb_count" -gt "$bw_count" ]; then
       violation "$f" "-" "SM-003" "BlocBuilder used without buildWhen ($bb_count BlocBuilder vs $bw_count buildWhen)"
@@ -152,8 +152,8 @@ for f in "${FILES[@]}"; do
   fi
 
   # SM-004: BlocListener without listenWhen
-  if grep -q 'BlocListener' "$f" 2>/dev/null; then
-    bl_count=$(count_grep 'BlocListener' "$f")
+  if grep -q 'BlocListener<' "$f" 2>/dev/null; then
+    bl_count=$(count_grep '\bBlocListener<' "$f")
     lw_count=$(count_grep 'listenWhen' "$f")
     if [ "$bl_count" -gt "$lw_count" ]; then
       violation "$f" "-" "SM-004" "BlocListener used without listenWhen ($bl_count BlocListener vs $lw_count listenWhen)"
@@ -224,12 +224,15 @@ echo -e "${BOLD}Resource Disposal${NC}"
 
 for f in "${FILES[@]}"; do
   # RD-001: Controllers/FocusNodes declared without a dispose() method
+  # Only applies to StatefulWidget files — StatelessWidgets receive controllers via constructor (no ownership)
   if is_view_file "$f" || is_widget_file "$f"; then
-    has_controller=$(count_grep 'TextEditingController|ScrollController|AnimationController|TabController|FocusNode|PageController|Timer\b' "$f")
-    if [ "$has_controller" -gt 0 ]; then
-      has_dispose=$(count_grep '@override\s|void\s+dispose' "$f")
-      if [ "$has_dispose" -eq 0 ]; then
-        violation "$f" "-" "RD-001" "Declares controllers/timers ($has_controller) but no dispose() method — will leak resources"
+    if grep -qE 'extends\s+State<|extends\s+StatefulWidget' "$f" 2>/dev/null; then
+      has_controller=$(count_grep 'TextEditingController|ScrollController|AnimationController|TabController|FocusNode|PageController|Timer\b' "$f")
+      if [ "$has_controller" -gt 0 ]; then
+        has_dispose=$(count_grep '@override\s|void\s+dispose' "$f")
+        if [ "$has_dispose" -eq 0 ]; then
+          violation "$f" "-" "RD-001" "Declares controllers/timers ($has_controller) but no dispose() method — will leak resources"
+        fi
       fi
     fi
   fi
