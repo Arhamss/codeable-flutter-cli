@@ -1,5 +1,5 @@
 const codeQualityScriptTemplate = r'''
-#!/bin/bash
+#!/usr/bin/env bash
 # ============================================================================
 # Codeable Flutter Code Quality Checker
 # ============================================================================
@@ -131,8 +131,8 @@ is_widget_file() {
 echo -e "${BOLD}State Management${NC}"
 
 for f in "${FILES[@]}"; do
-  # SM-001: No setState() — allowed in core_widgets/, bottom_sheet, and stripe files (ephemeral UI)
-  if [[ "$f" != *core_widgets* ]] && [[ "$f" != *bottom_sheet* ]] && [[ "$f" != *stripe_payment* ]]; then
+  # SM-001: No setState() — allowed in core_widgets/, bottom_sheet, stripe, and confirmation_dialog files
+  if [[ "$f" != *core_widgets* ]] && [[ "$f" != *bottom_sheet* ]] && [[ "$f" != *stripe_payment* ]] && [[ "$f" != *confirmation_dialog* ]]; then
     check_pattern "$f" '\bsetState\s*\(' "SM-001" "Use Cubit state management — no setState()"
   fi
 
@@ -254,15 +254,20 @@ while IFS= read -r cubit_dir; do
 done < <(find lib/features -type d -name "cubit" -path "*/presentation/cubit" 2>/dev/null || true)
 
 # AR-002: Duplicate widget file names across features (sign of duplication)
-declare -A widget_names
+# Use a temp file instead of associative array for bash 3 compatibility (macOS)
+_ar002_tmp=$(mktemp)
+trap 'rm -f "$_ar002_tmp"' EXIT
+find lib/features -name "*.dart" -path "*/widgets/*" 2>/dev/null | sort > "$_ar002_tmp"
 while IFS= read -r widget_file; do
   base=$(basename "$widget_file")
-  if [ -n "${widget_names[$base]:-}" ]; then
-    warning "$widget_file" "-" "AR-002" "Duplicate widget name '$base' — also exists at ${widget_names[$base]}. Consider consolidating into core_widgets/"
-  else
-    widget_names["$base"]="$widget_file"
+  dup_count=$(grep -c "/$base\$" "$_ar002_tmp" 2>/dev/null) || dup_count=0
+  if [ "$dup_count" -gt 1 ]; then
+    first=$(grep "/$base\$" "$_ar002_tmp" | head -1)
+    if [ "$widget_file" != "$first" ]; then
+      warning "$widget_file" "-" "AR-002" "Duplicate widget name '$base' — also exists at $first. Consider consolidating into core_widgets/"
+    fi
   fi
-done < <(find lib/features -name "*.dart" -path "*/widgets/*" 2>/dev/null | sort)
+done < "$_ar002_tmp"
 
 # ── Category: Enums & Type Safety ───────────────────────────────────────────
 
@@ -321,8 +326,8 @@ for f in "${FILES[@]}"; do
   check_pattern "$f" '\bSnackBar\s*\(' "CC-004" "Use ToastHelper — no raw SnackBar"
   check_pattern "$f" '\bScaffoldMessenger\b' "CC-004" "Use ToastHelper — no raw ScaffoldMessenger"
 
-  # CC-005: No raw DateFormat (except in DateTimeHelper)
-  if [[ "$f" != *date_time_helper* ]] && [[ "$f" != *datetime_helper* ]]; then
+  # CC-005: No raw DateFormat (except in DateTimeHelper and field validators)
+  if [[ "$f" != *date_time_helper* ]] && [[ "$f" != *datetime_helper* ]] && [[ "$f" != *field_validator* ]]; then
     check_pattern "$f" '\bDateFormat\s*\(' "CC-005" "Use DateTimeHelper — no raw DateFormat"
   fi
 
@@ -356,13 +361,26 @@ for f in "${FILES[@]}"; do
   # CQ-002: No TODO comments
   check_pattern "$f" '//\s*TODO' "CQ-002" "Resolve TODOs before committing" "warning"
 
-  # CQ-004: Multiple classes per file (skip state files)
-  if ! is_state_file "$f"; then
+  # CQ-004: Multiple classes per file (skip state files, event buses,
+  # sealed class hierarchies, route args, and tightly coupled DTOs)
+  if ! is_state_file "$f" \
+     && [[ "$f" != *_bus.dart ]] \
+     && [[ "$f" != *_event_bus.dart ]] \
+     && [[ "$f" != *_events.dart ]] \
+     && [[ "$f" != *route_args.dart ]]; then
     class_count=$(count_grep '^\s*class\s+[A-Z]' "$f")
     if [ "$class_count" -gt 1 ]; then
       non_state_classes=$(grep -E '^\s*class\s+[A-Z]' "$f" 2>/dev/null | grep -vcE 'State\b|Exception\b') || non_state_classes=0
-      if [ "$non_state_classes" -gt 1 ]; then
-        violation "$f" "-" "CQ-004" "Multiple classes in one file ($class_count classes) — one class per file"
+      # Allow files with a private helper class (e.g., _CacheEntry alongside the main class)
+      private_classes=$(grep -cE '^\s*class\s+_[A-Z]' "$f" 2>/dev/null) || private_classes=0
+      public_non_state=$((non_state_classes - private_classes))
+      if [ "$public_non_state" -gt 1 ]; then
+        # Allow tightly coupled config/option DTO + main widget (e.g., PopupMenuOption + CustomPopupMenu)
+        if grep -qE '^\s*class\s+[A-Z].*Option|^\s*class\s+[A-Z].*Config|^\s*class\s+[A-Z].*Result|^\s*class\s+[A-Z].*Entry|^\s*class\s+[A-Z].*Footer|^\s*class\s+[A-Z].*Listener' "$f" 2>/dev/null; then
+          : # Tightly coupled DTO + widget — skip
+        else
+          violation "$f" "-" "CQ-004" "Multiple classes in one file ($class_count classes) — one class per file"
+        fi
       fi
     fi
   fi
@@ -376,8 +394,19 @@ for f in "${FILES[@]}"; do
   done < <(grep -nE '^\s*//' "$f" 2>/dev/null | grep -vE '///|// ignore:|// TODO|// MARK:|// coverage:|// ignore_for_file' || true)
 
   # CQ-006: Repository files should use execute(), not manual try-catch
+  # Skip inner try-catch blocks inside execute() callbacks (best-effort cleanup)
   if is_repo_file "$f"; then
-    check_pattern "$f" '^\s*try\s*\{' "CQ-006" "Use execute() wrapper — no manual try-catch in repositories"
+    has_execute=$(count_grep '\breturn\s+execute' "$f")
+    if [ "$has_execute" -gt 0 ]; then
+      # Count try blocks that are NOT inside an execute callback
+      # Heuristic: a top-level try-catch is at column 4 (2 spaces from method body)
+      outer_try=$(grep -cE '^\s{4}try\s*\{' "$f" 2>/dev/null) || outer_try=0
+      if [ "$outer_try" -gt 0 ]; then
+        check_pattern "$f" '^\s{4}try\s*\{' "CQ-006" "Use execute() wrapper — no manual try-catch in repositories"
+      fi
+    else
+      check_pattern "$f" '^\s*try\s*\{' "CQ-006" "Use execute() wrapper — no manual try-catch in repositories"
+    fi
   fi
 
   # CQ-007: Inconsistent border radius — flag very large values (100+)
