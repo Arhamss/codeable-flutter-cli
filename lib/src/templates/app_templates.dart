@@ -217,8 +217,8 @@ class _AppViewState extends State<AppView> {
                   backgroundColor: Colors.transparent,
                   elevation: 0,
                 ),
-                scaffoldBackgroundColor: AppColors.backgroundPrimary,
-                canvasColor: AppColors.backgroundPrimary,
+                scaffoldBackgroundColor: AppColors.background,
+                canvasColor: AppColors.background,
                 useMaterial3: true,
                 pageTransitionsTheme: const PageTransitionsTheme(
                   builders: <TargetPlatform, PageTransitionsBuilder>{
@@ -229,10 +229,10 @@ class _AppViewState extends State<AppView> {
                   },
                 ),
                 textSelectionTheme: TextSelectionThemeData(
-                  cursorColor: AppColors.blackPrimary,
+                  cursorColor: AppColors.primary,
                   selectionColor:
-                      AppColors.blackPrimary.withValues(alpha: 0.25),
-                  selectionHandleColor: AppColors.blackPrimary,
+                      AppColors.primary.withValues(alpha: 0.25),
+                  selectionHandleColor: AppColors.primary,
                 ),
               ),
               locale: DevicePreview.locale(context) ?? state.locale,
@@ -293,7 +293,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: AppColors.backgroundPrimary,
+      backgroundColor: AppColors.background,
     );
   }
 }
@@ -329,7 +329,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: AppColors.backgroundPrimary,
+      backgroundColor: AppColors.background,
     );
   }
 }

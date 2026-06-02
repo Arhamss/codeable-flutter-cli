@@ -39,16 +39,16 @@ import 'package:{{project_name}}/core/models/navigation_item.dart';
 //   Widget build(BuildContext context) {
 //     return Scaffold(
 //       extendBody: true,
-//       backgroundColor: AppColors.white,
+//       backgroundColor: AppColors.surface,
 //       body: shell,
 //       bottomNavigationBar: Container(
 //         height: 88,
 //         width: MediaQuery.of(context).size.width,
 //         decoration: BoxDecoration(
-//           color: AppColors.white,
+//           color: AppColors.surface,
 //           boxShadow: [
 //             BoxShadow(
-//               color: AppColors.black.withValues(alpha: 0.08),
+//               color: AppColors.overlayScrim.withValues(alpha: 0.08),
 //               blurRadius: 60,
 //               offset: const Offset(0, -20),
 //             ),
@@ -88,7 +88,7 @@ import 'package:{{project_name}}/core/models/navigation_item.dart';
 //     final item = _navBarItems[index];
 //     final isSelected = index == shell.currentIndex;
 //     final color =
-//         isSelected ? AppColors.blackPrimary : AppColors.textSecondary;
+//         isSelected ? AppColors.primary : AppColors.textSecondary;
 //
 //     return GestureDetector(
 //       onTap: () => shell.goBranch(index, initialLocation: true),

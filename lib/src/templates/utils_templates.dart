@@ -471,7 +471,7 @@ class ToastHelper {
           AssetPaths.errorIcon,
           height: 24,
           width: 24,
-          colorFilter: const ColorFilter.mode(AppColors.white, BlendMode.srcIn),
+          colorFilter: const ColorFilter.mode(AppColors.textOnPrimary, BlendMode.srcIn),
         ),
       ),
       title: Text(
@@ -501,13 +501,18 @@ class ToastHelper {
   static void showSuccessToast(String message) {
     toastification.show(
       type: ToastificationType.success,
-      backgroundColor: AppColors.positiveBottomStatusBackground,
+      backgroundColor: AppColors.success,
       borderRadius: BorderRadius.circular(48),
       borderSide: BorderSide.none,
       closeButton: const ToastCloseButton(showType: CloseButtonShowType.none),
       icon: Padding(
         padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
-        child: SvgPicture.asset(AssetPaths.successIcon, height: 24, width: 24),
+        child: SvgPicture.asset(
+          AssetPaths.successIcon,
+          height: 24,
+          width: 24,
+          colorFilter: const ColorFilter.mode(AppColors.textOnPrimary, BlendMode.srcIn),
+        ),
       ),
       title: Text(
         message,
@@ -515,7 +520,7 @@ class ToastHelper {
           fontFamily: AppFonts.body,
           fontWeight: FontWeight.w500,
           fontSize: 16,
-          color: AppColors.textPrimary,
+          color: AppColors.textOnPrimary,
         ),
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
@@ -536,13 +541,18 @@ class ToastHelper {
   static void showInfoToast(String message) {
     toastification.show(
       type: ToastificationType.info,
-      backgroundColor: AppColors.warningBottomStatusBackground,
+      backgroundColor: AppColors.info,
       borderRadius: BorderRadius.circular(48),
       borderSide: BorderSide.none,
       closeButton: const ToastCloseButton(showType: CloseButtonShowType.none),
       icon: Padding(
         padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
-        child: SvgPicture.asset(AssetPaths.infoIcon, height: 24, width: 24),
+        child: SvgPicture.asset(
+          AssetPaths.infoIcon,
+          height: 24,
+          width: 24,
+          colorFilter: const ColorFilter.mode(AppColors.textOnPrimary, BlendMode.srcIn),
+        ),
       ),
       title: Text(
         message,
@@ -550,7 +560,7 @@ class ToastHelper {
           fontFamily: AppFonts.body,
           fontWeight: FontWeight.w500,
           fontSize: 16,
-          color: AppColors.textPrimary,
+          color: AppColors.textOnPrimary,
         ),
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
@@ -781,7 +791,7 @@ class DecorationsHelper {
   }) {
     return [
       BoxShadow(
-        color: color ?? AppColors.blackPrimary.withValues(alpha: 0.1),
+        color: color ?? AppColors.primary.withValues(alpha: 0.1),
         blurRadius: blurRadius ?? 12,
         spreadRadius: spreadRadius ?? 2,
         offset: offset ?? const Offset(0, 2),
