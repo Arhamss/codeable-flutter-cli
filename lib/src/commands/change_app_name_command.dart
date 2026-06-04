@@ -189,14 +189,17 @@ class ChangeAppNameCommand extends Command<int> {
 
     // Each build configuration has FLAVOR_APP_NAME set with optional suffix
     // Production configs have just the name, staging has [STG], dev has [DEV]
+    // Use \U00A0 (non-breaking space escape) so iOS doesn't collapse spaces
+    // when truncating the home screen label.
+    final iosName = newName.replaceAll(' ', r'\U00A0');
     content = content.replaceAllMapped(regex, (match) {
       final original = match.group(0)!;
       if (original.contains('[STG]')) {
-        return 'FLAVOR_APP_NAME = "$newName [STG]"';
+        return 'FLAVOR_APP_NAME = "$iosName${r'\U00A0'}[STG]"';
       } else if (original.contains('[DEV]')) {
-        return 'FLAVOR_APP_NAME = "$newName [DEV]"';
+        return 'FLAVOR_APP_NAME = "$iosName${r'\U00A0'}[DEV]"';
       }
-      return 'FLAVOR_APP_NAME = "$newName"';
+      return 'FLAVOR_APP_NAME = "$iosName"';
     });
 
     file.writeAsStringSync(content);

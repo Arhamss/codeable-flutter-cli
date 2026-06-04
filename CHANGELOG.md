@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.0.39
+
+### Semantic AppColors Palette
+- **Reworked** the generated `AppColors` template into a clean, semantic, grouped palette — `background`/`surface`, `primary`, `text`, `status`, `border`, `shadow`, and `overlay` groups replace the old grab-bag of project-specific color names
+- All generated templates (core widgets, navigation, app, feature, utils, AI config) migrated to the new semantic tokens — e.g. `blackPrimary` → `textPrimary`/`primary`, `white` → `surface`/`textOnPrimary`
+- `TextStyleModifiers` now reference semantic tokens (`textPrimary`, `textOnPrimary`) instead of raw colors
+- New projects get a coherent light-theme palette out of the box; existing projects are unaffected
+
+### iOS Home-Screen Label Fix
+- **Fixed** iOS collapsing spaces in multi-word app names on the home screen — flavor app names now use the `\U00A0` non-breaking-space escape in `FLAVOR_APP_NAME`, so names like `My App [DEV]` render with correct spacing
+- Applies to both project generation (`project_generator.dart`) and the `change-app-name` command
+
+### Code Quality Script Improvements
+- **Improved** the generated `code_quality_check.sh` — Bash 3 compatibility (works with macOS's default shell), smarter rule detection, accurate `BlocBuilder`/`BlocListener` counting, and `dispose()` checks scoped to `StatefulWidget`s only (fewer false positives)
+- **Added** `pull-requests: read` permission to the semantic-PR-title CI job
+
+### CI Template
+- **Updated** generated CI workflow Flutter version to 3.41.x
+
 ## 1.0.38
 
 ### Removed Spell Check from CI Pipeline

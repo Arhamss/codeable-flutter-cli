@@ -1163,6 +1163,9 @@ class ProjectGenerator {
             final appName = fl['label']!.isEmpty
                 ? projectName
                 : '$projectName${fl['label']}';
+            // Use \U00A0 (non-breaking space escape) so iOS doesn't collapse
+            // spaces when truncating the home screen label.
+            final iosAppName = appName.replaceAll(' ', r'\U00A0');
             final iconName = fl['icon']!;
 
             // Replace PRODUCT_BUNDLE_IDENTIFIER
@@ -1180,7 +1183,7 @@ class ProjectGenerator {
             // Add FLAVOR_APP_NAME after ENABLE_BITCODE line
             block = block.replaceFirst(
               'ENABLE_BITCODE = NO;',
-              'ENABLE_BITCODE = NO;\n\t\t\t\tFLAVOR_APP_NAME = "$appName";',
+              'ENABLE_BITCODE = NO;\n\t\t\t\tFLAVOR_APP_NAME = "$iosAppName";',
             );
 
             block = block.replaceFirst(
