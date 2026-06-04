@@ -132,8 +132,8 @@ extension AppTextStyle on BuildContext {
 }
 
 extension TextStyleModifiers on TextStyle {
-  TextStyle get primary => copyWith(color: AppColors.blackPrimary);
-  TextStyle get secondary => copyWith(color: AppColors.white);
+  TextStyle get primary => copyWith(color: AppColors.textPrimary);
+  TextStyle get secondary => copyWith(color: AppColors.textOnPrimary);
   TextStyle get light => copyWith(color: AppColors.textSecondary);
   TextStyle get hint => copyWith(color: AppColors.textTertiary);
 }

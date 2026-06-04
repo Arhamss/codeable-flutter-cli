@@ -146,7 +146,7 @@ class MyFeatureState extends Equatable {
 - Router config in `lib/go_router/router.dart`
 
 ### Styling
-- Colors: `AppColors.blackPrimary`, `AppColors.secondaryMain`, `AppColors.white`, `AppColors.textSecondary`, `AppColors.error`, etc.
+- Colors: semantic constants grouped by role — surfaces (`background`, `surface`, `surfaceAlt`, `surfaceMuted`), primary (`primary`, `primaryLight`, `primaryMuted`, `primarySoft`), text (`textPrimary`, `textOnPrimary`, `textSecondary`, `textTertiary`), status (`success`, `error`, `warning`, `info`), `border`/`divider`, and overlays (`overlayText`, `overlayTextMuted`, `overlayScrim`)
 - Two font families:
   - **BBBPoppins** for headings — `AppFonts.heading` (used by `display`, `h1`–`h5` and their `Medium`/`Bold` variants)
   - **SFProRounded** for body and labels — `AppFonts.body` (used by `p1`/`p2`/`caption`/`overline` and their `Medium`/`Bold` variants)
@@ -155,7 +155,7 @@ class MyFeatureState extends Equatable {
   - **Headings:** `h1`/`h1Medium`/`h1Bold` (32) · `h2`/`h2Medium`/`h2Bold` (28) · `h3`/`h3Medium`/`h3Bold` (24) · `h4`/`h4Medium`/`h4Bold` (20) · `h5`/`h5Medium`/`h5Bold` (18)
   - **Body:** `p1`/`p1Medium`/`p1Bold` (16) · `p2`/`p2Medium`/`p2Bold` (14)
   - **Caption:** `caption`/`captionMedium`/`captionBold` (12) · `overline` (10)
-- Text style modifiers: `.primary` (blackPrimary), `.secondary` (white), `.light` (textSecondary), `.hint` (textTertiary)
+- Text style modifiers: `.primary` (textPrimary), `.secondary` (textOnPrimary), `.light` (textSecondary), `.hint` (textTertiary)
 - Assets: `AssetPaths.arrowLeftIcon`, `AssetPaths.searchIcon`, etc.
 
 ### Storage
@@ -204,10 +204,10 @@ class MyFeatureState extends Equatable {
 Reusable components available through `exports.dart`:
 - `CustomAppBar` - App bar with back button, title, actions
 - `CustomButton` - Single button widget with named factories:
-  - `CustomButton.primary` — black filled (default brand action)
-  - `CustomButton.secondary` — `AppColors.secondaryMain` filled (alternate brand color)
-  - `CustomButton.tertiary` — outlined (white bg, black border)
-  - `CustomButton.danger` — red filled (destructive actions)
+  - `CustomButton.primary` — `AppColors.primary` filled (default brand action)
+  - `CustomButton.secondary` — `AppColors.primaryMuted` filled (alternate brand color)
+  - `CustomButton.tertiary` — outlined (`surface` bg, `primary` border)
+  - `CustomButton.danger` — `AppColors.error` filled (destructive actions)
   - `CustomButton.text` — text-only ghost (low-emphasis links like "Forgot password?")
 - `CustomTextField` - Text form field with validation (factories: `.email`, `.password`, `.number`, `.phone`, `.description`, `.search`)
 - `CustomSearchField` - Search input field
@@ -368,7 +368,7 @@ await Future.wait([
 - **Dialogs:** Use `CustomConfirmationDialog` — never raw `AlertDialog` or `showDialog` with manual buttons
 - **Buttons:** Use `CustomButton` — never raw `ElevatedButton`, `TextButton`, or `OutlinedButton`. Pick the right factory:
   - `.primary` for the main action on a screen
-  - `.secondary` for an alternate filled action (uses `secondaryMain`)
+  - `.secondary` for an alternate filled action (uses `primaryMuted`)
   - `.tertiary` for outlined / less-emphasized actions
   - `.danger` for destructive actions (delete, leave, cancel)
   - `.text` for inline links and low-emphasis actions ("Forgot password?", "Skip")
@@ -554,11 +554,11 @@ Each feature lives in `lib/features/<name>/` with:
 - Resolve repository dependencies via `Injector.resolve<Type>()`
 
 ### Styling
-- Colors: Use `AppColors` constants (e.g., `AppColors.blackPrimary`, `AppColors.secondaryMain`, `AppColors.white`, `AppColors.textSecondary`, `AppColors.error`)
+- Colors: Use `AppColors` semantic constants (e.g., `AppColors.primary`, `AppColors.surface`, `AppColors.textPrimary`, `AppColors.textSecondary`, `AppColors.error`)
 - Text: Use context extension. Two font families:
   - Headings (BBBPoppins via `AppFonts.heading`): `display`, `h1`–`h5` (+ Medium/Bold variants)
   - Body (SFProRounded via `AppFonts.body`): `p1`–`p2` (+ Medium/Bold), `caption` (+ Medium/Bold), `overline`
-- Text modifiers: `.primary` (blackPrimary), `.secondary` (white), `.light` (textSecondary), `.hint` (textTertiary)
+- Text modifiers: `.primary` (textPrimary), `.secondary` (textOnPrimary), `.light` (textSecondary), `.hint` (textTertiary)
 - Assets: Reference via `AssetPaths` constants
 
 ### API Layer
@@ -591,7 +591,7 @@ Each feature lives in `lib/features/<name>/` with:
 ### Core Widgets
 Prefer using existing core widgets from `lib/utils/widgets/core_widgets/`:
 - CustomAppBar
-- `CustomButton` with factories: `.primary` (black filled), `.secondary` (`secondaryMain` filled), `.tertiary` (outlined), `.danger` (red), `.text` (ghost)
+- `CustomButton` with factories: `.primary` (`primary` filled), `.secondary` (`primaryMuted` filled), `.tertiary` (outlined), `.danger` (`error` filled), `.text` (ghost)
 - `CustomTextField` with factories: `.email`, `.password`, `.number`, `.phone`, `.description`, `.search`
 - CustomDropdown, SearchableDropdown
 - CustomSectionTitle, CustomConfirmationDialog, CustomBottomSheet

@@ -17,12 +17,12 @@ class CustomBackButton extends StatelessWidget {
       icon: SvgPicture.asset(
         AssetPaths.arrowLeftIcon,
         colorFilter: const ColorFilter.mode(
-          AppColors.blackPrimary,
+          AppColors.primary,
           BlendMode.srcIn,
         ),
       ),
       onPressed: onPressed ?? () => context.pop(),
-      backgroundColor: AppColors.white,
+      backgroundColor: AppColors.surface,
     );
   }
 }
@@ -250,7 +250,7 @@ class CustomBottomSheet extends StatelessWidget {
                 height: 5,
                 width: 64,
                 decoration: BoxDecoration(
-                  color: AppColors.filterHandleBar,
+                  color: AppColors.border,
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
@@ -284,9 +284,9 @@ class CustomBottomSheet extends StatelessWidget {
                             onPressed: buttonOneOnTap,
                             isLoading: isLoading,
                             borderColor: buttonOneTextColor,
-                            textColor: buttonOneTextColor ?? AppColors.white,
+                            textColor: buttonOneTextColor ?? AppColors.textOnPrimary,
                             backgroundColor:
-                                buttonOneColor ?? AppColors.blackPrimary,
+                                buttonOneColor ?? AppColors.primary,
                           ),
                         ),
                       if (buttonOneText != null && buttonTwoText != null)
@@ -298,10 +298,10 @@ class CustomBottomSheet extends StatelessWidget {
                               vertical: 12,
                             ),
                             text: buttonTwoText!,
-                            textColor: buttonTwoTextColor ?? AppColors.white,
+                            textColor: buttonTwoTextColor ?? AppColors.textOnPrimary,
                             onPressed: buttonTwoOnTap,
                             isLoading: isLoading,
-                            backgroundColor: buttonTwoColor ?? AppColors.red,
+                            backgroundColor: buttonTwoColor ?? AppColors.error,
                           ),
                         ),
                     ],
@@ -335,9 +335,9 @@ class CustomBottomSheet extends StatelessWidget {
                         onPressed: buttonOneOnTap,
                         isLoading: isLoading,
                         borderColor: buttonOneTextColor,
-                        textColor: buttonOneTextColor ?? AppColors.white,
+                        textColor: buttonOneTextColor ?? AppColors.textOnPrimary,
                         backgroundColor:
-                            buttonOneColor ?? AppColors.blackPrimary,
+                            buttonOneColor ?? AppColors.primary,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -347,10 +347,10 @@ class CustomBottomSheet extends StatelessWidget {
                           vertical: 12,
                         ),
                         text: buttonTwoText ?? '',
-                        textColor: buttonTwoTextColor ?? AppColors.white,
+                        textColor: buttonTwoTextColor ?? AppColors.textOnPrimary,
                         onPressed: buttonTwoOnTap,
                         isLoading: isLoading,
-                        backgroundColor: buttonTwoColor ?? AppColors.red,
+                        backgroundColor: buttonTwoColor ?? AppColors.error,
                       ),
                     ),
                   ],
@@ -398,7 +398,7 @@ class CustomBulletPointItem extends StatelessWidget {
             bulletCharacter,
             style: TextStyle(
               fontSize: bulletSize,
-              color: bulletColor ?? AppColors.blackPrimary,
+              color: bulletColor ?? AppColors.primary,
             ),
           ),
           SizedBox(width: spacing),
@@ -407,7 +407,7 @@ class CustomBulletPointItem extends StatelessWidget {
               text,
               style:
                   textStyle ??
-                  context.p2.copyWith(color: AppColors.blackPrimary),
+                  context.p2.copyWith(color: AppColors.primary),
             ),
           ),
         ],
@@ -426,8 +426,8 @@ class CustomButton extends StatelessWidget {
     required this.onPressed,
     this.isLoading = false,
     super.key,
-    this.backgroundColor = AppColors.blackPrimary,
-    this.textColor = AppColors.white,
+    this.backgroundColor = AppColors.primary,
+    this.textColor = AppColors.textOnPrimary,
     this.disabledTextColor,
     this.disabledBackgroundColor,
     this.borderRadius = 100,
@@ -470,9 +470,9 @@ class CustomButton extends StatelessWidget {
       vertical: 18,
       horizontal: 24,
     ),
-  })  : backgroundColor = AppColors.blackPrimary,
-        textColor = AppColors.white,
-        disabledTextColor = AppColors.buttonDisabledText,
+  })  : backgroundColor = AppColors.primary,
+        textColor = AppColors.textOnPrimary,
+        disabledTextColor = AppColors.overlayTextMuted,
         disabledBackgroundColor = AppColors.textTertiary,
         borderRadius = 100,
         fontWeight = FontWeight.w600,
@@ -502,9 +502,9 @@ class CustomButton extends StatelessWidget {
       vertical: 18,
       horizontal: 24,
     ),
-  })  : backgroundColor = AppColors.secondaryMain,
-        textColor = AppColors.white,
-        disabledTextColor = AppColors.buttonDisabledText,
+  })  : backgroundColor = AppColors.primaryMuted,
+        textColor = AppColors.textOnPrimary,
+        disabledTextColor = AppColors.overlayTextMuted,
         disabledBackgroundColor = AppColors.textTertiary,
         borderRadius = 100,
         fontWeight = FontWeight.w600,
@@ -537,14 +537,14 @@ class CustomButton extends StatelessWidget {
     this.borderWidth = 1.0,
     this.textStyle,
     this.splashColor = Colors.black12,
-  })  : backgroundColor = AppColors.white,
-        textColor = AppColors.blackPrimary,
+  })  : backgroundColor = AppColors.surface,
+        textColor = AppColors.primary,
         disabledTextColor = AppColors.textTertiary,
-        disabledBackgroundColor = AppColors.backgroundTertiary,
+        disabledBackgroundColor = AppColors.surfaceAlt,
         borderRadius = 100,
         fontWeight = FontWeight.w600,
         fontSize = 16,
-        borderColor = AppColors.blackPrimary;
+        borderColor = AppColors.primary;
 
   /// Destructive actions — delete, leave, cancel subscription.
   const CustomButton.danger({
@@ -566,8 +566,8 @@ class CustomButton extends StatelessWidget {
       horizontal: 24,
     ),
   })  : backgroundColor = AppColors.error,
-        textColor = AppColors.white,
-        disabledTextColor = AppColors.buttonDisabledText,
+        textColor = AppColors.textOnPrimary,
+        disabledTextColor = AppColors.overlayTextMuted,
         disabledBackgroundColor = AppColors.textTertiary,
         borderRadius = 100,
         fontWeight = FontWeight.w600,
@@ -593,7 +593,7 @@ class CustomButton extends StatelessWidget {
     this.fontSize = 16,
     this.fontWeight = FontWeight.w700,
   })  : backgroundColor = Colors.transparent,
-        textColor = AppColors.blackPrimary,
+        textColor = AppColors.primary,
         disabledTextColor = AppColors.textTertiary,
         disabledBackgroundColor = Colors.transparent,
         borderRadius = 100,
@@ -739,7 +739,7 @@ class CustomButton extends StatelessWidget {
             BoxShadow(
               offset: const Offset(0, 4),
               blurRadius: 15,
-              color: AppColors.blackPrimary.withValues(alpha: 0.05),
+              color: AppColors.primary.withValues(alpha: 0.05),
             ),
           ],
         ),
@@ -799,7 +799,7 @@ class CustomCachedImageWidget extends StatelessWidget {
         child: Container(
           width: width,
           height: height,
-          color: AppColors.backgroundTertiary,
+          color: AppColors.surfaceAlt,
           child: Image.asset(
             placeHolder,
             width: width,
@@ -809,7 +809,7 @@ class CustomCachedImageWidget extends StatelessWidget {
               return Container(
                 width: width,
                 height: height,
-                color: AppColors.backgroundTertiary,
+                color: AppColors.surfaceAlt,
                 child: Center(
                   child: SvgPicture.asset(
                     AssetPaths.imageIcon,
@@ -817,7 +817,7 @@ class CustomCachedImageWidget extends StatelessWidget {
                         ? (width! < height! ? width! * 0.5 : height! * 0.5)
                         : 24,
                     colorFilter: const ColorFilter.mode(
-                      AppColors.neutral700,
+                      AppColors.textTertiary,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -837,8 +837,8 @@ class CustomCachedImageWidget extends StatelessWidget {
         height: height,
         fit: fit,
         placeholder: (context, url) => Shimmer.fromColors(
-          baseColor: AppColors.backgroundTertiary,
-          highlightColor: AppColors.white,
+          baseColor: AppColors.surfaceAlt,
+          highlightColor: AppColors.surface,
           child: compactPlaceholder
               ? LayoutBuilder(
                   builder: (context, constraints) {
@@ -851,7 +851,7 @@ class CustomCachedImageWidget extends StatelessWidget {
                         width: w,
                         height: h,
                         decoration: BoxDecoration(
-                          color: AppColors.backgroundTertiary,
+                          color: AppColors.surfaceAlt,
                           borderRadius:
                               borderRadius ?? BorderRadius.circular(12),
                         ),
@@ -869,7 +869,7 @@ class CustomCachedImageWidget extends StatelessWidget {
                           height: h,
                           child: Container(
                             decoration: BoxDecoration(
-                              color: AppColors.backgroundTertiary,
+                              color: AppColors.surfaceAlt,
                               borderRadius:
                                   borderRadius ?? BorderRadius.zero,
                             ),
@@ -881,7 +881,7 @@ class CustomCachedImageWidget extends StatelessWidget {
                       width: width,
                       height: height,
                       decoration: BoxDecoration(
-                        color: AppColors.backgroundTertiary,
+                        color: AppColors.surfaceAlt,
                         borderRadius: borderRadius ?? BorderRadius.zero,
                       ),
                     ),
@@ -895,7 +895,7 @@ class CustomCachedImageWidget extends StatelessWidget {
             return Container(
               width: width,
               height: height,
-              color: AppColors.backgroundTertiary,
+              color: AppColors.surfaceAlt,
               child: Center(
                 child: SvgPicture.asset(
                   AssetPaths.imageIcon,
@@ -903,7 +903,7 @@ class CustomCachedImageWidget extends StatelessWidget {
                       ? (width! < height! ? width! * 0.5 : height! * 0.5)
                       : 24,
                   colorFilter: const ColorFilter.mode(
-                    AppColors.neutral700,
+                    AppColors.textTertiary,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -920,10 +920,22 @@ class CustomCachedImageWidget extends StatelessWidget {
 const String userAvatarTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
+/// Decorative gradient pairs used by [UserAvatar]. The first entry is the
+/// brand default (used when [UserAvatar.seed] is null); the remaining entries
+/// are picked deterministically by `seed.hashCode`.
+const _avatarGradients = <List<Color>>[
+  [AppColors.primary, AppColors.overlayScrim],
+  [Color(0xFFFE835F), Color(0xFFFF5668)],
+  [Color(0xFFBC7AFA), Color(0xFFA84EFB)],
+  [Color(0xFF9383FA), Color(0xFF7C69F9)],
+  [Color(0xFFFFB367), Color(0xFFFF9831)],
+  [Color(0xFF74BBFA), Color(0xFF3CA4FF)],
+];
+
 /// A circular user avatar with a gradient background.
 ///
 /// When [seed] is provided (e.g. a member ID), a gradient is chosen
-/// deterministically from [AppColors.avatarGradients]. When omitted,
+/// deterministically from [_avatarGradients]. When omitted,
 /// the first gradient (brand primary) is used (for the current user's avatar).
 ///
 /// Shows a cached network image if [imageUrl] is a valid absolute URL,
@@ -965,10 +977,10 @@ class UserAvatar extends StatelessWidget {
 
   List<Color> get _gradientColors {
     if (seed == null) {
-      return AppColors.avatarGradients.first;
+      return _avatarGradients.first;
     }
-    final index = seed.hashCode.abs() % AppColors.avatarGradients.length;
-    return AppColors.avatarGradients[index];
+    final index = seed.hashCode.abs() % _avatarGradients.length;
+    return _avatarGradients[index];
   }
 
   @override
@@ -1015,12 +1027,12 @@ class UserAvatar extends StatelessWidget {
                 height: size,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.black.withValues(alpha: 0.4),
+                  color: AppColors.overlayScrim.withValues(alpha: 0.4),
                 ),
                 alignment: Alignment.center,
                 child: CustomLoadingWidget(
                   size: size * 0.35,
-                  color: AppColors.white,
+                  color: AppColors.surface,
                 ),
               ),
             ],
@@ -1036,16 +1048,16 @@ class UserAvatar extends StatelessWidget {
 
   TextStyle _textStyle(BuildContext context) {
     if (size >= 64) {
-      return context.h3Bold.copyWith(color: AppColors.white);
+      return context.h3Bold.copyWith(color: AppColors.textOnPrimary);
     }
     if (size >= 40) {
       return context.p1Medium.copyWith(
-        color: AppColors.white,
+        color: AppColors.surface,
         fontWeight: FontWeight.w600,
       );
     }
     return context.p2.copyWith(
-      color: AppColors.white,
+      color: AppColors.surface,
       fontWeight: FontWeight.w600,
       fontSize: 12,
     );
@@ -1080,9 +1092,9 @@ class CustomCheckbox extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: value ? AppColors.white : Colors.transparent,
+          color: value ? AppColors.surface : Colors.transparent,
           border: Border.all(
-            color: borderColor ?? AppColors.blackPrimary,
+            color: borderColor ?? AppColors.primary,
             width: 1.5,
           ),
           borderRadius: BorderRadius.circular(4),
@@ -1093,7 +1105,7 @@ class CustomCheckbox extends StatelessWidget {
                 child: SvgPicture.asset(
                   AssetPaths.tickIcon,
                   colorFilter: const ColorFilter.mode(
-                    AppColors.blackPrimary,
+                    AppColors.primary,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -1112,8 +1124,8 @@ class CustomChip extends StatelessWidget {
   const CustomChip({
     required this.text,
     required this.onTap,
-    this.backgroundColor = AppColors.blackPrimary,
-    this.fontColor = AppColors.blackPrimary,
+    this.backgroundColor = AppColors.primary,
+    this.fontColor = AppColors.primary,
     this.isSelected = false,
     this.fontStyle,
     this.padding,
@@ -1188,13 +1200,13 @@ class CustomConfirmationDialog extends StatelessWidget {
       backgroundColor: Colors.transparent,
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
               offset: const Offset(0, 8),
               blurRadius: 32,
-              color: AppColors.blackPrimary.withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
             ),
           ],
         ),
@@ -1210,7 +1222,7 @@ class CustomConfirmationDialog extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: isDanger
                         ? AppColors.error.withValues(alpha: 0.1)
-                        : AppColors.blackPrimary.withValues(alpha: 0.1),
+                        : AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(32),
                   ),
                   child: Center(child: icon),
@@ -1224,7 +1236,7 @@ class CustomConfirmationDialog extends StatelessWidget {
                 title,
                 style: context.p1Medium.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.blackPrimary,
+                  color: AppColors.primary,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 2,
@@ -1237,7 +1249,7 @@ class CustomConfirmationDialog extends StatelessWidget {
               child: Text(
                 subtitle,
                 style: context.p2.copyWith(
-                  color: AppColors.blackPrimary,
+                  color: AppColors.primary,
                   height: 1.4,
                 ),
                 textAlign: TextAlign.center,
@@ -1256,7 +1268,7 @@ class CustomConfirmationDialog extends StatelessWidget {
                     isLoading: isLoading,
                     backgroundColor: isDanger
                         ? AppColors.error
-                        : AppColors.blackPrimary,
+                        : AppColors.primary,
                     padding: const EdgeInsetsDirectional.symmetric(
                       vertical: 16,
                       horizontal: 24,
@@ -1269,8 +1281,8 @@ class CustomConfirmationDialog extends StatelessWidget {
                     onPressed: isLoading
                         ? null
                         : (onCancel ?? () => context.pop()),
-                    textColor: AppColors.blackPrimary,
-                    backgroundColor: AppColors.white,
+                    textColor: AppColors.primary,
+                    backgroundColor: AppColors.surface,
                     padding: const EdgeInsetsDirectional.symmetric(
                       vertical: 16,
                       horizontal: 24,
@@ -1302,7 +1314,7 @@ class CustomConfirmationDialogHelper {
     showDialog<void>(
       context: context,
       barrierDismissible: !isLoading,
-      barrierColor: AppColors.blackPrimary.withValues(alpha: 0.6),
+      barrierColor: AppColors.primary.withValues(alpha: 0.6),
       builder: (context) => CustomConfirmationDialog(
         title: title,
         subtitle: subtitle,
@@ -1363,12 +1375,12 @@ class CustomDatePicker extends StatelessWidget {
   static ThemeData _getCustomDatePickerTheme(BuildContext context) {
     return ThemeData(
       colorScheme: const ColorScheme.light(
-        primary: AppColors.blackPrimary,
-        onSurface: AppColors.blackPrimary,
+        primary: AppColors.primary,
+        onSurface: AppColors.primary,
       ),
       datePickerTheme: DatePickerThemeData(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        dividerColor: AppColors.blackPrimary,
+        dividerColor: AppColors.primary,
       ),
       textTheme: Theme.of(context).textTheme.copyWith(
             labelLarge: context.p1Medium,
@@ -1406,7 +1418,7 @@ class CustomDatePicker extends StatelessWidget {
       children: [
         Text(
           labelText,
-          style: context.p1Medium.copyWith(color: AppColors.blackPrimary),
+          style: context.p1Medium.copyWith(color: AppColors.primary),
         ),
         const SizedBox(height: 8),
         GestureDetector(
@@ -1426,7 +1438,7 @@ class CustomDatePicker extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: enabled ? AppColors.white : AppColors.textFieldBackground,
+              color: enabled ? AppColors.surface : AppColors.surfaceAlt,
               borderRadius: BorderRadius.circular(100),
               border: Border.all(
                 color: enabled
@@ -1682,7 +1694,7 @@ class _CustomDropdownContentState extends State<_CustomDropdownContent> {
           children: [
             Text(
               widget.labelText,
-              style: context.p1Medium.copyWith(color: AppColors.blackPrimary),
+              style: context.p1Medium.copyWith(color: AppColors.primary),
             ),
             const SizedBox(height: 8),
             GestureDetector(
@@ -1701,7 +1713,7 @@ class _CustomDropdownContentState extends State<_CustomDropdownContent> {
                 child: Container(
                   key: _dropdownKey,
                   decoration: BoxDecoration(
-                    color: AppColors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(
                       state.isOpen ? 16 : widget.borderRadius,
                     ),
@@ -1722,7 +1734,7 @@ class _CustomDropdownContentState extends State<_CustomDropdownContent> {
                                 width: 16,
                                 colorFilter: ColorFilter.mode(
                                   widget.enabled
-                                      ? AppColors.blackPrimary
+                                      ? AppColors.primary
                                       : AppColors.textTertiary,
                                   BlendMode.srcIn,
                                 ),
@@ -1748,7 +1760,7 @@ class _CustomDropdownContentState extends State<_CustomDropdownContent> {
                                 AssetPaths.dropdownArrowIcon,
                                 colorFilter: ColorFilter.mode(
                                   widget.enabled
-                                      ? AppColors.blackPrimary
+                                      ? AppColors.primary
                                       : AppColors.textTertiary,
                                   BlendMode.srcIn,
                                 ),
@@ -1794,7 +1806,7 @@ class _CustomDropdownContentState extends State<_CustomDropdownContent> {
                                         child: Text(
                                           option,
                                           style: context.p2.copyWith(
-                                            color: AppColors.blackPrimary,
+                                            color: AppColors.primary,
                                             fontWeight: isSelected
                                                 ? FontWeight.w600
                                                 : FontWeight.normal,
@@ -1805,7 +1817,7 @@ class _CustomDropdownContentState extends State<_CustomDropdownContent> {
                                         Container(
                                           padding: const EdgeInsets.all(2),
                                           decoration: const BoxDecoration(
-                                            color: AppColors.blackPrimary,
+                                            color: AppColors.primary,
                                             shape: BoxShape.circle,
                                           ),
                                           child: SvgPicture.asset(
@@ -1813,7 +1825,7 @@ class _CustomDropdownContentState extends State<_CustomDropdownContent> {
                                             width: 14,
                                             height: 14,
                                             colorFilter: const ColorFilter.mode(
-                                              AppColors.white,
+                                              AppColors.surface,
                                               BlendMode.srcIn,
                                             ),
                                           ),
@@ -1972,7 +1984,7 @@ class _CustomSlidingTabState extends State<CustomSlidingTab> {
     return Container(
       height: widget.height,
       decoration: BoxDecoration(
-        color: widget.backgroundColor ?? AppColors.blackPrimary,
+        color: widget.backgroundColor ?? AppColors.primary,
         borderRadius: BorderRadius.circular(widget.borderRadius),
       ),
       child: Stack(
@@ -1991,7 +2003,7 @@ class _CustomSlidingTabState extends State<CustomSlidingTab> {
               height: widget.height,
               margin: const EdgeInsets.all(2),
               decoration: BoxDecoration(
-                color: widget.selectedColor ?? AppColors.blackPrimary,
+                color: widget.selectedColor ?? AppColors.primary,
                 borderRadius: BorderRadius.circular(widget.borderRadius - 2),
               ),
             ),
@@ -2011,10 +2023,10 @@ class _CustomSlidingTabState extends State<CustomSlidingTab> {
                       style: isSelected
                           ? (widget.selectedTextStyle ??
                                 (widget.textStyle ?? context.p1Medium).copyWith(
-                                  color: AppColors.white,
+                                  color: AppColors.surface,
                                 ))
                           : (widget.textStyle ?? context.p1Medium).copyWith(
-                              color: AppColors.blackPrimary,
+                              color: AppColors.primary,
                             ),
                       child: Text(
                         widget.tabs[index].label,
@@ -2098,7 +2110,7 @@ class _CustomInlineDatePickerState extends State<CustomInlineDatePicker> {
         minimumDate: firstDate,
         maximumDate: lastDate,
         onDateTimeChanged: widget.onDateSelected,
-        backgroundColor: AppColors.white,
+        backgroundColor: AppColors.surface,
       ),
     );
   }
@@ -2151,7 +2163,7 @@ class CustomEmptyStateWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 color:
                     iconBgColor ??
-                    AppColors.blackPrimary.withValues(alpha: 0.1),
+                    AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Center(
@@ -2171,7 +2183,7 @@ class CustomEmptyStateWidget extends StatelessWidget {
             title,
             style: context.h3.copyWith(
               fontWeight: FontWeight.w600,
-              color: AppColors.blackPrimary,
+              color: AppColors.primary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -2179,7 +2191,7 @@ class CustomEmptyStateWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               subtitle!,
-              style: context.p2.copyWith(color: AppColors.blackPrimary),
+              style: context.p2.copyWith(color: AppColors.primary),
               textAlign: TextAlign.center,
             ),
           ],
@@ -2261,7 +2273,7 @@ class CustomIconButton extends StatelessWidget {
   const CustomIconButton({
     this.icon,
     this.onPressed,
-    this.backgroundColor = AppColors.white,
+    this.backgroundColor = AppColors.surface,
     this.iconColor,
     this.borderRadius = const BorderRadius.all(Radius.circular(100)),
     this.borderColor = AppColors.textTertiary,
@@ -2340,9 +2352,9 @@ class CustomImagePicker extends StatelessWidget {
         imagePath == null || (imagePath ?? '').isEmpty ? 50 : 0,
       ),
       style: IconButton.styleFrom(
-        backgroundColor: AppColors.blackPrimary,
+        backgroundColor: AppColors.primary,
         shape: const CircleBorder(),
-        side: const BorderSide(color: AppColors.blackPrimary),
+        side: const BorderSide(color: AppColors.primary),
       ),
     );
   }
@@ -2377,7 +2389,7 @@ class CustomLoadingWidget extends StatelessWidget {
   const CustomLoadingWidget({
     super.key,
     this.size = 24,
-    this.color = AppColors.blackPrimary,
+    this.color = AppColors.primary,
   });
 
   final double size;
@@ -2885,8 +2897,8 @@ class CustomProgressDashes extends StatelessWidget {
     this.height = 3,
     this.gap = 8,
     this.borderRadius = 999,
-    this.activeColor = AppColors.blackPrimary,
-    this.inactiveColor = AppColors.blackPrimary,
+    this.activeColor = AppColors.primary,
+    this.inactiveColor = AppColors.primary,
   }) : assert(totalSteps > 0, 'totalSteps must be > 0');
 
   final int totalSteps;
@@ -2988,12 +3000,12 @@ class CustomRetryWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
               ),
               side: const BorderSide(color: AppColors.error),
-              foregroundColor: AppColors.white,
+              foregroundColor: AppColors.textOnPrimary,
               backgroundColor: AppColors.error,
             ),
             child: Text(
               'Retry',
-              style: context.p2.copyWith(color: AppColors.white),
+              style: context.p2.copyWith(color: AppColors.textOnPrimary),
             ),
           ),
         ],
@@ -3050,7 +3062,7 @@ class _ReusableCalendarWidgetState extends State<ReusableCalendarWidget> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -3072,7 +3084,7 @@ class _ReusableCalendarWidgetState extends State<ReusableCalendarWidget> {
                   },
                   icon: const Icon(
                     Icons.chevron_left,
-                    color: AppColors.blackPrimary,
+                    color: AppColors.primary,
                   ),
                 ),
                 Text(
@@ -3093,7 +3105,7 @@ class _ReusableCalendarWidgetState extends State<ReusableCalendarWidget> {
                   },
                   icon: const Icon(
                     Icons.chevron_right,
-                    color: AppColors.blackPrimary,
+                    color: AppColors.primary,
                   ),
                 ),
               ],
@@ -3113,7 +3125,7 @@ class _ReusableCalendarWidgetState extends State<ReusableCalendarWidget> {
                         textAlign: TextAlign.center,
                         style: context.p1Medium.copyWith(
                           fontSize: 12,
-                          color: AppColors.blackPrimary,
+                          color: AppColors.primary,
                         ),
                       ),
                     ),
@@ -3186,9 +3198,9 @@ class _ReusableCalendarWidgetState extends State<ReusableCalendarWidget> {
             height: 32,
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.blackPrimary
+                  ? AppColors.primary
                   : isToday
-                      ? AppColors.blackPrimary
+                      ? AppColors.primary
                       : Colors.transparent,
               shape: BoxShape.circle,
             ),
@@ -3201,11 +3213,11 @@ class _ReusableCalendarWidgetState extends State<ReusableCalendarWidget> {
                     style: context.p2.copyWith(
                       fontSize: 12,
                       color: isDisabled
-                          ? AppColors.blackPrimary.withValues(alpha: 0.3)
+                          ? AppColors.primary.withValues(alpha: 0.3)
                           : isSelected
-                              ? AppColors.white
+                              ? AppColors.surface
                               : isToday
-                                  ? AppColors.blackPrimary
+                                  ? AppColors.primary
                                   : Colors.black,
                       fontWeight: (isSelected || isToday)
                           ? FontWeight.w600
@@ -3219,10 +3231,10 @@ class _ReusableCalendarWidgetState extends State<ReusableCalendarWidget> {
                       height: 5,
                       decoration: BoxDecoration(
                         color: isDisabled
-                            ? AppColors.blackPrimary.withValues(alpha: 0.3)
+                            ? AppColors.primary.withValues(alpha: 0.3)
                             : isSelected
-                                ? AppColors.white
-                                : AppColors.blackPrimary,
+                                ? AppColors.surface
+                                : AppColors.primary,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -3330,7 +3342,7 @@ class CustomRichText extends StatelessWidget {
             style: richTextStyle ??
                 context.p2Bold.copyWith(
                   fontSize: 10,
-                  color: richTextColor ?? AppColors.blackPrimary,
+                  color: richTextColor ?? AppColors.primary,
                   fontWeight: FontWeight.bold,
                   decoration: richTextDecoration,
                 ),
@@ -3573,7 +3585,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
                 child: Container(
           constraints: BoxConstraints(maxHeight: widget.maxHeight),
           decoration: BoxDecoration(
-            color: AppColors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.textTertiary),
           ),
@@ -3614,7 +3626,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
                               child: Text(
                                 option,
                                 style: context.p2.copyWith(
-                                  color: AppColors.blackPrimary,
+                                  color: AppColors.primary,
                                   fontWeight: isSelected
                                       ? FontWeight.w600
                                       : FontWeight.normal,
@@ -3625,7 +3637,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
                               Container(
                                 padding: const EdgeInsets.all(2),
                                 decoration: const BoxDecoration(
-                                  color: AppColors.blackPrimary,
+                                  color: AppColors.primary,
                                   shape: BoxShape.circle,
                                 ),
                                 child: SvgPicture.asset(
@@ -3633,7 +3645,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
                                   width: 14,
                                   height: 14,
                                   colorFilter: const ColorFilter.mode(
-                                    AppColors.white,
+                                    AppColors.surface,
                                     BlendMode.srcIn,
                                   ),
                                 ),
@@ -3690,7 +3702,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
               : hasError
                   ? AppColors.error
                   : isOpen
-                      ? AppColors.blackPrimary
+                      ? AppColors.primary
                       : AppColors.textTertiary;
 
           return Column(
@@ -3698,7 +3710,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
             children: [
               Text(
                 widget.labelText,
-                style: context.p1Medium.copyWith(color: AppColors.blackPrimary),
+                style: context.p1Medium.copyWith(color: AppColors.primary),
               ),
               const SizedBox(height: 8),
               GestureDetector(
@@ -3716,7 +3728,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
                 child: Container(
                   key: _dropdownKey,
                   decoration: BoxDecoration(
-                    color: AppColors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(widget.borderRadius),
                     border: Border.all(color: borderColor),
                   ),
@@ -3733,7 +3745,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
                             width: 16,
                             colorFilter: ColorFilter.mode(
                               widget.enabled
-                                  ? AppColors.blackPrimary
+                                  ? AppColors.primary
                                   : AppColors.textTertiary,
                               BlendMode.srcIn,
                             ),
@@ -3757,7 +3769,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
                                 isDense: true,
                               ),
                               style: context.p2.copyWith(
-                                color: AppColors.blackPrimary,
+                                color: AppColors.primary,
                               ),
                             ),
                           ),
@@ -3769,7 +3781,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
                             AssetPaths.dropdownArrowIcon,
                             colorFilter: ColorFilter.mode(
                               widget.enabled
-                                  ? AppColors.blackPrimary
+                                  ? AppColors.primary
                                   : AppColors.textTertiary,
                               BlendMode.srcIn,
                             ),
@@ -3878,13 +3890,13 @@ class CustomShimmerWidget extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: Shimmer.fromColors(
-        baseColor: AppColors.backgroundTertiary,
-        highlightColor: AppColors.white,
+        baseColor: AppColors.surfaceAlt,
+        highlightColor: AppColors.surface,
         child: Container(
           width: width,
           height: height,
           decoration: BoxDecoration(
-            color: AppColors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(borderRadius),
           ),
         ),
@@ -3927,7 +3939,7 @@ class _FeesSliderState extends State<FeesSlider> {
               'Fees',
               style: context.p1Medium.copyWith(
                 fontWeight: FontWeight.w800,
-                color: AppColors.blackPrimary,
+                color: AppColors.primary,
                 fontSize: 16,
               ),
             ),
@@ -3937,7 +3949,7 @@ class _FeesSliderState extends State<FeesSlider> {
               style: context.p1Medium.copyWith(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
-                color: AppColors.blackPrimary,
+                color: AppColors.primary,
               ),
             ),
           ],
@@ -3947,11 +3959,11 @@ class _FeesSliderState extends State<FeesSlider> {
           child: SliderTheme(
             data: SliderThemeData(
               thumbSize: WidgetStateProperty.all(const Size(13, 13)),
-              activeTrackColor: AppColors.blackPrimary,
+              activeTrackColor: AppColors.primary,
               trackHeight: 4,
-              inactiveTrackColor: AppColors.blackPrimary,
-              thumbColor: AppColors.blackPrimary,
-              overlayColor: AppColors.blackPrimary.withValues(alpha: 0.1),
+              inactiveTrackColor: AppColors.primary,
+              thumbColor: AppColors.primary,
+              overlayColor: AppColors.primary.withValues(alpha: 0.1),
             ),
             child: Slider(
               year2023: false,
@@ -4072,7 +4084,7 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
                 start: 16,
               ),
               decoration: BoxDecoration(
-                color: AppColors.cartNotificationBackground,
+                color: AppColors.surfaceAlt,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20),
                   bottomLeft: Radius.circular(20),
@@ -4103,7 +4115,7 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
                         return Icon(
                           Icons.shopping_cart,
                           size: 32,
-                          color: AppColors.blackPrimary,
+                          color: AppColors.primary,
                         );
                       },
                       delegates: LottieDelegates(
@@ -4111,27 +4123,27 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
                           // Target specific grey layers and change to black
                           ValueDelegate.color(
                             const ['Circle BG', '**'],
-                            value: AppColors.blackPrimary,
+                            value: AppColors.primary,
                           ),
                           ValueDelegate.color(
                             const ['Line BG', '**'],
-                            value: AppColors.blackPrimary,
+                            value: AppColors.primary,
                           ),
                           ValueDelegate.color(
                             const ['Line', '**'],
-                            value: AppColors.blackPrimary,
+                            value: AppColors.primary,
                           ),
                           ValueDelegate.color(
                             const ['Circle Mask', '**'],
-                            value: AppColors.blackPrimary,
+                            value: AppColors.primary,
                           ),
                           ValueDelegate.color(
                             const ['Line Masks', '**'],
-                            value: AppColors.blackPrimary,
+                            value: AppColors.primary,
                           ),
                           ValueDelegate.color(
                             const ['Line Masks 2', '**'],
-                            value: AppColors.blackPrimary,
+                            value: AppColors.primary,
                           ),
                         ],
                       ),
@@ -4150,7 +4162,7 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.blackPrimary,
+                            color: AppColors.primary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -4164,7 +4176,7 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
                                 '${widget.quantity} x ${widget.productName}',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: AppColors.blackPrimary,
+                                  color: AppColors.primary,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -4185,7 +4197,7 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
                                   widget.size!,
                                   style: TextStyle(
                                     fontSize: 11,
-                                    color: AppColors.blackPrimary,
+                                    color: AppColors.primary,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -4298,7 +4310,7 @@ class _SlidingTabState extends State<SlidingTab> {
       width: containerWidth,
       height: widget.height ?? 48,
       decoration: BoxDecoration(
-        color: widget.backgroundColor ?? AppColors.blackPrimary,
+        color: widget.backgroundColor ?? AppColors.primary,
         borderRadius: BorderRadius.circular(widget.borderRadius),
         border: widget.borderColor != null
             ? Border.all(color: widget.borderColor!)
@@ -4321,7 +4333,7 @@ class _SlidingTabState extends State<SlidingTab> {
               height: widget.height ?? 48,
               margin: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: widget.selectedColor ?? AppColors.blackPrimary,
+                color: widget.selectedColor ?? AppColors.primary,
                 borderRadius: BorderRadius.circular(widget.borderRadius - 4),
               ),
             ),
@@ -4420,12 +4432,12 @@ class CustomStackedImages extends StatelessWidget {
                 height: size,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.white),
+                  border: Border.all(color: AppColors.surface),
                 ),
                 child: CircleAvatar(
                   radius: size / 2,
                   backgroundImage: AssetImage(images[i]),
-                  backgroundColor: AppColors.white,
+                  backgroundColor: AppColors.surface,
                 ),
               ),
             ),
@@ -4437,9 +4449,9 @@ class CustomStackedImages extends StatelessWidget {
                   horizontal: size * 0.4,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.blackPrimary,
+                  color: AppColors.primary,
                   borderRadius: BorderRadius.circular(size / 2),
-                  border: Border.all(color: AppColors.white),
+                  border: Border.all(color: AppColors.surface),
                 ),
                 constraints: BoxConstraints(minHeight: size),
                 alignment: Alignment.center,
@@ -4447,7 +4459,7 @@ class CustomStackedImages extends StatelessWidget {
                   '+${images.length - maxImages}',
                   style: context.overline.copyWith(
                     fontSize: size * 0.3,
-                    color: AppColors.blackPrimary,
+                    color: AppColors.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -4533,26 +4545,26 @@ class CustomSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: backgroundColor ?? AppColors.white),
+      decoration: BoxDecoration(color: backgroundColor ?? AppColors.surface),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           if (title != null)
             Text(
               title!,
-              style: context.p1Medium.copyWith(color: AppColors.blackPrimary),
+              style: context.p1Medium.copyWith(color: AppColors.primary),
             ),
           Transform.scale(
             scale: 0.75,
             child: Switch(
               value: switchValue,
               onChanged: onSwitchChanged,
-              activeColor: AppColors.blackPrimary,
-              activeTrackColor: AppColors.blackPrimary,
-              inactiveTrackColor: AppColors.blackPrimary,
-              inactiveThumbColor: AppColors.blackPrimary,
+              activeColor: AppColors.primary,
+              activeTrackColor: AppColors.primary,
+              inactiveTrackColor: AppColors.primary,
+              inactiveThumbColor: AppColors.primary,
               trackOutlineColor: WidgetStateProperty.all(
-                AppColors.blackPrimary,
+                AppColors.primary,
               ),
             ),
           ),
@@ -4585,7 +4597,7 @@ class CustomTextButton extends StatelessWidget {
       style: TextButton.styleFrom(
         padding: EdgeInsets.zero,
         splashFactory: NoSplash.splashFactory,
-        foregroundColor: AppColors.blackPrimary,
+        foregroundColor: AppColors.primary,
         overlayColor: Colors.transparent,
       ),
       child: Text(text, style: textStyle ?? context.h2.copyWith(fontSize: 16)),
@@ -4976,10 +4988,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
   );
 
   Color _borderColor({required bool hasFocus, required bool hasError}) {
-    if (!widget.enabled) return AppColors.borderPrimary;
+    if (!widget.enabled) return AppColors.border;
     if (hasError) return AppColors.error;
-    if (hasFocus) return AppColors.blackPrimary;
-    return AppColors.borderPrimary;
+    if (hasFocus) return AppColors.primary;
+    return AppColors.border;
   }
 
   @override
@@ -4994,7 +5006,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           if (widget.labelText != null) ...[
             Text(
               widget.labelText!,
-              style: context.p1Medium.copyWith(color: AppColors.blackPrimary),
+              style: context.p1Medium.copyWith(color: AppColors.primary),
             ),
             const SizedBox(height: 8),
           ],
@@ -5019,7 +5031,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   boxShadow: hasFocus
                       ? [
                           BoxShadow(
-                            color: AppColors.blackPrimary.withValues(
+                            color: AppColors.primary.withValues(
                               alpha: 0.15,
                             ),
                             blurRadius: 4,
@@ -5052,7 +5064,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   maxLengthEnforcement: MaxLengthEnforcement.enforced,
                   inputFormatters: config.inputFormatters,
                   style: widget.textStyle ?? context.p2,
-                  cursorColor: AppColors.blackPrimary,
+                  cursorColor: AppColors.primary,
                   autovalidateMode:
                       (widget.enableRealTimeValidation && widget.showValidation)
                       ? AutovalidateMode.onUserInteraction
@@ -5065,7 +5077,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   decoration: InputDecoration(
                     hintText: widget.hintText,
                     filled: true,
-                    fillColor: widget.backgroundColor ?? AppColors.white,
+                    fillColor: widget.backgroundColor ?? AppColors.surface,
                     hintStyle: context.p2.copyWith(
                       color: widget.hintColor ?? AppColors.textSecondary,
                     ),
@@ -5076,7 +5088,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     enabledBorder: _border(
                       _borderColor(hasFocus: hasFocus, hasError: hasError),
                     ),
-                    disabledBorder: _border(AppColors.borderPrimary),
+                    disabledBorder: _border(AppColors.border),
                     focusedBorder: _border(
                       _borderColor(hasFocus: hasFocus, hasError: hasError),
                     ),
@@ -5196,7 +5208,7 @@ class CustomTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          color: AppColors.blackPrimary,
+          color: AppColors.primary,
           borderRadius: BorderRadius.circular(44),
         ),
         child: Row(
@@ -5205,7 +5217,7 @@ class CustomTile extends StatelessWidget {
               child: Text(
                 label,
                 style: const TextStyle(
-                  color: AppColors.blackPrimary,
+                  color: AppColors.primary,
                   fontWeight: FontWeight.w400,
                   fontSize: 14,
                 ),
@@ -5253,7 +5265,7 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
         mode: CupertinoDatePickerMode.time,
         initialDateTime: widget.initialTime ?? now,
         onDateTimeChanged: widget.onTimeSelected,
-        backgroundColor: AppColors.white,
+        backgroundColor: AppColors.surface,
       ),
     );
   }
@@ -5334,7 +5346,7 @@ class CustomFilterIconWidget extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 3),
               decoration: const BoxDecoration(
-                color: AppColors.blackPrimary,
+                color: AppColors.primary,
                 shape: BoxShape.circle,
               ),
               constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
@@ -5695,8 +5707,8 @@ class _CustomOtpFieldState extends State<CustomOtpField> {
 
   @override
   Widget build(BuildContext context) {
-    final fill = widget.fillColor ?? AppColors.white;
-    final focusBorder = widget.focusedBorderColor ?? AppColors.primaryMain;
+    final fill = widget.fillColor ?? AppColors.surface;
+    final focusBorder = widget.focusedBorderColor ?? AppColors.primary;
     final radius = BorderRadius.circular(widget.borderRadius);
     final style = widget.textStyle ?? context.p1Bold;
     final text = _hiddenController.text;
@@ -5729,8 +5741,8 @@ class _CustomOtpFieldState extends State<CustomOtpField> {
               final borderColor = isActiveField
                   ? focusBorder
                   : hasDigit
-                      ? AppColors.blackPrimary
-                      : AppColors.textFieldBorder;
+                      ? AppColors.primary
+                      : AppColors.border;
 
               return Container(
                 width: widget.fieldWidth,
