@@ -699,7 +699,7 @@ All three icon sets start with the same default icons. To differentiate:
 - Xcode schemes for each flavor (development, staging, production)
 - 27 build configurations with per-flavor bundle IDs, display names, and app icons
 - Per-flavor app icon sets in `Assets.xcassets` (AppIcon, AppIcon-dev, AppIcon-stg)
-- Podfile with iOS 15.6 minimum, permission handler pods
+- Podfile with iOS 16.6 minimum, permission handler pods
 - Info.plist with camera, photo library, location usage descriptions
 - UIScene lifecycle support (`FlutterImplicitEngineDelegate` + `FlutterSceneDelegate`) per Flutter 3.41+ requirements
 - Entitlements for push notifications and Sign in with Apple
