@@ -33,10 +33,13 @@ class DoctorCommand extends Command<int> {
 
     // Read project name from pubspec.yaml
     final pubspecContent = pubspecFile.readAsStringSync();
-    final nameMatch = RegExp(r'^name:\s*(.+)$', multiLine: true)
-        .firstMatch(pubspecContent);
-    final projectName =
-        nameMatch != null ? nameMatch.group(1)!.trim() : 'unknown';
+    final nameMatch = RegExp(
+      r'^name:\s*(.+)$',
+      multiLine: true,
+    ).firstMatch(pubspecContent);
+    final projectName = nameMatch != null
+        ? nameMatch.group(1)!.trim()
+        : 'unknown';
 
     _logger
       ..info('')
@@ -181,10 +184,12 @@ class DoctorCommand extends Command<int> {
     final routerFile = File('lib/go_router/router.dart');
     final exportsFile = File('lib/go_router/exports.dart');
 
-    final routerContent =
-        routerFile.existsSync() ? routerFile.readAsStringSync() : '';
-    final exportsContent =
-        exportsFile.existsSync() ? exportsFile.readAsStringSync() : '';
+    final routerContent = routerFile.existsSync()
+        ? routerFile.readAsStringSync()
+        : '';
+    final exportsContent = exportsFile.existsSync()
+        ? exportsFile.readAsStringSync()
+        : '';
 
     // Find all screen files
     final screenFiles = featuresDir
@@ -208,7 +213,8 @@ class DoctorCommand extends Command<int> {
         final className = match.group(1)!;
 
         final inRouter = routerContent.contains(className);
-        final inExports = exportsContent.contains(className) ||
+        final inExports =
+            exportsContent.contains(className) ||
             exportsContent.contains(
               file.path.split('lib/').last,
             );
@@ -326,8 +332,7 @@ class DoctorCommand extends Command<int> {
       final importPath = match.group(1)!;
 
       // Skip dart: and package: imports
-      if (importPath.startsWith('dart:') ||
-          importPath.startsWith('package:')) {
+      if (importPath.startsWith('dart:') || importPath.startsWith('package:')) {
         continue;
       }
 
@@ -404,11 +409,8 @@ class DoctorCommand extends Command<int> {
     for (final file in arbFiles) {
       try {
         final content = file.readAsStringSync();
-        final data =
-            jsonDecode(content) as Map<String, dynamic>;
-        final keys = data.keys
-            .where((k) => !k.startsWith('@'))
-            .toSet();
+        final data = jsonDecode(content) as Map<String, dynamic>;
+        final keys = data.keys.where((k) => !k.startsWith('@')).toSet();
         final fileName = file.uri.pathSegments.last;
         fileKeys[fileName] = keys;
         allKeys.addAll(keys);

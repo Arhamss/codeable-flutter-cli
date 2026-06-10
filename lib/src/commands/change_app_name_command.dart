@@ -23,8 +23,7 @@ class ChangeAppNameCommand extends Command<int> {
   String get name => 'change-app-name';
 
   @override
-  String get invocation =>
-      'codeable_cli change-app-name --name "New Name"';
+  String get invocation => 'codeable_cli change-app-name --name "New Name"';
 
   @override
   Future<int> run() async {

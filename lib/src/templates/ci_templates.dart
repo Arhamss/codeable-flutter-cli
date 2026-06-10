@@ -140,4 +140,3 @@ updates:
     schedule:
       interval: "weekly"
 ''';
-

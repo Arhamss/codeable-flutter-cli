@@ -671,7 +671,10 @@ class ProjectGenerator {
     }
 
     // Make shell scripts executable
-    Process.runSync('chmod', ['+x', '$projectPath/scripts/code_quality_check.sh']);
+    Process.runSync('chmod', [
+      '+x',
+      '$projectPath/scripts/code_quality_check.sh',
+    ]);
 
     filesProgress.complete('Template files written');
 

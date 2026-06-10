@@ -54,7 +54,8 @@ class KeystoreGenerator {
       }
 
       // Write key.properties
-      final keyPropertiesContent = '''
+      final keyPropertiesContent =
+          '''
 storePassword=$password
 keyPassword=$password
 keyAlias=$keystoreAlias
@@ -82,8 +83,7 @@ storeFile=$keystoreFileName
       }
 
       if (entriesToAdd.isNotEmpty) {
-        final addition =
-            '\n# Keystore files\n${entriesToAdd.join('\n')}\n';
+        final addition = '\n# Keystore files\n${entriesToAdd.join('\n')}\n';
         gitignoreFile.writeAsStringSync(
           gitignoreContent + addition,
         );
@@ -100,5 +100,4 @@ storeFile=$keystoreFileName
       return false;
     }
   }
-
 }

@@ -47,8 +47,10 @@ class RemoveFeatureCommand extends Command<int> {
 
     // Read project name from pubspec.yaml
     final pubspecContent = pubspecFile.readAsStringSync();
-    final nameMatch = RegExp(r'^name:\s*(.+)$', multiLine: true)
-        .firstMatch(pubspecContent);
+    final nameMatch = RegExp(
+      r'^name:\s*(.+)$',
+      multiLine: true,
+    ).firstMatch(pubspecContent);
     if (nameMatch == null) {
       _logger.err('Could not parse project name from pubspec.yaml.');
       return ExitCode.software.code;
@@ -64,23 +66,21 @@ class RemoveFeatureCommand extends Command<int> {
     final role = argResults?['role'] as String?;
 
     // Compute composite names (same logic as FeatureGenerator)
-    final snakeName = TemplateEngine.toSnakeCase(featureName)
-        .replaceAll(RegExp('[^a-z0-9_]'), '');
+    final snakeName = TemplateEngine.toSnakeCase(
+      featureName,
+    ).replaceAll(RegExp('[^a-z0-9_]'), '');
     final snakeRole = role != null
-        ? TemplateEngine.toSnakeCase(role)
-            .replaceAll(RegExp('[^a-z0-9_]'), '')
+        ? TemplateEngine.toSnakeCase(role).replaceAll(RegExp('[^a-z0-9_]'), '')
         : null;
     final isCommonRole = snakeRole == 'common';
 
     final compositeSnakeName = (snakeRole != null && !isCommonRole)
         ? '${snakeRole}_$snakeName'
         : snakeName;
-    final compositePascalName =
-        TemplateEngine.toPascalCase(compositeSnakeName);
+    final compositePascalName = TemplateEngine.toPascalCase(compositeSnakeName);
     final compositeCamelName = TemplateEngine.toCamelCase(compositeSnakeName);
 
-    final featurePath =
-        snakeRole != null ? '$snakeRole/$snakeName' : snakeName;
+    final featurePath = snakeRole != null ? '$snakeRole/$snakeName' : snakeName;
     final routePath = (snakeRole != null && !isCommonRole)
         ? '/${TemplateEngine.toKebabCase(compositeSnakeName)}'
         : '/$snakeName';
@@ -187,10 +187,12 @@ class RemoveFeatureCommand extends Command<int> {
     var content = appPageFile.readAsStringSync();
 
     // Remove import lines for this feature's cubit and repository impl
-    final repoImport = "import 'package:$projectName/features/"
+    final repoImport =
+        "import 'package:$projectName/features/"
         '$featurePath/data/repository/'
         "${compositeSnakeName}_repository_impl.dart';";
-    final cubitImport = "import 'package:$projectName/features/"
+    final cubitImport =
+        "import 'package:$projectName/features/"
         "$featurePath/presentation/cubit/cubit.dart';";
 
     content = content.replaceAll('$repoImport\n', '');
@@ -244,11 +246,13 @@ class RemoveFeatureCommand extends Command<int> {
     // 1. Remove import from exports.dart
     final exportsFile = File('$routerDir/exports.dart');
     if (exportsFile.existsSync()) {
-      final progress =
-          _logger.progress('Removing screen import from exports.dart');
+      final progress = _logger.progress(
+        'Removing screen import from exports.dart',
+      );
       var content = exportsFile.readAsStringSync();
 
-      final screenImport = "import 'package:$projectName/features/"
+      final screenImport =
+          "import 'package:$projectName/features/"
           '$featurePath/presentation/views/'
           "${compositeSnakeName}_screen.dart';";
 
@@ -304,8 +308,9 @@ class RemoveFeatureCommand extends Command<int> {
     // 3. Remove route constants from routes.dart
     final routesFile = File('$routerDir/routes.dart');
     if (routesFile.existsSync()) {
-      final progress =
-          _logger.progress('Removing route constants from routes.dart');
+      final progress = _logger.progress(
+        'Removing route constants from routes.dart',
+      );
       var content = routesFile.readAsStringSync();
 
       // Remove from both AppRoutes and AppRouteNames classes
