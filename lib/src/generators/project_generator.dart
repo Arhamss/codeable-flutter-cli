@@ -8,6 +8,8 @@ import 'package:codeable_cli/src/templates/ai_config_templates.dart';
 import 'package:codeable_cli/src/templates/analysis_options_template.dart';
 import 'package:codeable_cli/src/templates/android_templates.dart';
 import 'package:codeable_cli/src/templates/app_templates.dart';
+import 'package:codeable_cli/src/templates/ci_templates.dart';
+import 'package:codeable_cli/src/templates/code_quality_script_template.dart';
 import 'package:codeable_cli/src/templates/config_templates.dart';
 import 'package:codeable_cli/src/templates/constants_templates.dart';
 import 'package:codeable_cli/src/templates/core_templates.dart';
@@ -16,8 +18,6 @@ import 'package:codeable_cli/src/templates/feature_templates.dart';
 import 'package:codeable_cli/src/templates/gitignore_template.dart';
 import 'package:codeable_cli/src/templates/ios_templates.dart';
 import 'package:codeable_cli/src/templates/l10n_templates.dart';
-import 'package:codeable_cli/src/templates/ci_templates.dart';
-import 'package:codeable_cli/src/templates/code_quality_script_template.dart';
 import 'package:codeable_cli/src/templates/makefile_template.dart';
 import 'package:codeable_cli/src/templates/navigation_templates.dart';
 import 'package:codeable_cli/src/templates/pubspec_template.dart';
@@ -1149,7 +1149,8 @@ class ProjectGenerator {
           final origUuidRe = RegExp(r'[0-9A-F]{24}(?= /\*)');
           block = block.replaceFirst(origUuidRe, uuid);
 
-          // Replace the name (handles both `name = Debug;` and `name = "Debug";`)
+          // Replace the name (handles both `name = Debug;` and
+          // `name = "Debug";`)
           block = block.replaceFirst(
             RegExp('name = "?$bt"?;'),
             'name = "$configName";',

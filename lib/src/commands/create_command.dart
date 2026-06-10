@@ -89,14 +89,16 @@ class CreateCommand extends Command<int> {
     // Validate inputs
     if (!_isValidProjectName(projectName)) {
       _logger.err(
-        'Invalid project name. Use lowercase letters, numbers, and underscores.',
+        'Invalid project name. Use lowercase letters, numbers, and '
+        'underscores.',
       );
       return ExitCode.usage.code;
     }
 
     if (!_isValidOrgName(orgName)) {
       _logger.err(
-        'Invalid org name. Use a reverse domain format (e.g., com.example.app).',
+        'Invalid org name. Use a reverse domain format '
+        '(e.g., com.example.app).',
       );
       return ExitCode.usage.code;
     }
