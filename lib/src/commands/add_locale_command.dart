@@ -24,8 +24,7 @@ class AddLocaleCommand extends Command<int> {
   String get name => 'add-locale';
 
   @override
-  String get invocation =>
-      'codeable_cli add-locale --locale <locale_code>';
+  String get invocation => 'codeable_cli add-locale --locale <locale_code>';
 
   @override
   Future<int> run() async {
@@ -99,8 +98,7 @@ class AddLocaleCommand extends Command<int> {
 
     final Map<String, dynamic> enArb;
     try {
-      enArb = jsonDecode(enArbFile.readAsStringSync())
-          as Map<String, dynamic>;
+      enArb = jsonDecode(enArbFile.readAsStringSync()) as Map<String, dynamic>;
     } on FormatException catch (e) {
       readProgress.fail('Failed to parse English ARB');
       _logger.err('Could not parse app_en.arb: $e');

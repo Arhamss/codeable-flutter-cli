@@ -29,7 +29,8 @@ class ChangeIdCommand extends Command<int> {
     // Ensure we're inside a Flutter project
     if (!File('pubspec.yaml').existsSync()) {
       _logger.err(
-        'No pubspec.yaml found. Run this command from inside a Flutter project.',
+        'No pubspec.yaml found. Run this command from inside a '
+        'Flutter project.',
       );
       return ExitCode.usage.code;
     }

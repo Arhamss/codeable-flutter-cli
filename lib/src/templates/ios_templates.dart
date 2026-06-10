@@ -1,5 +1,5 @@
 const iosPodfileTemplate = r'''
-platform :ios, '15.6'
+platform :ios, '16.6'
 
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 

@@ -32,7 +32,8 @@ class RenameCommand extends Command<int> {
     final pubspecFile = File('pubspec.yaml');
     if (!pubspecFile.existsSync()) {
       _logger.err(
-        'No pubspec.yaml found. Run this command from inside a Flutter project.',
+        'No pubspec.yaml found. Run this command from inside a '
+        'Flutter project.',
       );
       return ExitCode.usage.code;
     }

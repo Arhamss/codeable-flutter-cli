@@ -68,11 +68,10 @@ class TemplateEngine {
     String appName = '',
     String description = 'A new Flutter project',
   }) {
-    final snakeName = toSnakeCase(projectName)
-        .replaceAll(RegExp('[^a-z0-9_]'), '')
-        .replaceAll(RegExp('^[0-9]'), '');
-    final resolvedAppName =
-        appName.isEmpty ? toTitleCase(snakeName) : appName;
+    final snakeName = toSnakeCase(
+      projectName,
+    ).replaceAll(RegExp('[^a-z0-9_]'), '').replaceAll(RegExp('^[0-9]'), '');
+    final resolvedAppName = appName.isEmpty ? toTitleCase(snakeName) : appName;
     return {
       'project_name': snakeName,
       'ProjectName': toPascalCase(snakeName),

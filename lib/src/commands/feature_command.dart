@@ -43,7 +43,8 @@ class FeatureCommand extends Command<int> {
       _logger
         ..err('Please provide a feature name.')
         ..info(
-          'Usage: codeable_cli feature <feature_name> [--role <role> | --pick-role]',
+          'Usage: codeable_cli feature <feature_name> '
+          '[--role <role> | --pick-role]',
         );
       return ExitCode.usage.code;
     }

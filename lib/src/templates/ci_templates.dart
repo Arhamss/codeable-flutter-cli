@@ -101,7 +101,7 @@ jobs:
         run: flutter build apk --flavor development --target lib/main_development.dart --debug
 ''';
 
-const prTemplateContent = r'''
+const prTemplateContent = '''
 ## Description
 
 <!--- Describe your changes in detail -->
@@ -128,7 +128,7 @@ const prTemplateContent = r'''
 - [ ] Ran `./scripts/code_quality_check.sh` locally
 ''';
 
-const dependabotTemplate = r'''
+const dependabotTemplate = '''
 version: 2
 updates:
   - package-ecosystem: "github-actions"
@@ -140,4 +140,3 @@ updates:
     schedule:
       interval: "weekly"
 ''';
-
