@@ -7,9 +7,11 @@ class CustomBackButton extends StatelessWidget {
   const CustomBackButton({
     super.key,
     this.onPressed,
+    this.semanticLabel = 'Back',
   });
 
   final VoidCallback? onPressed;
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +25,7 @@ class CustomBackButton extends StatelessWidget {
       ),
       onPressed: onPressed ?? () => context.pop(),
       backgroundColor: AppColors.surface,
+      semanticLabel: semanticLabel,
     );
   }
 }
@@ -36,12 +39,14 @@ class CustomCircleButton extends StatelessWidget {
     super.key,
     this.backgroundColor,
     this.foregroundColor,
+    this.semanticLabel,
   });
 
   final Widget icon;
   final VoidCallback onPressed;
   final Color? backgroundColor;
   final Color? foregroundColor;
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +57,7 @@ class CustomCircleButton extends StatelessWidget {
       child: IconButton(
         onPressed: onPressed,
         icon: icon,
+        tooltip: semanticLabel,
         style: IconButton.styleFrom(
           minimumSize: Size(size, size),
           padding: EdgeInsets.zero,
@@ -150,7 +156,7 @@ class CustomBottomSheet extends StatelessWidget {
   final bool isLoading;
   final Widget? body;
 
-  static void show({
+  static Future<void> show({
     required BuildContext context,
     required String title,
     String? imagePath,
@@ -170,7 +176,7 @@ class CustomBottomSheet extends StatelessWidget {
     Widget? body,
     bool safeAreaBottom = true,
   }) {
-    showModalBottomSheet<void>(
+    return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useRootNavigator: true,
@@ -195,7 +201,7 @@ class CustomBottomSheet extends StatelessWidget {
           child: Container(
             height: totalHeight,
             decoration: const BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: SafeArea(
@@ -237,7 +243,7 @@ class CustomBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
       ),
       padding: const EdgeInsetsDirectional.all(16),
@@ -396,7 +402,7 @@ class CustomBulletPointItem extends StatelessWidget {
         children: [
           Text(
             bulletCharacter,
-            style: TextStyle(
+            style: context.p1.copyWith(
               fontSize: bulletSize,
               color: bulletColor ?? AppColors.primary,
             ),
@@ -1146,7 +1152,7 @@ class CustomChip extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: isSelected ? backgroundColor : backgroundColor,
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(100),
         ),
         padding:
@@ -1755,7 +1761,7 @@ class _CustomDropdownContentState extends State<_CustomDropdownContent> {
                             ),
                             AnimatedRotation(
                               turns: state.isOpen ? 0.5 : 0,
-                              duration: Duration(milliseconds: 200),
+                              duration: const Duration(milliseconds: 200),
                               child: SvgPicture.asset(
                                 AssetPaths.dropdownArrowIcon,
                                 colorFilter: ColorFilter.mode(
@@ -1787,52 +1793,10 @@ class _CustomDropdownContentState extends State<_CustomDropdownContent> {
                               final option = widget.options[index];
                               final isSelected = widget.selectedValue == option;
 
-                              return InkWell(
+                              return _DropdownOptionTile(
+                                option: option,
+                                isSelected: isSelected,
                                 onTap: () => _selectOption(cubit, option),
-                                borderRadius: BorderRadius.circular(8),
-                                child: Container(
-                                  padding:
-                                      const EdgeInsetsDirectional.symmetric(
-                                    horizontal: 16,
-                                    vertical: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.transparent,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          option,
-                                          style: context.p2.copyWith(
-                                            color: AppColors.primary,
-                                            fontWeight: isSelected
-                                                ? FontWeight.w600
-                                                : FontWeight.normal,
-                                          ),
-                                        ),
-                                      ),
-                                      if (isSelected)
-                                        Container(
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: const BoxDecoration(
-                                            color: AppColors.primary,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: SvgPicture.asset(
-                                            AssetPaths.tickIcon,
-                                            width: 14,
-                                            height: 14,
-                                            colorFilter: const ColorFilter.mode(
-                                              AppColors.surface,
-                                              BlendMode.srcIn,
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
                               );
                             },
                           ),
@@ -1866,6 +1830,68 @@ class _CustomDropdownContentState extends State<_CustomDropdownContent> {
           ],
         );
       },
+    );
+  }
+}
+
+/// Single selectable row used inside dropdown option lists.
+class _DropdownOptionTile extends StatelessWidget {
+  const _DropdownOptionTile({
+    required this.option,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String option;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsetsDirectional.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                option,
+                style: context.p2.copyWith(
+                  color: AppColors.primary,
+                  fontWeight:
+                      isSelected ? FontWeight.w600 : FontWeight.normal,
+                ),
+              ),
+            ),
+            if (isSelected)
+              Container(
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: SvgPicture.asset(
+                  AssetPaths.tickIcon,
+                  width: 14,
+                  height: 14,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.surface,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -1924,7 +1950,7 @@ const String customSlidingTabTemplate = r'''
 import 'package:{{project_name}}/exports.dart';
 
 class CustomSlidingTab extends StatefulWidget {
-  CustomSlidingTab({
+  const CustomSlidingTab({
     required this.tabs,
     required this.onTabChanged,
     this.selectedIndex = 0,
@@ -1934,9 +1960,9 @@ class CustomSlidingTab extends StatefulWidget {
     this.borderRadius = 12,
     this.textStyle,
     this.selectedTextStyle,
-    Duration? animationDuration,
+    this.animationDuration = const Duration(milliseconds: 300),
     super.key,
-  }) : animationDuration = animationDuration ?? Duration(milliseconds: 300);
+  });
 
   final List<SlidingTabItem> tabs;
   final void Function(int) onTabChanged;
@@ -1981,65 +2007,76 @@ class _CustomSlidingTabState extends State<CustomSlidingTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: widget.height,
-      decoration: BoxDecoration(
-        color: widget.backgroundColor ?? AppColors.primary,
-        borderRadius: BorderRadius.circular(widget.borderRadius),
-      ),
-      child: Stack(
-        children: [
-          AnimatedAlign(
-            duration: widget.animationDuration,
-            alignment: Alignment(
-              -1.0 + (2.0 * _selectedIndex / (widget.tabs.length - 1)),
-              0,
-            ),
-            child: Container(
-              width:
-                  (MediaQuery.of(context).size.width -
-                      (MediaQuery.of(context).size.width * 0.2)) /
-                  widget.tabs.length,
-              height: widget.height,
-              margin: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                color: widget.selectedColor ?? AppColors.primary,
-                borderRadius: BorderRadius.circular(widget.borderRadius - 2),
-              ),
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final tabCount = widget.tabs.length;
+        // Guard against division by zero when there is a single tab.
+        final alignmentX = tabCount <= 1
+            ? -1.0
+            : -1.0 + (2.0 * _selectedIndex / (tabCount - 1));
+        final availableWidth = constraints.maxWidth;
+        final indicatorWidth =
+            (availableWidth - (availableWidth * 0.2)) /
+                (tabCount == 0 ? 1 : tabCount);
+
+        return Container(
+          height: widget.height,
+          decoration: BoxDecoration(
+            color: widget.backgroundColor ?? AppColors.primary,
+            borderRadius: BorderRadius.circular(widget.borderRadius),
           ),
-          Row(
-            children: List.generate(widget.tabs.length, (index) {
-              final isSelected = _selectedIndex == index;
-              return Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () => _onTabTap(index),
-                  child: Container(
-                    height: widget.height,
-                    alignment: Alignment.center,
-                    child: AnimatedDefaultTextStyle(
-                      duration: widget.animationDuration,
-                      style: isSelected
-                          ? (widget.selectedTextStyle ??
-                                (widget.textStyle ?? context.p1Medium).copyWith(
-                                  color: AppColors.surface,
-                                ))
-                          : (widget.textStyle ?? context.p1Medium).copyWith(
-                              color: AppColors.primary,
-                            ),
-                      child: Text(
-                        widget.tabs[index].label,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
+          child: Stack(
+            children: [
+              AnimatedAlign(
+                duration: widget.animationDuration,
+                alignment: Alignment(alignmentX, 0),
+                child: Container(
+                  width: indicatorWidth,
+                  height: widget.height,
+                  margin: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: widget.selectedColor ?? AppColors.primary,
+                    borderRadius:
+                        BorderRadius.circular(widget.borderRadius - 2),
                   ),
                 ),
-              );
-            }),
+              ),
+              Row(
+                children: List.generate(widget.tabs.length, (index) {
+                  final isSelected = _selectedIndex == index;
+                  return Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () => _onTabTap(index),
+                      child: Container(
+                        height: widget.height,
+                        alignment: Alignment.center,
+                        child: AnimatedDefaultTextStyle(
+                          duration: widget.animationDuration,
+                          style: isSelected
+                              ? (widget.selectedTextStyle ??
+                                    (widget.textStyle ?? context.p1Medium)
+                                        .copyWith(
+                                      color: AppColors.surface,
+                                    ))
+                              : (widget.textStyle ?? context.p1Medium)
+                                  .copyWith(
+                                  color: AppColors.primary,
+                                ),
+                          child: Text(
+                            widget.tabs[index].label,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -2283,6 +2320,7 @@ class CustomIconButton extends StatelessWidget {
     this.borderWidth = 1,
     this.isLoading = false,
     this.shrinkTargetSize = true,
+    this.semanticLabel,
     super.key,
   });
 
@@ -2298,11 +2336,13 @@ class CustomIconButton extends StatelessWidget {
   final bool isLoading;
   final double borderWidth;
   final bool shrinkTargetSize;
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
     final Widget iconButtonWidget = IconButton(
       onPressed: isLoading == true ? null : onPressed,
+      tooltip: semanticLabel,
       icon: isLoading
           ? const CustomLoadingWidget(size: 18)
           : icon ?? SvgPicture.asset(AssetPaths.arrowLeftIcon),
@@ -2756,31 +2796,34 @@ class _PaginatedGridViewState<T> extends State<PaginatedGridView<T>> {
   Widget _buildGridView() {
     return RefreshIndicator.adaptive(
       onRefresh: widget.onRefresh,
-      child: SingleChildScrollView(
+      child: CustomScrollView(
         controller: _scrollController,
         physics: widget.physics,
-        child: Column(
-          children: [
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: widget.shrinkWrap,
+        slivers: [
+          SliverPadding(
+            padding: widget.padding ?? EdgeInsets.zero,
+            sliver: SliverGrid(
               gridDelegate: widget.gridDelegate,
-              padding: widget.padding,
-              itemCount: widget.items.length,
-              itemBuilder: (context, index) {
-                final item = widget.items[index];
-                return widget.itemBuilder(context, item, index);
-              },
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final item = widget.items[index];
+                  return widget.itemBuilder(context, item, index);
+                },
+                childCount: widget.items.length,
+              ),
             ),
-            if (widget.isLoadingMore && widget.items.isNotEmpty)
-              const Padding(
+          ),
+          if (widget.isLoadingMore && widget.items.isNotEmpty)
+            const SliverToBoxAdapter(
+              child: Padding(
                 padding: EdgeInsets.all(16),
                 child: Center(
                   child: CustomLoadingWidget(),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -2992,21 +3035,10 @@ class CustomRetryWidget extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
-          OutlinedButton(
+          CustomButton.tertiary(
+            text: 'Retry',
             onPressed: onRetry,
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-              ),
-              side: const BorderSide(color: AppColors.error),
-              foregroundColor: AppColors.textOnPrimary,
-              backgroundColor: AppColors.error,
-            ),
-            child: Text(
-              'Retry',
-              style: context.p2.copyWith(color: AppColors.textOnPrimary),
-            ),
+            isExpanded: false,
           ),
         ],
       ),
@@ -3218,7 +3250,7 @@ class _ReusableCalendarWidgetState extends State<ReusableCalendarWidget> {
                               ? AppColors.surface
                               : isToday
                                   ? AppColors.primary
-                                  : Colors.black,
+                                  : AppColors.textPrimary,
                       fontWeight: (isSelected || isToday)
                           ? FontWeight.w600
                           : FontWeight.normal,
@@ -3364,6 +3396,7 @@ class CustomRichText extends StatelessWidget {
 
 const String searchFieldTemplate = '''
 import 'package:flutter/material.dart';
+import 'package:{{project_name}}/constants/app_colors.dart';
 
 class CustomSearchField extends StatelessWidget {
   const CustomSearchField({
@@ -3393,7 +3426,7 @@ class CustomSearchField extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hintText,
         border: InputBorder.none,
-        prefixIcon: const Icon(Icons.search, color: Colors.grey),
+        prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
         contentPadding: const EdgeInsetsDirectional.symmetric(
           horizontal: 16,
           vertical: 12,
@@ -3420,6 +3453,7 @@ class SearchableDropdown extends StatefulWidget {
     this.enabled = true,
     this.validator,
     this.showValidation = false,
+    this.emptyResultsText = 'No results found',
     super.key,
   });
 
@@ -3434,6 +3468,7 @@ class SearchableDropdown extends StatefulWidget {
   final bool enabled;
   final String? Function(String?)? validator;
   final bool showValidation;
+  final String emptyResultsText;
 
   @override
   State<SearchableDropdown> createState() => SearchableDropdownState();
@@ -3593,7 +3628,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
               ? Padding(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    'No cities found',
+                    widget.emptyResultsText,
                     style: context.p2.copyWith(
                       color: AppColors.textTertiary,
                     ),
@@ -3608,51 +3643,10 @@ class SearchableDropdownState extends State<SearchableDropdown> {
                     final option = _filteredOptions[index];
                     final isSelected = widget.selectedValue == option;
 
-                    return InkWell(
+                    return _DropdownOptionTile(
+                      option: option,
+                      isSelected: isSelected,
                       onTap: () => _selectOption(option),
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsetsDirectional.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                option,
-                                style: context.p2.copyWith(
-                                  color: AppColors.primary,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w600
-                                      : FontWeight.normal,
-                                ),
-                              ),
-                            ),
-                            if (isSelected)
-                              Container(
-                                padding: const EdgeInsets.all(2),
-                                decoration: const BoxDecoration(
-                                  color: AppColors.primary,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: SvgPicture.asset(
-                                  AssetPaths.tickIcon,
-                                  width: 14,
-                                  height: 14,
-                                  colorFilter: const ColorFilter.mode(
-                                    AppColors.surface,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
                     );
                   },
                  ),
@@ -3776,7 +3770,7 @@ class SearchableDropdownState extends State<SearchableDropdown> {
                         ),
                         AnimatedRotation(
                           turns: isOpen ? 0.5 : 0,
-                          duration: Duration(milliseconds: 200),
+                          duration: const Duration(milliseconds: 200),
                           child: SvgPicture.asset(
                             AssetPaths.dropdownArrowIcon,
                             colorFilter: ColorFilter.mode(
@@ -3824,6 +3818,68 @@ class SearchableDropdownState extends State<SearchableDropdown> {
       ),
     );
       },
+    );
+  }
+}
+
+/// Single selectable row used inside dropdown option lists.
+class _DropdownOptionTile extends StatelessWidget {
+  const _DropdownOptionTile({
+    required this.option,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String option;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsetsDirectional.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                option,
+                style: context.p2.copyWith(
+                  color: AppColors.primary,
+                  fontWeight:
+                      isSelected ? FontWeight.w600 : FontWeight.normal,
+                ),
+              ),
+            ),
+            if (isSelected)
+              Container(
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: SvgPicture.asset(
+                  AssetPaths.tickIcon,
+                  width: 14,
+                  height: 14,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.surface,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -3984,6 +4040,8 @@ class _FeesSliderState extends State<FeesSlider> {
 ''';
 
 const String slidingCartNotificationTemplate = r'''
+import 'dart:async';
+
 import 'package:{{project_name}}/exports.dart';
 import 'package:{{project_name}}/utils/helpers/cart_notification_helper.dart';
 import 'package:lottie/lottie.dart';
@@ -4011,13 +4069,15 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
+  Timer? _autoDismissTimer;
+  bool _dismissing = false;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
     );
 
     _slideAnimation = Tween<Offset>(
@@ -4034,7 +4094,7 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
     _controller.forward();
 
     // Auto dismiss after display duration
-    Future.delayed(Duration(milliseconds: 2500), () {
+    _autoDismissTimer = Timer(const Duration(milliseconds: 2500), () {
       if (mounted) {
         _dismissNotification();
       }
@@ -4042,6 +4102,14 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
   }
 
   Future<void> _dismissNotification() async {
+    // Guard so the reverse + dismiss only runs once.
+    if (_dismissing) return;
+    _dismissing = true;
+
+    // Cancel the pending auto-dismiss so it cannot fire again.
+    _autoDismissTimer?.cancel();
+    _autoDismissTimer = null;
+
     await _controller.reverse();
     if (mounted) {
       CartNotificationHelper.dismiss();
@@ -4050,6 +4118,8 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
 
   @override
   void dispose() {
+    _autoDismissTimer?.cancel();
+    _autoDismissTimer = null;
     _controller.dispose();
     super.dispose();
   }
@@ -4091,7 +4161,7 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
                 ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
+                  color: AppColors.shadowMedium,
                   blurRadius: 12,
                   spreadRadius: 2,
                   offset: const Offset(-3, 3),
@@ -4159,9 +4229,7 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
                       children: [
                         Text(
                           'Added to Cart!',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                          style: context.p1Bold.copyWith(
                             color: AppColors.primary,
                           ),
                           maxLines: 1,
@@ -4174,7 +4242,7 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
                             Flexible(
                               child: Text(
                                 '${widget.quantity} x ${widget.productName}',
-                                style: TextStyle(
+                                style: context.p2.copyWith(
                                   fontSize: 13,
                                   color: AppColors.primary,
                                 ),
@@ -4190,12 +4258,12 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: AppColors.surface,
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Text(
                                   widget.size!,
-                                  style: TextStyle(
+                                  style: context.caption.copyWith(
                                     fontSize: 11,
                                     color: AppColors.primary,
                                     fontWeight: FontWeight.w500,
@@ -4212,7 +4280,7 @@ class _SlidingCartNotificationState extends State<SlidingCartNotification>
                                   color: widget.color,
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: Colors.black12,
+                                    color: AppColors.border,
                                     width: 0.5,
                                   ),
                                 ),
@@ -4319,7 +4387,7 @@ class _SlidingTabState extends State<SlidingTab> {
       child: Stack(
         children: [
           AnimatedAlign(
-            duration: Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 300),
             alignment: Alignment(
               -1.0 + (2.0 * selectedIndex / (tabCount - 1)),
               0,
@@ -4559,12 +4627,14 @@ class CustomSwitch extends StatelessWidget {
             child: Switch(
               value: switchValue,
               onChanged: onSwitchChanged,
-              activeColor: AppColors.primary,
+              activeColor: AppColors.textOnPrimary,
               activeTrackColor: AppColors.primary,
-              inactiveTrackColor: AppColors.primary,
-              inactiveThumbColor: AppColors.primary,
-              trackOutlineColor: WidgetStateProperty.all(
-                AppColors.primary,
+              inactiveTrackColor: AppColors.surfaceMuted,
+              inactiveThumbColor: AppColors.textTertiary,
+              trackOutlineColor: WidgetStateProperty.resolveWith(
+                (states) => states.contains(WidgetState.selected)
+                    ? AppColors.primary
+                    : AppColors.border,
               ),
             ),
           ),
@@ -5216,14 +5286,12 @@ class CustomTile extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w400,
-                  fontSize: 14,
+                style: context.p2.copyWith(
+                  color: AppColors.textOnPrimary,
                 ),
               ),
             ),
-            if (showIcon)
+            if (showIcon && iconPath != null)
               if (iconPath!.contains('svg'))
                 SvgPicture.asset(iconPath!)
               else
@@ -5381,6 +5449,7 @@ class CartNotificationHelper {
   }) {
     // Remove any existing notification
     _currentOverlay?.remove();
+    _currentOverlay = null;
 
     // Create new overlay entry
     _currentOverlay = OverlayEntry(
@@ -5392,14 +5461,11 @@ class CartNotificationHelper {
       ),
     );
 
-    // Insert the overlay
+    // Insert the overlay.
+    // Dismissal is owned entirely by SlidingCartNotification, which calls
+    // [dismiss] after its exit animation completes. This avoids a
+    // double-remove race on the overlay entry.
     Overlay.of(context).insert(_currentOverlay!);
-
-    // Auto remove after animation
-    Future.delayed(const Duration(milliseconds: 3000), () {
-      _currentOverlay?.remove();
-      _currentOverlay = null;
-    });
   }
 
   static void dismiss() {

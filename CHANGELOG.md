@@ -1,5 +1,48 @@
 # Changelog
 
+## 1.0.40
+
+Deep audit pass across the generated app templates. All fixes verified by generating a fresh project and running `flutter analyze` (0 errors, 0 warnings; analyzer issues down from 47 to 16, the remainder pre-existing framework deprecation/style infos).
+
+### Security
+- **Added** a GoRouter `redirect` auth gate so unauthenticated users can no longer reach protected routes via deep links — previously every generated route was reachable without auth
+- **Redacted** sensitive data in the generated `AppLogger` and Dio interceptors — tokens, passwords, OTPs, and full request/response bodies are now masked/stripped before logging (previously only the `Authorization` header was stripped)
+- **Masked** the bearer token in `printIdToken` instead of printing it in full
+
+### Networking & Error Handling
+- **Fixed** fire-and-forget auth-token persistence — `AppPreferences` setters now return `Future<void>` and are awaited, so a refreshed token can't be lost on app kill
+- **Hardened** token refresh: defensive parsing of the refresh response (a malformed body no longer force-logs-out the user), rotated refresh-token support, an exception-safe `_isRefreshing` reset, and a retry guard against 401 refresh storms
+- **Fixed** `_handleDioError` returning vs. throwing; hoisted the status-code fallback so non-map error bodies still produce a sensible message
+- **Added** `errorCode` to `AppApiException` and surfaced the server's machine-readable code/details
+- **Fixed** `BaseStorage.init` silently wiping all persisted data on open failure — it now logs with a stack trace before recreating the box
+- **Hardened** `BaseApiResponse.fromJson` against bare casts; added a `wss://` socket-URL check in debug
+
+### Navigation & State
+- **Fixed** the splash screen dead-ending authenticated users on a blank screen — it now navigates onward
+- **Replaced** `Navigator.pop` with `context.pop()` in bottom sheets; converted the form bottom sheet from `StatefulWidget`/`setState` to the `ValueNotifier` pattern
+- **Replaced** the stringly-typed action-sheet callback with a typed enum
+- **Typed** the generic feature state (`DataState<dynamic>` → `DataState<FeatureModel>`) and added `buildWhen` to generated `BlocBuilder`s
+
+### Widgets
+- **Fixed** a `SlidingCartNotification` crash (double-dismiss race / animating a disposed controller) via a cancellable timer and dismissal guard
+- **Fixed** `PaginatedGridView` rendering all items eagerly — now lazily virtualized via slivers
+- **Fixed** invisible `CustomTile` label text (color matched its background) and a force-unwrap crash
+- **Replaced** the raw retry button with `CustomButton`; de-duplicated the dropdown option row; routed hardcoded colors/`TextStyle`s through `AppColors`/typography tokens; added distinct on/off `CustomSwitch` colors, optional semantic labels on icon buttons, and a `LayoutBuilder`-based sliding-tab indicator
+
+### Helpers, Constants & Localization
+- **Localized** the hardcoded `'Something went wrong'` fallbacks via `Localization.somethingWentWrong`
+- **Improved** `formatPrice` (currency symbol + thousands grouping); stopped `PhoneNumberParser` defaulting unknown numbers to the US country code; resilient image MIME detection; `Set`-based dialing-code lookup; de-duplicated toast methods
+- **Removed** e-commerce-specific constants (`defaultShippingCost`) and the unused `ApiResponseModel` from the generic scaffold
+
+### Tooling
+- **Added** a bundled `flutter-audit` Claude Code skill — generated projects now ship `.claude/skills/flutter-audit/SKILL.md`, so developers can run a deep code & architecture audit (`/flutter-audit`) tailored to this scaffold's conventions
+- **Updated** the generated `analysis_options.yaml` — excludes `**/*.g.dart`, and disables `one_member_abstracts`, `sort_pub_dependencies`, and `use_setters_to_change_properties`
+- **Cleaned** generated-code lints: Flutter-style TODOs, import ordering, `const` constructors, `Color.toARGB32()` over the deprecated `.value`, and exhaustive `switch` cases
+
+### iOS & CI
+- **Bumped** the generated iOS deployment target to 16.6
+- **Updated** the generated CI workflow Flutter version to 3.44.0
+
 ## 1.0.39
 
 ### Semantic AppColors Palette

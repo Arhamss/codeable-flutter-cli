@@ -129,31 +129,42 @@ class ApiService {
   AppApiException _handleDioError(DioException e) {
     var errorMessage = 'An unknown error occurred';
     int? statusCode;
+    String? errorCode;
+    List<dynamic>? details;
 
     if (e.response != null) {
       statusCode = e.response?.statusCode;
       final responseData = e.response?.data;
 
+      var hasServerMessage = false;
       if (responseData is Map<String, dynamic>) {
         final error = responseData['error'] as Map<String, dynamic>?;
         final serverMessage = error?['message'];
+        errorCode = error?['code'] as String?;
+        final serverDetails = error?['details'];
+        if (serverDetails is List) {
+          details = serverDetails;
+        }
         if (serverMessage is String && serverMessage.isNotEmpty) {
           errorMessage = serverMessage;
-        } else {
-          switch (statusCode) {
-            case 400:
-              errorMessage = 'Bad request';
-            case 401:
-              errorMessage = 'Unauthorized';
-            case 403:
-              errorMessage = 'Forbidden';
-            case 404:
-              errorMessage = 'Not found';
-            case 500:
-              errorMessage = 'Internal server error';
-            default:
-              errorMessage = 'Unexpected error: ${e.response?.statusMessage}';
-          }
+          hasServerMessage = true;
+        }
+      }
+
+      if (!hasServerMessage) {
+        switch (statusCode) {
+          case 400:
+            errorMessage = 'Bad request';
+          case 401:
+            errorMessage = 'Unauthorized';
+          case 403:
+            errorMessage = 'Forbidden';
+          case 404:
+            errorMessage = 'Not found';
+          case 500:
+            errorMessage = 'Internal server error';
+          default:
+            errorMessage = 'Unexpected error: ${e.response?.statusMessage}';
         }
       }
     } else {
@@ -167,23 +178,36 @@ class ApiService {
               'No internet connection. Please check your network and try again.';
         case DioExceptionType.cancel:
           errorMessage = 'Request was cancelled.';
-        default:
+        case DioExceptionType.badCertificate:
+        case DioExceptionType.badResponse:
+        case DioExceptionType.unknown:
           errorMessage = 'Something went wrong. Please try again.';
       }
     }
 
     AppLogger.error('API Error: $errorMessage');
-    throw AppApiException(errorMessage, statusCode: statusCode);
+    return AppApiException(
+      errorMessage,
+      statusCode: statusCode,
+      errorCode: errorCode,
+      details: details,
+    );
   }
 }
 ''';
 
 const appApiExceptionTemplate = '''
 class AppApiException implements Exception {
-  AppApiException(this.message, {this.statusCode, this.details});
+  AppApiException(
+    this.message, {
+    this.statusCode,
+    this.errorCode,
+    this.details,
+  });
 
   final String message;
   final int? statusCode;
+  final String? errorCode;
   final List<dynamic>? details;
 
   @override
@@ -229,9 +253,17 @@ class AuthInterceptor extends Interceptor {
     ErrorInterceptorHandler handler,
   ) async {
     if (err.response?.statusCode == 401) {
+      // Prevent a refresh storm: if this request was already retried after a
+      // refresh and still got a 401, give up instead of looping.
+      if (err.requestOptions.extra['retried'] == true) {
+        handler.next(err);
+        return;
+      }
+
       final newToken = await _handleTokenRefresh();
 
       if (newToken != null) {
+        err.requestOptions.extra['retried'] = true;
         err.requestOptions.headers['Authorization'] = 'Bearer $newToken';
         final retryResponse = await _dio.fetch<dynamic>(err.requestOptions);
         return handler.resolve(retryResponse);
@@ -249,9 +281,12 @@ class AuthInterceptor extends Interceptor {
     _isRefreshing = true;
     _refreshTokenFuture = _refreshToken();
 
-    final newToken = await _refreshTokenFuture;
-    _isRefreshing = false;
-    return newToken;
+    try {
+      return await _refreshTokenFuture;
+    } finally {
+      _isRefreshing = false;
+      _refreshTokenFuture = null;
+    }
   }
 
   Future<String?> _refreshToken() async {
@@ -269,9 +304,25 @@ class AuthInterceptor extends Interceptor {
       );
 
       if (response.statusCode == 200) {
+        final data = response.data;
         final newToken =
-            (response.data as Map<String, dynamic>)['token'] as String;
-        _appPreferences.setAuthToken(newToken);
+            data is Map<String, dynamic> ? data['token'] as String? : null;
+
+        if (newToken == null || newToken.isEmpty) {
+          await _appPreferences.clearAuthData();
+          _navigateToSplash();
+          return null;
+        }
+
+        await _appPreferences.setAuthToken(newToken);
+
+        // Persist a rotated refresh token if the server returned one.
+        final rotatedRefreshToken =
+            data is Map<String, dynamic> ? data['refreshToken'] as String? : null;
+        if (rotatedRefreshToken != null && rotatedRefreshToken.isNotEmpty) {
+          await _appPreferences.setRefreshToken(rotatedRefreshToken);
+        }
+
         return newToken;
       } else {
         await _appPreferences.clearAuthData();
@@ -373,6 +424,7 @@ class LoggingInterceptor extends Interceptor {
 
 const baseStorageTemplate = '''
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:{{project_name}}/utils/helpers/logger_helper.dart';
 
 abstract class BaseStorage {
   late Box<dynamic> _box;
@@ -380,7 +432,8 @@ abstract class BaseStorage {
   Future<void> init(String boxName) async {
     try {
       _box = await Hive.openBox(boxName);
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.error('Hive box "\$boxName" open failed; recreating', e, s);
       await Hive.deleteBoxFromDisk(boxName);
       _box = await Hive.openBox(boxName);
     }
@@ -415,8 +468,8 @@ class AppPreferences extends BaseStorage {
   final String _appLocale = 'app_locale';
 
   /// App Locale
-  void setAppLocale(String locale) {
-    store<String>(_appLocale, locale);
+  Future<void> setAppLocale(String locale) async {
+    await store<String>(_appLocale, locale);
   }
 
   String? getAppLocale() {
@@ -428,8 +481,8 @@ class AppPreferences extends BaseStorage {
   }
 
   /// Auth Tokens
-  void setAuthToken(String token) {
-    store<String>(_authTokenKey, token);
+  Future<void> setAuthToken(String token) async {
+    await store<String>(_authTokenKey, token);
   }
 
   String? getAuthToken() {
@@ -441,8 +494,8 @@ class AppPreferences extends BaseStorage {
   }
 
   /// Refresh Tokens
-  void setRefreshToken(String token) {
-    store<String>(_refreshTokenKey, token);
+  Future<void> setRefreshToken(String token) async {
+    await store<String>(_refreshTokenKey, token);
   }
 
   String? getRefreshToken() {
@@ -454,8 +507,8 @@ class AppPreferences extends BaseStorage {
   }
 
   /// User ID
-  void setUserId(String userId) {
-    store<String>(_userIdKey, userId);
+  Future<void> setUserId(String userId) async {
+    await store<String>(_userIdKey, userId);
   }
 
   String? getUserId() {
@@ -484,13 +537,19 @@ class AppPreferences extends BaseStorage {
     return removeAll();
   }
 
-  /// Print ID Token (for debugging)
+  /// Print a masked preview of the ID token (for debugging).
+  ///
+  /// Never logs the full bearer token — only a short prefix and suffix so it
+  /// cannot be reused if it leaks into logs.
   void printIdToken() {
     final token = getAuthToken();
-    if (token != null) {
-      AppLogger.info('=== ID TOKEN ===');
-      AppLogger.info(token);
-      AppLogger.info('================');
+    if (token != null && token.isNotEmpty) {
+      final masked = token.length <= 12
+          ? '****'
+          : '\${token.substring(0, 6)}…\${token.substring(token.length - 4)}';
+      AppLogger.info('=== ID TOKEN (masked) ===');
+      AppLogger.info(masked);
+      AppLogger.info('=========================');
     } else {
       AppLogger.warning('No ID token found');
     }
@@ -677,11 +736,11 @@ class FieldValidators {
     }
 
     if (min != null && number < min) {
-      return 'Number must be greater than $min.';
+      return 'Number must be at least $min.';
     }
 
     if (max != null && number > max) {
-      return 'Number must be less than $max.';
+      return 'Number must be at most $max.';
     }
 
     return null;
@@ -760,14 +819,11 @@ class FieldValidators {
 
     final cleaned = value.replaceAll(RegExp(r'[\s\-\(\)]'), '');
 
-    if (cleaned.startsWith('+92')) {
-      return 'Please remove the country code (+92) — it will be added automatically.';
-    }
+    // Accept an optional leading + followed by 7-15 digits (E.164 friendly).
+    final phonePattern = RegExp(r'^\+?\d{7,15}$');
 
-    final pkNumberPattern = RegExp(r'^[3]\d{9}$');
-
-    if (!pkNumberPattern.hasMatch(cleaned)) {
-      return 'Please enter a valid phone number (e.g. 3001234567).';
+    if (!phonePattern.hasMatch(cleaned)) {
+      return 'Please enter a valid phone number.';
     }
 
     return null;
@@ -801,7 +857,7 @@ class FieldValidators {
       }
 
       return null;
-    } catch (e) {
+    } on FormatException {
       return 'Please enter a valid date.';
     }
   }
@@ -843,28 +899,16 @@ class FieldValidators {
     return null;
   }
 
-  static String? pakistaniPostalCodeValidator(String? value) {
+  static String? postalCodeValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your postal code.';
     }
 
     final cleanedValue = value.replaceAll(RegExp(r'[\s\-]'), '');
 
-    if (cleanedValue.length != 5) {
-      return 'Postal code must be exactly 5 digits.';
-    }
-
-    if (!RegExp(r'^\d{5}$').hasMatch(cleanedValue)) {
-      return 'Postal code must contain only numbers.';
-    }
-
-    final postalCode = int.tryParse(cleanedValue);
-    if (postalCode == null) {
+    // Generic international postal/ZIP code: 3-10 alphanumeric characters.
+    if (!RegExp(r'^[A-Za-z0-9]{3,10}$').hasMatch(cleanedValue)) {
       return 'Please enter a valid postal code.';
-    }
-
-    if (postalCode < 10000 || postalCode > 99999) {
-      return 'Please enter a valid Pakistani postal code (10000-99999).';
     }
 
     return null;
@@ -900,6 +944,16 @@ class FieldValidators {
     if (month < 1 || month > 12) {
       return 'Invalid month';
     }
+
+    // Expand the 2-digit year to a full year and check the card is not expired.
+    final fullYear = 2000 + year;
+    final now = DateTime.now();
+    // Card expires at the end of its expiry month.
+    final expiry = DateTime(fullYear, month + 1, 0, 23, 59, 59);
+    if (expiry.isBefore(now)) {
+      return 'Card has expired';
+    }
+
     return null;
   }
 
@@ -994,39 +1048,6 @@ class LocaleState extends Equatable {
 }
 ''';
 
-const apiResponseModelTemplate = '''
-class ApiResponseModel<T> {
-  ApiResponseModel({
-    required this.success,
-    this.data,
-    this.message,
-    this.error,
-  });
-
-  final bool success;
-  final T? data;
-  final String? message;
-  final ApiError? error;
-}
-
-class ApiError {
-  ApiError({
-    this.message,
-    this.code,
-  });
-
-  factory ApiError.fromJson(Map<String, dynamic> json) {
-    return ApiError(
-      message: json['message'] as String?,
-      code: json['code'] as String?,
-    );
-  }
-
-  final String? message;
-  final String? code;
-}
-''';
-
 const apiErrorTemplate = r'''
 import 'package:equatable/equatable.dart';
 
@@ -1077,14 +1098,14 @@ class BaseApiResponse<T> {
     Map<String, dynamic> json,
     T Function(Map<String, dynamic>) parser,
   ) {
-    final statusCode = json['statusCode'] as int;
-    final error = json['error'] != null
-        ? ApiError.fromJson(json['error'] as Map<String, dynamic>)
-        : null;
+    final statusCode = (json['statusCode'] as num?)?.toInt() ?? 0;
+    final errorJson = json['error'] as Map<String, dynamic>?;
+    final error = errorJson != null ? ApiError.fromJson(errorJson) : null;
 
     T? parsedData;
-    if (json['data'] != null && error == null) {
-      parsedData = parser(json['data'] as Map<String, dynamic>);
+    final dataJson = json['data'] as Map<String, dynamic>?;
+    if (dataJson != null && error == null) {
+      parsedData = parser(dataJson);
     }
 
     return BaseApiResponse<T>(
@@ -1104,7 +1125,6 @@ class BaseApiResponse<T> {
 
 const apiResponseHandlerTemplate = r'''
 import 'package:dio/dio.dart';
-import 'package:{{project_name}}/core/models/api_response/api_response_model.dart';
 import 'package:{{project_name}}/core/models/api_response/base_api_response.dart';
 import 'package:{{project_name}}/core/models/api_response/response_model.dart';
 
@@ -1713,11 +1733,12 @@ const socketServiceTemplate = r'''
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:flutter/foundation.dart';
 import 'package:{{project_name}}/config/env/app_env.dart';
 import 'package:{{project_name}}/core/app_preferences/app_preferences.dart';
 import 'package:{{project_name}}/core/socket_service/socket_status.dart';
 import 'package:{{project_name}}/utils/helpers/logger_helper.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 /// Centralized WebSocket connection manager.
 ///
@@ -1778,6 +1799,13 @@ class SocketService {
 
     try {
       final wsUrl = Uri.parse(AppEnv.socketUrl);
+
+      if (kDebugMode && !AppEnv.socketUrl.startsWith('wss://')) {
+        AppLogger.warning(
+          'SocketService: socketUrl is not using a secure scheme (wss://): '
+          '${AppEnv.socketUrl}',
+        );
+      }
 
       _channel = WebSocketChannel.connect(wsUrl);
       await _channel!.ready;

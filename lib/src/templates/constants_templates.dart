@@ -195,11 +195,12 @@ class AppConstants {
       'assets/images/product_placeholder.png';
 
   static const paginationLimit = 16;
-  static const seeAllLimit = 1;
+
+  /// Number of items shown in a section preview before a "See all" action.
+  static const seeAllLimit = 5;
 
   static const int addressFieldMaxLength = 100;
   static const int phoneFieldMaxLength = 15;
-  static const int defaultShippingCost = 250;
 }
 ''';
 

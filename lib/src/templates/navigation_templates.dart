@@ -19,15 +19,17 @@ class NavItem {
 ''';
 
 const navigationWidgetTemplate = '''
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
-import 'package:{{project_name}}/constants/app_colors.dart';
-import 'package:{{project_name}}/constants/app_text_style.dart';
-import 'package:{{project_name}}/constants/asset_paths.dart';
-import 'package:{{project_name}}/core/models/navigation_item.dart';
+// TODO(codeable): Uncomment these imports together with the widget below
+// when you are ready to add bottom-tab navigation to your app.
+// import 'package:flutter/material.dart';
+// import 'package:flutter_svg/flutter_svg.dart';
+// import 'package:go_router/go_router.dart';
+// import 'package:{{project_name}}/constants/app_colors.dart';
+// import 'package:{{project_name}}/constants/app_text_style.dart';
+// import 'package:{{project_name}}/constants/asset_paths.dart';
+// import 'package:{{project_name}}/core/models/navigation_item.dart';
 
-// TODO: Uncomment and customise this navigation widget when you are
+// TODO(codeable): Uncomment and customise this navigation widget when you are
 // ready to add bottom-tab navigation to your app.
 //
 // class AppNavigation extends StatelessWidget {
@@ -41,6 +43,8 @@ import 'package:{{project_name}}/core/models/navigation_item.dart';
 //       extendBody: true,
 //       backgroundColor: AppColors.surface,
 //       body: shell,
+//       // TODO: extract to dimension constants (height, blur radius,
+//       // offset, alpha, and paddings below are magic numbers).
 //       bottomNavigationBar: Container(
 //         height: 88,
 //         width: MediaQuery.of(context).size.width,
@@ -66,21 +70,26 @@ import 'package:{{project_name}}/core/models/navigation_item.dart';
 //     );
 //   }
 //
+//   // TODO: Localize all NavItem labels. Replace the hardcoded strings
+//   // below with context.l10n.<key> (the 'home' key already exists; add
+//   // 'search' and 'profile' keys to your .arb files). Note: context.l10n
+//   // values are not const, so drop `const` from these NavItem entries when
+//   // you switch to localized labels.
 //   List<NavItem> get _navBarItems => [
 //     const NavItem(
 //       icon: AssetPaths.placeholderIcon, // TODO: Replace with your unselected icon
 //       selectedIcon: AssetPaths.placeholderIcon, // TODO: Replace with your selected icon
-//       label: 'Home',
+//       label: 'Home', // TODO: localize -> context.l10n.home
 //     ),
 //     const NavItem(
 //       icon: AssetPaths.placeholderIcon, // TODO: Replace with your unselected icon
 //       selectedIcon: AssetPaths.placeholderIcon, // TODO: Replace with your selected icon
-//       label: 'Search',
+//       label: 'Search', // TODO: localize (add 'search' key to .arb)
 //     ),
 //     const NavItem(
 //       icon: AssetPaths.placeholderIcon, // TODO: Replace with your unselected icon
 //       selectedIcon: AssetPaths.placeholderIcon, // TODO: Replace with your selected icon
-//       label: 'Profile',
+//       label: 'Profile', // TODO: localize (add 'profile' key to .arb)
 //     ),
 //   ];
 //

@@ -3,11 +3,11 @@
 // ============================================================
 
 const featureRepositoryTemplate = '''
-import 'package:{{project_name}}/utils/helpers/repository_response.dart';
+// TODO(codeable): Uncomment when you declare methods returning RepositoryResponse.
+// import 'package:{{project_name}}/utils/helpers/repository_response.dart';
 
 abstract class {{FeatureName}}Repository {
-  // TODO: Define your repository methods
-  // Example:
+  // TODO(codeable): Define your repository methods. Example:
   // Future<RepositoryResponse<List<{{FeatureName}}Model>>> getAll();
   // Future<RepositoryResponse<{{FeatureName}}Model>> getById(String id);
 }
@@ -16,13 +16,40 @@ abstract class {{FeatureName}}Repository {
 const featureRepositoryImplTemplate = '''
 import 'package:{{project_name}}/core/api_service/api_service.dart';
 import 'package:{{project_name}}/features/{{feature_path}}/domain/repository/{{feature_name}}_repository.dart';
-import 'package:{{project_name}}/utils/helpers/repository_response.dart';
+// TODO(codeable): Uncomment when you implement methods returning RepositoryResponse.
+// import 'package:{{project_name}}/utils/helpers/repository_response.dart';
 
 class {{FeatureName}}RepositoryImpl implements {{FeatureName}}Repository {
   {{FeatureName}}RepositoryImpl({ApiService? apiService})
     : _apiService = apiService ?? ApiService();
 
+  // ignore: unused_field — wired for DI; used once you add your first method.
   final ApiService _apiService;
+
+  // EXAMPLE — wrap every call in execute<T>() so DioException / cancellation /
+  // AppApiException are handled centrally. Do NOT hand-roll try/catch here.
+  // Requires these imports:
+  //   import 'package:dio/dio.dart' show CancelToken;
+  //   import 'package:{{project_name}}/features/{{feature_path}}/data/models/{{feature_name}}_model.dart';
+  //   import 'package:{{project_name}}/utils/response_data_model/api_response_parser.dart';
+  //
+  // Future<RepositoryResponse<{{FeatureName}}Model>> getById(
+  //   String id, {
+  //   CancelToken? cancelToken,
+  // }) {
+  //   return execute<{{FeatureName}}Model>(() async {
+  //     final response = await _apiService.get(
+  //       '/{{feature_name}}/' + id,
+  //       cancelToken: cancelToken,
+  //     );
+  //     final model = ApiResponseParser.parse<{{FeatureName}}Model>(
+  //       response,
+  //       {{FeatureName}}Model.fromJson,
+  //     );
+  //     if (model == null) throw AppApiException('Not found');
+  //     return model;
+  //   });
+  // }
 }
 ''';
 
@@ -60,7 +87,7 @@ class {{FeatureName}}Model extends Equatable {
 ''';
 
 const featureCubitTemplate = '''
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:{{project_name}}/features/{{feature_path}}/domain/repository/{{feature_name}}_repository.dart';
 import 'package:{{project_name}}/features/{{feature_path}}/presentation/cubit/state.dart';
@@ -78,7 +105,7 @@ class {{FeatureName}}Cubit extends Cubit<{{FeatureName}}State> {
     return super.close();
   }
 
-  // TODO: Add cubit methods
+  // TODO(codeable): Add cubit methods
   // Example with cancel token:
   //
   // Future<void> fetchData() async {
@@ -98,6 +125,7 @@ class {{FeatureName}}Cubit extends Cubit<{{FeatureName}}State> {
 
 const featureStateTemplate = '''
 import 'package:equatable/equatable.dart';
+import 'package:{{project_name}}/features/{{feature_path}}/data/models/{{feature_name}}_model.dart';
 import 'package:{{project_name}}/utils/helpers/data_state.dart';
 
 class {{FeatureName}}State extends Equatable {
@@ -105,10 +133,10 @@ class {{FeatureName}}State extends Equatable {
     this.fetch = const DataState.initial(),
   });
 
-  final DataState<dynamic> fetch;
+  final DataState<{{FeatureName}}Model> fetch;
 
   {{FeatureName}}State copyWith({
-    DataState<dynamic>? fetch,
+    DataState<{{FeatureName}}Model>? fetch,
   }) {
     return {{FeatureName}}State(
       fetch: fetch ?? this.fetch,
@@ -133,6 +161,7 @@ class {{FeatureName}}Screen extends StatelessWidget {
     return Scaffold(
       appBar: customAppBar(context: context, title: '{{FeatureName}}'),
       body: BlocBuilder<{{FeatureName}}Cubit, {{FeatureName}}State>(
+        buildWhen: (previous, current) => previous.fetch != current.fetch,
         builder: (context, state) {
           return const Center(
             child: Text('{{FeatureName}} Screen'),
@@ -149,11 +178,11 @@ class {{FeatureName}}Screen extends StatelessWidget {
 // ============================================================
 
 const onboardingRepositoryTemplate = '''
-import 'package:{{project_name}}/utils/helpers/repository_response.dart';
+// TODO(codeable): Uncomment when you declare methods returning RepositoryResponse.
+// import 'package:{{project_name}}/utils/helpers/repository_response.dart';
 
 abstract class OnboardingRepository {
-  // TODO: Define your onboarding methods
-  // Example:
+  // TODO(codeable): Define your onboarding methods. Example:
   // Future<RepositoryResponse<bool>> login({required String email, required String password});
   // Future<RepositoryResponse<bool>> register({required String email, required String password});
 }
@@ -162,13 +191,34 @@ abstract class OnboardingRepository {
 const onboardingRepositoryImplTemplate = '''
 import 'package:{{project_name}}/core/api_service/api_service.dart';
 import 'package:{{project_name}}/features/onboarding/domain/repository/onboarding_repository.dart';
-import 'package:{{project_name}}/utils/helpers/repository_response.dart';
+// TODO(codeable): Uncomment when you implement methods returning RepositoryResponse.
+// import 'package:{{project_name}}/utils/helpers/repository_response.dart';
 
 class OnboardingRepositoryImpl implements OnboardingRepository {
   OnboardingRepositoryImpl({ApiService? apiService})
     : _apiService = apiService ?? ApiService();
 
+  // ignore: unused_field — wired for DI; used once you add your first method.
   final ApiService _apiService;
+
+  // EXAMPLE — wrap every call in execute<T>() so DioException / cancellation /
+  // AppApiException are handled centrally. Do NOT hand-roll try/catch here.
+  // Requires this import:
+  //   import 'package:{{project_name}}/utils/response_data_model/api_response_parser.dart';
+  //
+  // Future<RepositoryResponse<bool>> login({
+  //   required String email,
+  //   required String password,
+  // }) {
+  //   return execute<bool>(() async {
+  //     final response = await _apiService.post(
+  //       endpoint: '/auth/login',
+  //       data: {'email': email, 'password': password},
+  //     );
+  //     final token = ApiResponseParser.parseValue<String>(response, 'token');
+  //     return token != null && token.isNotEmpty;
+  //   });
+  // }
 }
 ''';
 
@@ -183,7 +233,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
 
   final OnboardingRepository repository;
 
-  // TODO: Add cubit methods (login, register, etc.)
+  // TODO(codeable): Add cubit methods (login, register, etc.)
 }
 ''';
 
@@ -247,7 +297,7 @@ class LoginScreen extends StatelessWidget {
                 text: 'Sign in with Google',
                 iconPath: AssetPaths.googleIcon,
                 onPressed: () {
-                  // TODO: Implement Google sign-in
+                  // TODO(codeable): Implement Google sign-in
                 },
               ),
               const SizedBox(height: 16),
@@ -255,7 +305,7 @@ class LoginScreen extends StatelessWidget {
                 text: 'Sign in with Apple',
                 iconPath: AssetPaths.appleIcon,
                 onPressed: () {
-                  // TODO: Implement Apple sign-in
+                  // TODO(codeable): Implement Apple sign-in
                 },
               ),
               const SizedBox(height: 32),

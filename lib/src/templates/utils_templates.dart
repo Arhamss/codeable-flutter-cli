@@ -2,6 +2,7 @@
 
 const dataStateTemplate = '''
 import 'package:equatable/equatable.dart';
+import 'package:{{project_name}}/l10n/localization_service.dart';
 
 enum DataStatus {
   initial,
@@ -105,7 +106,7 @@ class DataState<T> extends Equatable {
     return isFailure
         ? e is String
             ? e
-            : e?.toString() ?? 'Something went wrong'
+            : e?.toString() ?? Localization.somethingWentWrong
         : null;
   }
 
@@ -128,7 +129,7 @@ class DataState<T> extends Equatable {
   }
 
   bool get isNotEmpty => !isEmpty;
-  bool get hasError => error?.toString().isNotEmpty ?? true;
+  bool get hasError => error?.toString().isNotEmpty ?? false;
   bool get hasNoError => !hasError;
 
   DataState<R> map<R>(R Function(T) transform) {
@@ -222,6 +223,7 @@ class APIState<T> extends Equatable {
 const repositoryResponseTemplate = '''
 import 'package:dio/dio.dart';
 import 'package:{{project_name}}/core/api_service/app_api_exception.dart';
+import 'package:{{project_name}}/l10n/localization_service.dart';
 import 'package:{{project_name}}/utils/helpers/logger_helper.dart';
 
 class RepositoryResponse<T> {
@@ -246,11 +248,15 @@ Future<RepositoryResponse<T>> execute<T>(
   try {
     final data = await action();
     return RepositoryResponse(isSuccess: true, data: data);
-  } on DioException catch (e) {
+  } on DioException catch (e, s) {
     if (e.type == DioExceptionType.cancel) {
       return RepositoryResponse(isSuccess: false, isCancelled: true);
     }
-    rethrow;
+    AppLogger.error('Dio error', e, s);
+    return RepositoryResponse(
+      isSuccess: false,
+      message: extractApiErrorMessage(e, Localization.somethingWentWrong),
+    );
   } on AppApiException catch (e) {
     return RepositoryResponse(
       isSuccess: false,
@@ -261,7 +267,7 @@ Future<RepositoryResponse<T>> execute<T>(
     AppLogger.error('Unexpected error', e, s);
     return RepositoryResponse(
       isSuccess: false,
-      message: 'Something went wrong',
+      message: Localization.somethingWentWrong,
     );
   }
 }
@@ -271,6 +277,41 @@ const loggerHelperTemplate = r"""
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+
+const _sensitiveKeys = {
+  'password',
+  'token',
+  'accesstoken',
+  'refreshtoken',
+  'otp',
+  'authorization',
+  'cookie',
+  'set-cookie',
+  'x-api-key',
+  'cardnumber',
+  'cvv',
+  'pin',
+};
+
+bool _isSensitiveKey(String key) {
+  final lower = key.toLowerCase();
+  return _sensitiveKeys.any(lower.contains);
+}
+
+dynamic _redact(dynamic value) {
+  if (value is Map) {
+    return value.map<dynamic, dynamic>((dynamic k, dynamic v) {
+      if (k is String && _isSensitiveKey(k)) {
+        return MapEntry<dynamic, dynamic>(k, '***');
+      }
+      return MapEntry<dynamic, dynamic>(k, _redact(v));
+    });
+  }
+  if (value is List) {
+    return value.map<dynamic>(_redact).toList();
+  }
+  return value;
+}
 
 class AppLogger {
   AppLogger._();
@@ -332,6 +373,11 @@ class AppLogger {
     if (kDebugMode) debugPrint('  ⚪ $message');
   }
 
+  static String _maskToken(String token) {
+    if (token.length <= 12) return '***';
+    return '${token.substring(0, 6)}…${token.substring(token.length - 4)}';
+  }
+
   static void authToken(String? token) {
     if (!kDebugMode || token == null || token.isEmpty) return;
     final buf = StringBuffer()
@@ -339,7 +385,7 @@ class AppLogger {
       ..writeln('  ╔${'═' * _w}')
       ..writeln('  ║ 🔑 Auth Token')
       ..writeln('  ╟${'─' * _w}')
-      ..writeln('  ║   $token')
+      ..writeln('  ║   ${_maskToken(token)}')
       ..write('  ╚${'═' * _w}');
     debugPrint(buf.toString(), wrapWidth: 1024);
   }
@@ -363,7 +409,8 @@ class AppLogger {
       buf.writeln('  ╟${'─' * _w}');
       for (final e in headers.entries) {
         if (e.key.toLowerCase() == 'authorization') continue;
-        buf.writeln('  ║   ${e.key}: ${e.value}');
+        final value = _isSensitiveKey(e.key) ? '***' : e.value;
+        buf.writeln('  ║   ${e.key}: $value');
       }
     }
 
@@ -439,7 +486,7 @@ class AppLogger {
   static String _prettyJson(dynamic data) {
     try {
       final object = data is String ? jsonDecode(data) : data;
-      return _encoder.convert(object);
+      return _encoder.convert(_redact(object));
     } catch (_) {
       return data.toString();
     }
@@ -456,26 +503,38 @@ class AppLogger {
 const toastHelperTemplate = '''
 import 'package:toastification/toastification.dart';
 import 'package:{{project_name}}/exports.dart';
+import 'package:{{project_name}}/l10n/localization_service.dart';
 
 class ToastHelper {
-  static void showErrorToast(String? message) {
+  ToastHelper._();
+
+  static const _toastDuration = Duration(seconds: 3);
+  static const _toastIconSize = 24.0;
+  static const _toastRadius = 48.0;
+
+  static void _show({
+    required ToastificationType type,
+    required Color background,
+    required String iconPath,
+    required String message,
+  }) {
     toastification.show(
-      type: ToastificationType.error,
-      backgroundColor: AppColors.error,
-      borderRadius: BorderRadius.circular(48),
+      type: type,
+      backgroundColor: background,
+      borderRadius: BorderRadius.circular(_toastRadius),
       borderSide: BorderSide.none,
       closeButton: const ToastCloseButton(showType: CloseButtonShowType.none),
       icon: Padding(
         padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
         child: SvgPicture.asset(
-          AssetPaths.errorIcon,
-          height: 24,
-          width: 24,
+          iconPath,
+          height: _toastIconSize,
+          width: _toastIconSize,
           colorFilter: const ColorFilter.mode(AppColors.textOnPrimary, BlendMode.srcIn),
         ),
       ),
       title: Text(
-        message ?? 'Something went wrong. Please try again later.',
+        message,
         style: const TextStyle(
           fontFamily: AppFonts.body,
           fontWeight: FontWeight.w500,
@@ -485,7 +544,7 @@ class ToastHelper {
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
       ),
-      autoCloseDuration: const Duration(seconds: 3),
+      autoCloseDuration: _toastDuration,
       alignment: Alignment.topCenter,
       padding: const EdgeInsetsDirectional.symmetric(
         horizontal: 12,
@@ -495,86 +554,33 @@ class ToastHelper {
       pauseOnHover: true,
       dragToClose: true,
       showProgressBar: false,
+    );
+  }
+
+  static void showErrorToast(String? message) {
+    _show(
+      type: ToastificationType.error,
+      background: AppColors.error,
+      iconPath: AssetPaths.errorIcon,
+      message: message ?? Localization.somethingWentWrong,
     );
   }
 
   static void showSuccessToast(String message) {
-    toastification.show(
+    _show(
       type: ToastificationType.success,
-      backgroundColor: AppColors.success,
-      borderRadius: BorderRadius.circular(48),
-      borderSide: BorderSide.none,
-      closeButton: const ToastCloseButton(showType: CloseButtonShowType.none),
-      icon: Padding(
-        padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
-        child: SvgPicture.asset(
-          AssetPaths.successIcon,
-          height: 24,
-          width: 24,
-          colorFilter: const ColorFilter.mode(AppColors.textOnPrimary, BlendMode.srcIn),
-        ),
-      ),
-      title: Text(
-        message,
-        style: const TextStyle(
-          fontFamily: AppFonts.body,
-          fontWeight: FontWeight.w500,
-          fontSize: 16,
-          color: AppColors.textOnPrimary,
-        ),
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-      ),
-      autoCloseDuration: const Duration(seconds: 3),
-      showProgressBar: false,
-      alignment: Alignment.topCenter,
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: 12,
-        vertical: 8,
-      ),
-      closeOnClick: true,
-      pauseOnHover: true,
-      dragToClose: true,
+      background: AppColors.success,
+      iconPath: AssetPaths.successIcon,
+      message: message,
     );
   }
 
   static void showInfoToast(String message) {
-    toastification.show(
+    _show(
       type: ToastificationType.info,
-      backgroundColor: AppColors.info,
-      borderRadius: BorderRadius.circular(48),
-      borderSide: BorderSide.none,
-      closeButton: const ToastCloseButton(showType: CloseButtonShowType.none),
-      icon: Padding(
-        padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
-        child: SvgPicture.asset(
-          AssetPaths.infoIcon,
-          height: 24,
-          width: 24,
-          colorFilter: const ColorFilter.mode(AppColors.textOnPrimary, BlendMode.srcIn),
-        ),
-      ),
-      title: Text(
-        message,
-        style: const TextStyle(
-          fontFamily: AppFonts.body,
-          fontWeight: FontWeight.w500,
-          fontSize: 16,
-          color: AppColors.textOnPrimary,
-        ),
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-      ),
-      autoCloseDuration: const Duration(seconds: 3),
-      alignment: Alignment.topCenter,
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: 12,
-        vertical: 8,
-      ),
-      closeOnClick: true,
-      pauseOnHover: true,
-      dragToClose: true,
-      showProgressBar: false,
+      background: AppColors.info,
+      iconPath: AssetPaths.infoIcon,
+      message: message,
     );
   }
 }
@@ -607,9 +613,15 @@ class FocusHandler extends StatelessWidget {
 
 const stringHelperTemplate = r'''
 extension StringHelpers on String {
+  /// Capitalises the first letter and lower-cases the rest.
+  /// Note: this lower-cases the remainder, so acronyms like "NASA"
+  /// become "Nasa". Avoid on strings whose casing must be preserved.
   String get toLetterCase =>
       length > 0 ? '${this[0].toUpperCase()}${substring(1).toLowerCase()}' : '';
 
+  /// Title-cases each space-separated word via [toLetterCase].
+  /// Note: inherits [toLetterCase]'s behaviour of lower-casing the
+  /// remainder of each word, so acronyms are not preserved.
   String get toTitleCase => replaceAll(RegExp(' +'), ' ')
       .split(' ')
       .map((str) => str.toLetterCase)
@@ -634,85 +646,53 @@ extension ImagePathHelper on String {
 
 const colorHelperTemplate = '''
 import 'package:flutter/material.dart';
+import 'package:{{project_name}}/constants/app_colors.dart';
 
 class ColorHelper {
+  ColorHelper._();
+
+  /// Canonical name -> color map driving both [nameToColor] and [colorToName].
+  static final Map<String, Color> _namedColors = {
+    'White': const Color(0xFFFFFFFF),
+    'Red': const Color(0xFFFF0000),
+    'Yellow': const Color(0xFFFFFF00),
+    'Blue': const Color(0xFF0000FF),
+    'Green': const Color(0xFF90EE90),
+    'Purple': const Color(0xFF800080),
+    'Cyan': const Color(0xFF00FFFF),
+    'Dark Red': const Color(0xFF8B0000),
+    'Black': AppColors.primary,
+    'Orange': Colors.orange,
+    'Pink': Colors.pink,
+    'Brown': Colors.brown,
+    'Grey': Colors.grey,
+    'Navy': const Color(0xFF000080),
+    'Beige': const Color(0xFFF5F5DC),
+    'Cream': const Color(0xFFFFFDD0),
+    'Maroon': const Color(0xFF800000),
+    'Teal': const Color(0xFF008080),
+    'Gold': const Color(0xFFFFD700),
+    'Silver': const Color(0xFFC0C0C0),
+    'Coral': const Color(0xFFFF7F50),
+    'Mint': const Color(0xFF98FF98),
+    'Lavender': const Color(0xFFE6E6FA),
+  };
+
   static String colorToName(Color color) {
-    final value = color.value;
-    switch (value) {
-      case 0xFFFFFFFF:
-        return 'White';
-      case 0xFFFF0000:
-        return 'Red';
-      case 0xFFFFFF00:
-        return 'Yellow';
-      case 0xFF0000FF:
-        return 'Blue';
-      case 0xFF90EE90:
-        return 'Green';
-      case 0xFF800080:
-        return 'Purple';
-      case 0xFF00FFFF:
-        return 'Cyan';
-      case 0xFF8B0000:
-        return 'Dark Red';
-      default:
-        return 'Unknown';
+    for (final entry in _namedColors.entries) {
+      if (entry.value.toARGB32() == color.toARGB32()) return entry.key;
     }
+    return 'Unknown';
   }
 
   static Color nameToColor(String name) {
-    if (name.trim().isEmpty) {
-      return Colors.grey;
+    final key = name.trim().toLowerCase();
+    if (key.isEmpty) return Colors.grey;
+    if (key == 'gray') return Colors.grey;
+    for (final entry in _namedColors.entries) {
+      if (entry.key.toLowerCase() == key) return entry.value;
     }
-    switch (name.toLowerCase().trim()) {
-      case 'black':
-        return const Color(0xFF0D121C);
-      case 'white':
-        return const Color(0xFFFFFFFF);
-      case 'red':
-        return const Color(0xFFFF0000);
-      case 'yellow':
-        return const Color(0xFFFFFF00);
-      case 'blue':
-        return const Color(0xFF0000FF);
-      case 'green':
-        return const Color(0xFF90EE90);
-      case 'purple':
-        return const Color(0xFF800080);
-      case 'cyan':
-        return const Color(0xFF00FFFF);
-      case 'orange':
-        return Colors.orange;
-      case 'pink':
-        return Colors.pink;
-      case 'brown':
-        return Colors.brown;
-      case 'grey':
-      case 'gray':
-        return Colors.grey;
-      case 'navy':
-        return const Color(0xFF000080);
-      case 'beige':
-        return const Color(0xFFF5F5DC);
-      case 'cream':
-        return const Color(0xFFFFFDD0);
-      case 'maroon':
-        return const Color(0xFF800000);
-      case 'teal':
-        return const Color(0xFF008080);
-      case 'gold':
-        return const Color(0xFFFFD700);
-      case 'silver':
-        return const Color(0xFFC0C0C0);
-      case 'coral':
-        return const Color(0xFFFF7F50);
-      case 'mint':
-        return const Color(0xFF98FF98);
-      case 'lavender':
-        return const Color(0xFFE6E6FA);
-      default:
-        return const Color(0xFF0D121C);
-    }
+    return AppColors.textPrimary;
   }
 }
 ''';
@@ -833,6 +813,8 @@ const hapticHelperTemplate = '''
 import 'package:flutter/services.dart';
 
 class AppHaptics {
+  AppHaptics._();
+
   static void success() => HapticFeedback.mediumImpact();
 
   static void error() => HapticFeedback.heavyImpact();
@@ -847,7 +829,9 @@ class AppHaptics {
 
 const urlHelperTemplate = r"""
 import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:{{project_name}}/utils/helpers/logger_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UrlHelper {
@@ -889,19 +873,19 @@ class UrlHelper {
 
   static Future<void> launchWebsite(String urlString) async {
     try {
-      if (!urlString.startsWith('http://') &&
-          !urlString.startsWith('https://')) {
-        urlString = 'https://$urlString';
+      var url = urlString;
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://$url';
       }
 
-      final uri = Uri.parse(urlString);
+      final uri = Uri.parse(url);
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        debugPrint('Could not launch $urlString');
+        AppLogger.warning('Could not launch $url');
       }
-    } catch (e) {
-      debugPrint('Error launching URL: $e');
+    } catch (e, s) {
+      AppLogger.error('Error launching URL', e, s);
     }
   }
 }
@@ -1041,13 +1025,22 @@ import 'package:image_picker/image_picker.dart';
 class ImageConversionHelper {
   const ImageConversionHelper._();
 
+  static const _mimeTypes = {
+    'png': 'image/png',
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'webp': 'image/webp',
+    'gif': 'image/gif',
+    'heic': 'image/heic',
+  };
+
   static Future<List<String>> convertToBase64(List<XFile> images) async {
     final result = <String>[];
     for (final image in images) {
       final bytes = await File(image.path).readAsBytes();
       final base64 = base64Encode(bytes);
       final ext = image.path.toLowerCase().split('.').last;
-      final mimeType = ext == 'png' ? 'image/png' : 'image/jpeg';
+      final mimeType = _mimeTypes[ext] ?? 'application/octet-stream';
       result.add('data:$mimeType;base64,$base64');
     }
     return result;
@@ -1057,6 +1050,8 @@ class ImageConversionHelper {
 
 const phoneNumberParserTemplate = r'''
 class PhoneNumberParser {
+  PhoneNumberParser._();
+
   static Map<String, String> parsePhoneNumber(String phoneNumber) {
     try {
       final cleanNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
@@ -1078,13 +1073,6 @@ class PhoneNumberParser {
         }
       }
 
-      if (cleanNumber.length >= 10) {
-        return {
-          'countryCode': '1',
-          'nationalNumber': cleanNumber,
-        };
-      }
-
       return {
         'countryCode': '',
         'nationalNumber': cleanNumber,
@@ -1097,20 +1085,19 @@ class PhoneNumberParser {
     }
   }
 
-  static bool _isValidCountryCode(String code) {
-    const validCodes = [
-      '1', '7', '20', '27', '30', '31', '32', '33', '34', '36', '39',
-      '40', '41', '43', '44', '45', '46', '47', '48', '49', '51', '52',
-      '53', '54', '55', '56', '57', '58', '60', '61', '62', '63', '64',
-      '65', '66', '81', '82', '84', '86', '90', '91', '92', '93', '94',
-      '95', '98', '212', '213', '216', '218', '234', '351', '353', '358',
-      '370', '371', '372', '380', '420', '421', '852', '853', '855',
-      '856', '880', '886', '960', '961', '962', '963', '964', '965',
-      '966', '967', '968', '971', '972', '973', '974', '975', '976',
-      '977', '992', '993', '994', '995', '996', '998',
-    ];
-    return validCodes.contains(code);
-  }
+  static const _dialingCodes = <String>{
+    '1', '7', '20', '27', '30', '31', '32', '33', '34', '36', '39',
+    '40', '41', '43', '44', '45', '46', '47', '48', '49', '51', '52',
+    '53', '54', '55', '56', '57', '58', '60', '61', '62', '63', '64',
+    '65', '66', '81', '82', '84', '86', '90', '91', '92', '93', '94',
+    '95', '98', '212', '213', '216', '218', '234', '351', '353', '358',
+    '370', '371', '372', '380', '420', '421', '852', '853', '855',
+    '856', '880', '886', '960', '961', '962', '963', '964', '965',
+    '966', '967', '968', '971', '972', '973', '974', '975', '976',
+    '977', '992', '993', '994', '995', '996', '998',
+  };
+
+  static bool _isValidCountryCode(String code) => _dialingCodes.contains(code);
 }
 ''';
 
@@ -1125,12 +1112,35 @@ String getFileNameFromUrl(String? url) {
 }
 ''';
 
-const priceFormatterTemplate = '''
-String formatPrice(double price) {
-  if (price == price.toInt()) {
-    return price.toInt().toString();
+const priceFormatterTemplate = r'''
+const _priceDecimalDigits = 2;
+
+String _groupThousands(String digits) {
+  final buffer = StringBuffer();
+  for (var i = 0; i < digits.length; i++) {
+    if (i > 0 && (digits.length - i) % 3 == 0) {
+      buffer.write(',');
+    }
+    buffer.write(digits[i]);
   }
-  return price.toStringAsFixed(2);
+  return buffer.toString();
+}
+
+String formatPrice(double price, {String currencySymbol = ''}) {
+  final isWhole = price == price.truncateToDouble();
+  final raw = isWhole
+      ? price.toInt().toString()
+      : price.toStringAsFixed(_priceDecimalDigits);
+
+  final negative = raw.startsWith('-');
+  final unsigned = negative ? raw.substring(1) : raw;
+
+  final parts = unsigned.split('.');
+  final grouped = _groupThousands(parts[0]);
+  final formatted = parts.length > 1 ? '$grouped.${parts[1]}' : grouped;
+  final sign = negative ? '-' : '';
+
+  return '$sign$currencySymbol$formatted';
 }
 ''';
 
