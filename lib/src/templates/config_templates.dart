@@ -170,9 +170,11 @@ SOCKET_URL=wss://api.example.com/ws
 ''';
 
 const remoteConfigTemplate = '''
-/// Firebase Remote Config wrapper
+/// Firebase Remote Config wrapper.
 ///
-/// TODO: Configure your remote config keys here.
+/// This is an intentional stub. Implement the initialization and typed getters
+/// for your remote config keys here (e.g. wrap `FirebaseRemoteConfig.instance`,
+/// set defaults, fetch/activate, and expose strongly-typed accessors).
 class RemoteConfigService {
   RemoteConfigService._();
 }

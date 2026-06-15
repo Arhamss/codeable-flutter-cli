@@ -1,17 +1,29 @@
 const actionSheetTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
+enum {{SheetName}}Action {
+  edit,
+  delete;
+
+  static {{SheetName}}Action fromString(String value) {
+    return {{SheetName}}Action.values.firstWhere(
+      (action) => action.name == value,
+      orElse: () => {{SheetName}}Action.edit,
+    );
+  }
+}
+
 class {{SheetName}}Sheet extends StatelessWidget {
   const {{SheetName}}Sheet({
     super.key,
     required this.onSelected,
   });
 
-  final void Function(String action) onSelected;
+  final void Function({{SheetName}}Action action) onSelected;
 
   static void show(
     BuildContext context, {
-    required void Function(String action) onSelected,
+    required void Function({{SheetName}}Action action) onSelected,
   }) {
     CustomBottomSheet.show(
       context: context,
@@ -29,8 +41,8 @@ class {{SheetName}}Sheet extends StatelessWidget {
           leading: const Icon(Icons.edit_outlined),
           title: Text('Edit', style: context.p1Medium),
           onTap: () {
-            Navigator.pop(context);
-            onSelected('edit');
+            context.pop();
+            onSelected({{SheetName}}Action.edit);
           },
         ),
         ListTile(
@@ -40,8 +52,8 @@ class {{SheetName}}Sheet extends StatelessWidget {
             style: context.p1Medium.copyWith(color: AppColors.error),
           ),
           onTap: () {
-            Navigator.pop(context);
-            onSelected('delete');
+            context.pop();
+            onSelected({{SheetName}}Action.delete);
           },
         ),
       ],
@@ -67,12 +79,12 @@ class {{SheetName}}Sheet extends StatelessWidget {
       subtitle: 'Are you sure you want to proceed?',
       buttonOneText: 'Confirm',
       buttonOneOnTap: () {
-        Navigator.pop(context);
+        context.pop();
         onConfirm();
       },
       buttonOneColor: isDestructive ? AppColors.error : null,
       buttonTwoText: 'Cancel',
-      buttonTwoOnTap: () => Navigator.pop(context),
+      buttonTwoOnTap: () => context.pop(),
     );
   }
 
@@ -86,11 +98,18 @@ class {{SheetName}}Sheet extends StatelessWidget {
 const formSheetTemplate = '''
 import 'package:{{project_name}}/exports.dart';
 
-class {{SheetName}}Sheet extends StatefulWidget {
+class {{SheetName}}Sheet extends StatelessWidget {
   const {{SheetName}}Sheet({
     super.key,
+    required this.controller,
+    required this.showValidation,
     required this.onSubmit,
   });
+
+  final TextEditingController controller;
+
+  /// Toggles inline error display once a submit attempt fails validation.
+  final ValueNotifier<bool> showValidation;
 
   final void Function(String value) onSubmit;
 
@@ -98,57 +117,65 @@ class {{SheetName}}Sheet extends StatefulWidget {
     BuildContext context, {
     required void Function(String value) onSubmit,
   }) {
+    final controller = TextEditingController();
+    final showValidation = ValueNotifier<bool>(false);
+
+    void disposeResources() {
+      controller.dispose();
+      showValidation.dispose();
+    }
+
+    // CustomBottomSheet.show returns the modal route future, so the owned
+    // controller/notifier are disposed exactly once the sheet is dismissed
+    // (submit, swipe, or tap-outside).
     CustomBottomSheet.show(
       context: context,
       title: '{{sheet_title}}',
       height: 0.5,
-      body: {{SheetName}}Sheet(onSubmit: onSubmit),
-    );
+      body: {{SheetName}}Sheet(
+        controller: controller,
+        showValidation: showValidation,
+        onSubmit: onSubmit,
+      ),
+    ).whenComplete(disposeResources);
   }
 
-  @override
-  State<{{SheetName}}Sheet> createState() => _{{SheetName}}SheetState();
-}
-
-class _{{SheetName}}SheetState extends State<{{SheetName}}Sheet> {
-  final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  static String? _validate(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'This field is required';
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CustomTextField(
-            controller: _controller,
-            hintText: 'Enter value',
-          ),
-          const SizedBox(height: 16),
-          CustomButton(
-            text: 'Submit',
-            onTap: () {
-              if (_formKey.currentState?.validate() ?? false) {
-                Navigator.pop(context);
-                widget.onSubmit(_controller.text);
-              }
-            },
-          ),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ValueListenableBuilder<bool>(
+          valueListenable: showValidation,
+          builder: (context, validate, _) {
+            return CustomTextField(
+              controller: controller,
+              hintText: 'Enter value',
+              validator: _validate,
+              showValidation: validate,
+            );
+          },
+        ),
+        const SizedBox(height: 16),
+        CustomButton(
+          text: 'Submit',
+          onPressed: () {
+            if (_validate(controller.text) != null) {
+              showValidation.value = true;
+              return;
+            }
+            context.pop();
+            onSubmit(controller.text);
+          },
+        ),
+      ],
     );
   }
 }

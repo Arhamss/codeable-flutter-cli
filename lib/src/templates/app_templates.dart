@@ -201,6 +201,7 @@ class _AppViewState extends State<AppView> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LocaleCubit, LocaleState>(
+      buildWhen: (previous, current) => previous.locale != current.locale,
       builder: (context, state) {
         return ToastificationWrapper(
           child: AnnotatedRegion<SystemUiOverlayStyle>(
@@ -287,6 +288,12 @@ class _SplashScreenState extends State<SplashScreen> {
       context.goNamed(AppRouteNames.loginScreen);
     } else {
       AppLogger.info('Auth token found');
+      // No home route is wired in the generated app yet, so authenticated
+      // users land on the login screen instead of a blank splash. Replace
+      // this with your post-auth landing route once you add one (e.g.
+      // context.goNamed(AppRouteNames.homeScreen)).
+      // TODO: Point this at your real home/dashboard route.
+      context.goNamed(AppRouteNames.loginScreen);
     }
   }
 

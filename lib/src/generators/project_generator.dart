@@ -287,10 +287,6 @@ class ProjectGenerator {
       ),
 
       // Core - Models - API Response
-      'lib/core/models/api_response/api_response_model.dart': render(
-        apiResponseModelTemplate,
-        vars,
-      ),
       'lib/core/models/api_response/api_error.dart': render(
         apiErrorTemplate,
         vars,
@@ -648,6 +644,7 @@ class ProjectGenerator {
       'CLAUDE.md': render(claudeMdTemplate, vars),
       '.cursorrules': render(cursorRulesTemplate, vars),
       '.claude/settings.json': claudeSettingsTemplate,
+      '.claude/skills/flutter-audit/SKILL.md': flutterAuditSkillTemplate,
 
       // Makefile
       'Makefile': makefileTemplate,
