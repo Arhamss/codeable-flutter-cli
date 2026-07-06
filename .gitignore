@@ -13,3 +13,5 @@ coverage/
 
 # Android studio and IntelliJ
 .idea
+# graphify knowledge graph (local, do not commit)
+graphify-out/

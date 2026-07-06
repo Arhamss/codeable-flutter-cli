@@ -1,0 +1,16 @@
+# graphify: keep the graph to app code only — exclude vendored native deps + generated Dart
+# Vendored CocoaPods / native package caches (the main bloat source)
+Pods/
+.symlinks/
+ios/Pods/
+macos/Pods/
+# Generated Dart (build_runner / freezed / json_serializable / retrofit / protobuf)
+*.g.dart
+*.freezed.dart
+*.gr.dart
+*.config.dart
+*.mocks.dart
+*.pb.dart
+*.pbenum.dart
+*.pbjson.dart
+*.pbserver.dart
