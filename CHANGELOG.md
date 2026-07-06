@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.41
+
+Migrated the generated Android app to Flutter's Built-in Kotlin, so freshly scaffolded projects no longer emit the "applies the Kotlin Gradle Plugin, which will cause build failures in future versions of Flutter" deprecation warning.
+
+### Android
+- **Migrated** the generated `android/app/build.gradle.kts` to Built-in Kotlin — removed the `id("kotlin-android")` plugin and the legacy `kotlinOptions { }` block, and replaced them with a top-level `kotlin { compilerOptions { jvmTarget = JvmTarget.JVM_11 } }` block
+- **Enabled** `android.builtInKotlin=true` and `android.newDsl=true` in the generated `gradle.properties`
+- **Removed** the redundant explicit `org.jetbrains.kotlin:kotlin-stdlib` dependency (Built-in Kotlin now supplies the standard library)
+
 ## 1.0.40
 
 Deep audit pass across the generated app templates. All fixes verified by generating a fresh project and running `flutter analyze` (0 errors, 0 warnings; analyzer issues down from 47 to 16, the remainder pre-existing framework deprecation/style infos).
