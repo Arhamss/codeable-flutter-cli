@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.0.42
+
+Google Play policy compliance (Android 16 / Billing 8), a rewritten token-refresh flow ported from Holos, and a fix for the release-build failure introduced in 1.0.41. Verified by generating a fresh project and running `flutter analyze` (0 errors, 0 warnings) plus a full `flutter build apk --flavor development --release`.
+
+### Google Play policy
+- **Pinned** `compileSdk` and `targetSdk` to `36` in the generated `android/app/build.gradle.kts` — previously `flutter.compileSdkVersion` / `flutter.targetSdkVersion`, so policy compliance silently depended on the developer's local Flutter SDK. Google Play rejects updates targeting below Android 16 (API 36)
+- **Added** `missingDimensionStrategy("billingclient", "bc8")` to `defaultConfig`, selecting the Google Play Billing Library 8 variant of `purchases-hybrid-common`. Play rejects updates built against Billing 7 or lower
+- **Bumped** `purchases_flutter` to `^10.4.3`
+- Verified against the built artifact: merged manifest reports `android:targetSdkVersion="36"`, and the resolved runtime classpath reports `com.android.billingclient:billing:8.3.0`
+
+### Android build (regression from 1.0.41)
+- **Fixed** `flutter build apk` failing outright on Flutter 3.44 / AGP 9.0.1. 1.0.41 enabled `android.builtInKotlin=true` and `android.newDsl=true` to silence a Kotlin Gradle Plugin deprecation warning, but under AGP 9 `newDsl=true` makes `dev.flutter.flutter-gradle-plugin` throw a `NullPointerException`, and `builtInKotlin=true` breaks every pub plugin that still applies `org.jetbrains.kotlin.android` (`camera_android_camerax`, `device_info_plus`, `firebase_remote_config`, `package_info_plus`, `purchases_flutter`, `share_plus`, `sign_in_with_apple`)
+- **Reverted** both properties to `false` and **restored** `id("kotlin-android")` in the app module. The KGP deprecation warning returns; re-enable Built-in Kotlin once Flutter and the plugin ecosystem have migrated
+
+### Networking
+- **Fixed** the generated `api_service.dart` failing to compile in release/AOT builds with "The type 'DioExceptionType' is not exhaustively matched … `DioExceptionType.transformTimeout`" — `transformTimeout` is now handled alongside the other timeout cases. The analyzer only reports this as an info, so it surfaced solely at build time
+- **Raised** the `dio` constraint to `^5.10.0`; `DioExceptionType.transformTimeout` does not exist below that version
+
+### Token refresh
+Rewrote `authentication_interceptor.dart`, porting the hardened flow from Holos:
+- **Added** an auth-endpoint skip list (`login`, `googleAuth`, `refresh`) — a 401 from a login attempt no longer triggers a token refresh and force-logs-out a user who simply mistyped their password
+- **Fixed** the refresh call targeting `'${Endpoints.baseUrl}/${Endpoints.refresh}'`, an absolute URL that bypassed Dio's `baseUrl` and silently dropped the API version segment. It now posts to the relative `Endpoints.refresh`
+- **Changed** the refresh request to send `{'refresh_token': …}` as the body instead of a bearer header, and to parse `data.data.access_token` / `data.data.refresh_token`
+- **Widened** the success check from `statusCode == 200` to the full 2xx range
+- **Consolidated** four duplicated clear-and-navigate call sites into a single `_forceLogout()`, guarded by `_isLogoutInFlight` so a burst of failing requests can't fire multiple logouts and Phoenix rebirths
+- **Deferred** post-logout navigation to `addPostFrameCallback`, resetting the static GoRouter to splash before `Phoenix.rebirth` — previously it navigated synchronously mid-error-handling, and the rebuilt tree could resume on the now-unauthorised route
+- **Added** one-time masked auth-token logging via `AppLogger.authToken`, reset after each refresh
+- **Replaced** the silent `catch (e)` with `AppLogger.error('Token refresh failed', e, s)`
+
 ## 1.0.41
 
 Migrated the generated Android app to Flutter's Built-in Kotlin, so freshly scaffolded projects no longer emit the "applies the Kotlin Gradle Plugin, which will cause build failures in future versions of Flutter" deprecation warning.

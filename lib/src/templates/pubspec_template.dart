@@ -19,7 +19,9 @@ dependencies:
   equatable: ^2.0.8
 
   # Networking
-  dio: ^5.9.2
+  # 5.10.0 added DioExceptionType.transformTimeout — anything lower breaks the
+  # exhaustive switch in core/api_service/api_service.dart.
+  dio: ^5.10.0
   http: ^1.6.0
   web_socket_channel: ^3.0.3
 
@@ -68,7 +70,9 @@ dependencies:
   crypto: ^3.0.7
 
   # In-App Purchases
-  purchases_flutter: ^10.0.2
+  # Ships Google Play Billing Library 8 (billingclient flavor `bc8`), required
+  # by Google Play policy — updates using Billing 7 or lower are rejected.
+  purchases_flutter: ^10.4.3
 
   # Environment
   envied: ^1.3.4

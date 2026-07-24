@@ -11,12 +11,15 @@ if (keystorePropertiesFile.exists()) {
 
 plugins {
     id("com.android.application")
+    id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
     namespace = "{{org_name}}"
-    compileSdk = flutter.compileSdkVersion
+    // Pinned rather than `flutter.compileSdkVersion` so the Play Store policy
+    // floor (Android 16 / API 36) holds regardless of the local Flutter SDK.
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -44,10 +47,16 @@ android {
     defaultConfig {
         applicationId = "{{org_name}}"
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        // Google Play rejects updates that target below Android 16 (API 36).
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled = true
+
+        // Selects the Google Play Billing Library 8 variant of
+        // purchases-hybrid-common. Play rejects updates built against
+        // Billing 7 or lower.
+        missingDimensionStrategy("billingclient", "bc8")
     }
 
     flavorDimensions += "default"
@@ -152,8 +161,14 @@ const gradlePropertiesTemplate = '''
 org.gradle.jvmargs=-Xmx8G -XX:MaxMetaspaceSize=4G -XX:ReservedCodeCacheSize=512m -XX:+HeapDumpOnOutOfMemoryError
 android.useAndroidX=true
 android.enableJetifier=true
-android.builtInKotlin=true
-android.newDsl=true
+# AGP 9 defaults both of these to true, which currently breaks the build:
+#   - newDsl=true      → dev.flutter.flutter-gradle-plugin throws an NPE
+#   - builtInKotlin=true → every pub plugin that still applies
+#     `org.jetbrains.kotlin.android` (camera_android_camerax, and many others)
+#     fails with "plugin is no longer required for Kotlin support since AGP 9.0"
+# Re-enable once Flutter and the plugin ecosystem have migrated.
+android.builtInKotlin=false
+android.newDsl=false
 ''';
 
 const androidRootBuildGradleTemplate = '''
