@@ -14,7 +14,7 @@ dependencies:
   args: ^2.7.0
   cli_completion: ^0.5.1
   mason_logger: ^0.3.3
-  pub_updater: ^0.5.0
+  pub_updater: ">=0.5.0 <0.7.0"
 
 dev_dependencies:
   build_runner: ^2.11.1
